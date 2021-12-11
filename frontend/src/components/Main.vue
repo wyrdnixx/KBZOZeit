@@ -5,6 +5,9 @@
     <p>
       Main App
     </p>
+
+    <button class="btn btn-info" v-on:click="TestChangeAuth()">Test-ChangeAuthenticated</button>
+
     <div v-if="!this.UserAuthenticated">
       <Register />
     </div>
@@ -29,12 +32,24 @@ export default {
   },
   data() {
     return {
-      authenicated: "",   
+      UserAuthenticated: "",   
     }
     
   },
   created() {
     this.UserAuthenticated = true
+  },
+  methods: {
+    TestChangeAuth() {
+      console.log("TestChangeAuth")
+      if (this.UserAuthenticated) {
+        console.log("setting false")
+        this.UserAuthenticated = false
+      } else {
+        console.log("setting true")
+        this.UserAuthenticated = true
+      }
+    },
   }
 }
 </script>
