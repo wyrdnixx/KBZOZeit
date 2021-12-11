@@ -4,6 +4,10 @@
       Register
     </p>
     
+        <button class="btn btn-info" v-on:click="TestBannerMessage()">Test-BannerMessage</button>
+
+
+
   </div>
 </template>
 
@@ -13,6 +17,19 @@ export default {
   name: 'Register',  
   props: {
     
+  },
+  data() {
+      return {
+
+      }
+  },
+  created() {
+
+  },
+  methods: {
+      TestBannerMessage() {
+          this.$parent.showAlert("Test-Alert")
+      }
   }
 }
 </script>

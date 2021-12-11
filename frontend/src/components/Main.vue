@@ -6,6 +6,27 @@
       Main App
     </p>
 
+    <!-- Toast Message banner  -->
+
+    <b-alert
+      :show="AlertDismissCountDown"
+      dismissible
+      variant="warning"
+      @dismissed="AlertDismissCountDown=0"
+      @dismiss-count-down="countDownChanged"
+    >
+      <p> {{this.AlertWebsiteAlertMessage}} </p>
+        <!-- {{ AlertDismissCountDown }} </p> -->
+      <b-progress
+        variant="warning"
+        :max="AlertDismissSecs"
+        :value="AlertDismissCountDown"
+        height="4px"
+      ></b-progress>
+    </b-alert>
+
+<!-- Toast Message banner  -->
+
     <button class="btn btn-info" v-on:click="TestChangeAuth()">Test-ChangeAuthenticated</button>
 
     <div v-if="!this.UserAuthenticated">
@@ -21,6 +42,7 @@
 import Register from './Register.vue'
 import TimeAccounting from './TimeAccounting.vue'
 
+
 export default {
   name: 'Main',
   components: {
@@ -32,11 +54,16 @@ export default {
   },
   data() {
     return {
-      UserAuthenticated: "",   
+      UserAuthenticated: "",
+      AlertDismissSecs: 4,
+      AlertDismissCountDown: 0,
+      AlertShowDismissibleAlert: false,
+      AlertWebsiteAlertMessage: ""   
     }
     
   },
   created() {
+
     this.UserAuthenticated = true
   },
   methods: {
@@ -50,6 +77,14 @@ export default {
         this.UserAuthenticated = true
       }
     },
+    countDownChanged(AlertDismissCountDown) {
+      this.AlertDismissCountDown = AlertDismissCountDown
+    },
+    showAlert(msg) {
+
+      this.AlertWebsiteAlertMessage = msg
+      this.AlertDismissCountDown = this.AlertDismissSecs
+    }
   }
 }
 </script>
