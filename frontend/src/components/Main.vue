@@ -27,27 +27,46 @@
 
 <!-- Toast Message banner  -->
 
-    <button class="btn btn-info" v-on:click="TestChangeAuth()">Test-ChangeAuthenticated</button>
+    <button class="btn btn-secondary" v-on:click="TestChangeAuth()">Test-ChangeAuthenticated</button>
 
     <div v-if="!this.UserAuthenticated">
       <Register />
     </div>
     <div v-else>
-      <TimeAccounting />
+          <button class="btn btn-info" v-on:click="NavChange('s')">Stempeln</button>
+          <button class="btn btn-info" v-on:click="NavChange('n')">Nacherfassen</button>
+          <button class="btn btn-info" v-on:click="NavChange('a')">Auswertung</button>
+          
+
+    <div v-if="this.NavCurrentSelected == 's'" >
+      <Stempeln />
+    </div>
+    <div v-if="this.NavCurrentSelected == 'n'" >
+      <Nacherfassen />
+    </div>
+    <div v-if="this.NavCurrentSelected == 'a'" >
+      <Auswertung />
+    </div>
+      
     </div>
   </div>
 </template>
 
 <script>
 import Register from './Register.vue'
-import TimeAccounting from './TimeAccounting.vue'
+import Stempeln from './Stempeln.vue'
+import Nacherfassen from './Nacherfassen.vue'
+import Auswertung from './Auswertung.vue'
 
 
 export default {
   name: 'Main',
   components: {
     Register,
-    TimeAccounting
+    Stempeln,
+    Auswertung,
+    Nacherfassen
+
   },
   props: {
     msg: String
@@ -58,7 +77,8 @@ export default {
       AlertDismissSecs: 4,
       AlertDismissCountDown: 0,
       AlertShowDismissibleAlert: false,
-      AlertWebsiteAlertMessage: ""   
+      AlertWebsiteAlertMessage: "",
+      NavCurrentSelected: "s"   
     }
     
   },
@@ -84,6 +104,10 @@ export default {
 
       this.AlertWebsiteAlertMessage = msg
       this.AlertDismissCountDown = this.AlertDismissSecs
+    },
+
+    NavChange(option){
+      this.NavCurrentSelected = option
     }
   }
 }

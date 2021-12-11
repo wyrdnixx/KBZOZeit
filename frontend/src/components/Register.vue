@@ -1,7 +1,7 @@
 <template>
   <div >    
     <p>
-      TimeAccounting
+      Register-Tab
     </p>
     
   </div>
@@ -10,7 +10,7 @@
 <script>
 
 export default {
-  name: 'TimeAccounting',  
+  name: 'Register',  
   props: {
     
   }

@@ -1,20 +1,16 @@
 <template>
   <div >    
     <p>
-      Register
-    </p>
-    
+      Stempeln
+    </p>   
         <button class="btn btn-info" v-on:click="TestBannerMessage()">Test-BannerMessage</button>
-
-
-
   </div>
 </template>
 
 <script>
 
 export default {
-  name: 'Register',  
+  name: 'Stempeln',  
   props: {
     
   },
@@ -28,7 +24,7 @@ export default {
   },
   methods: {
       TestBannerMessage() {
-          this.$parent.showAlert("Test-Alert")
+          this.$parent.showAlert("Stempeln")
       }
   }
 }
