@@ -1,5 +1,5 @@
 package KBZOZeit
 
 func main() {
-    
+
 }
