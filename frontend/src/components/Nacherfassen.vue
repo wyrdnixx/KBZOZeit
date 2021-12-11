@@ -12,19 +12,17 @@
       <th scope="col">Datum</th>
       <th scope="col">Von</th>
       <th scope="col">Bis</th>
-      <th scope="col">Was</th>
     </tr>
   </thead>
   <tbody>
     <tr>   
       <td><input type="date" id="entryDate" /></td>
       <td><input type="time" id="entryFrom" /></td>
-      <td><input type="time" id="entrytimeTo" /></td>      
-      <td><input type="text" id="entryText" /></td>      
+      <td><input type="time" id="entrytimeTo" /></td>               
     </tr>
-
   </tbody>
 </table>
+<input type="text" id="entryText" placeholder="was wurde gemacht?"/>
         </div>
   </div>
 </template>
