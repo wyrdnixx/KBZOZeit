@@ -28,7 +28,7 @@
 <!-- Toast Message banner  -->
 
     <button class="btn btn-secondary" v-on:click="TestChangeAuth()">Test-ChangeAuthenticated</button>
-
+    <button class="btn btn-warning" v-on:click="NavChange('Admin')">Admin</button>
     <div v-if="!this.UserAuthenticated">
       <Register />
     </div>
@@ -36,8 +36,6 @@
           <button class="btn btn-info" v-on:click="NavChange('s')">Stempeln</button>
           <button class="btn btn-info" v-on:click="NavChange('n')">Nacherfassen</button>
           <button class="btn btn-info" v-on:click="NavChange('a')">Auswertung</button>
-          
-
     <div v-if="this.NavCurrentSelected == 's'" >
       <Stempeln />
     </div>
@@ -49,6 +47,9 @@
     </div>
       
     </div>
+    <div v-if="this.NavCurrentSelected == 'Admin'">
+        <Admin />
+    </div>
   </div>
 </template>
 
@@ -57,6 +58,7 @@ import Register from './Register.vue'
 import Stempeln from './Stempeln.vue'
 import Nacherfassen from './Nacherfassen.vue'
 import Auswertung from './Auswertung.vue'
+import Admin from './Admin.vue'
 
 
 export default {
@@ -65,7 +67,8 @@ export default {
     Register,
     Stempeln,
     Auswertung,
-    Nacherfassen
+    Nacherfassen,
+    Admin
 
   },
   props: {
