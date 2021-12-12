@@ -1,0 +1,7 @@
+{
+    "DB_USERNAME": "dbuser",
+    "DB_PASSWORD": "dbpw",
+    "DB_PORT": "3306",
+    "DB_HOST": "docker",
+    "DB_NAME": "testdb"
+}

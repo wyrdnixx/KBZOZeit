@@ -4,20 +4,22 @@ import (
 	"database/sql"
 
 	_ "github.com/go-sql-driver/mysql"
+
+	"github.com/wyrdnixx/KBZOZeit/models"
 	"github.com/wyrdnixx/KBZOZeit/utils.go"
 )
 
-var DBUser string = "dbuser"
-var DBPassword string = "dbpw"
-var DBHost string = "docker"
-var DBPort string = "3306"
-var DBName string = "testdb"
+var cfg models.Configuration
+
+func init() {
+	cfg = utils.GetConfig()
+}
 
 func Initdb() {
 
 	utils.Log(1, "InitDB()", "starting initiating database")
 
-	db, err := sql.Open("mysql", DBUser+":"+DBPassword+"@tcp("+DBHost+":"+DBPort+")/"+DBName)
+	db, err := sql.Open("mysql", cfg.DB_USERNAME+":"+cfg.DB_PASSWORD+"@tcp("+cfg.DB_HOST+":"+cfg.DB_PORT+")/"+cfg.DB_NAME)
 
 	if err != nil {
 		//log.Fatal(4, "ERROR: DB Connection: "+err.Error())
@@ -34,7 +36,7 @@ func Initdb() {
 			primary key (id)
 		);
 		`)
-		if err != nil {
+		if errUsers != nil {
 			utils.Log(4, "InitDB()", "Could not create table Users: "+errUsers.Error())
 
 		} else {
@@ -42,7 +44,7 @@ func Initdb() {
 		}
 
 		_, errTimeAccounting := db.Query(`
-		CREATE TABLE IF NOT EXIS2TS TimeAccounting (
+		CREATE TABLE IF NOT EXISTS TimeAccounting (
 			Id INT auto_increment,			
             FUsers INT NOT NULL,
 			FromDate  TIMESTAMP,

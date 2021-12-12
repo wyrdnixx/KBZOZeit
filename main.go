@@ -8,9 +8,13 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/wyrdnixx/KBZOZeit/frontend/api"
 	"github.com/wyrdnixx/KBZOZeit/frontend/database"
+	"github.com/wyrdnixx/KBZOZeit/models"
 )
 
+var Cfg models.Configuration
+
 func main() {
+
 	database.Initdb()
 	startWebServer()
 }
