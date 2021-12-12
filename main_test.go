@@ -55,4 +55,12 @@ func TestUser(t *testing.T) {
 		t.Errorf("TestFindUser returned unexpected result: got %v want %v", u, expected)
 	}
 
+	users, err := database.GetUsers()
+	if err != nil {
+		t.Errorf("GetUsers error: %v", err)
+	}
+	if len(users.User) == 0 {
+		t.Errorf("GetUsers got no users: %v", users)
+	}
+
 }

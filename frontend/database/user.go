@@ -137,19 +137,36 @@ func FindUser(name string) (models.User, error) {
 	}
 }
 
-func AddDevice(username string, device string) error {
-	utils.Log(1, "AddDevice()", ": "+device+" - to User -> "+username)
+func GetUsers() (models.Users, error) {
+	utils.Log(1, "GetUsers()", "Getting users from DB... ")
 
-	u, err := FindUser(username)
+	users := models.Users{}
+
+	db, err := sql.Open("mysql", cfg.DB_USERNAME+":"+cfg.DB_PASSWORD+"@tcp("+cfg.DB_HOST+":"+cfg.DB_PORT+")/"+cfg.DB_NAME)
+
 	if err != nil {
-		return err
+		utils.Log(3, "GetUsers()", "Could not connect to database: "+err.Error())
+		return users, err
+
 	} else {
-		if u.Enabled == 1 {
-			utils.Log(1, "AddDevice()", ": user "+u.Name+" is valid, creating device...")
-			return nil
+
+		rows, err := db.Query("select * from Users;")
+		if err != nil {
+			utils.Log(3, "GetUsers()", "Error getting users from DB: "+err.Error())
 		} else {
-			return errors.New("User is disabled")
+			for rows.Next() {
+				u := models.User{}
+				err = rows.Scan(&u.Name, &u.Enabled)
+				//fmt.Printf("\nGetFirmen -- Got: %s", itm)
+				users.User = append(users.User, u)
+
+			}
 		}
 
 	}
+	defer db.Close()
+	if len(users.User) == 0 {
+		return users, errors.New(`No users got from DB`)
+	}
+	return users, nil
 }

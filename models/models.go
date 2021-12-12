@@ -8,3 +8,6 @@ type User struct {
 	Name    string `json:"Name"`
 	Enabled int    `json:"Enabled"`
 }
+type Users struct {
+	User []User
+}
