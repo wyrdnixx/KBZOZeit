@@ -3,16 +3,32 @@
     <p>
       Register-Tab
     </p>
-    
+    <div>  
+        Es wurde kein gülltiges UserCookie gefunden.
+        <br>
+        Bitte registrieren
+        <hr>
+        Wer sind Sie? <input type="text" placeholder="Name" v-model="UserName"/>
+        <hr>
+        Debug - Name: {{this.UserName}}
+    </div>
   </div>
 </template>
 
 <script>
 
 export default {
-  name: 'Register',  
+  name: 'Register', 
+  components:{
+    
+  },
   props: {
     
+  },
+  data() {
+      return {
+          UserName: ""
+      }
   }
 }
 </script>
