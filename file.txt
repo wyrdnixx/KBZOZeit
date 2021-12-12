@@ -202,3 +202,698 @@
 		primary key (id)
 	);
 2021-12-12T16:20:45+01:00 : Debug : QueryDB() : query finished
+2021-12-12T16:46:56+01:00 : Debug : GetConfig() : using configfile: ./dev_config.json
+2021-12-12T16:46:56+01:00 : Debug : GetConfig() : config: Field: DB_USERNAME	Value: dbuser
+2021-12-12T16:46:56+01:00 : Debug : GetConfig() : config: Field: DB_PASSWORD	Value: dbpw
+2021-12-12T16:46:56+01:00 : Debug : GetConfig() : config: Field: DB_PORT	Value: 3306
+2021-12-12T16:46:56+01:00 : Debug : GetConfig() : config: Field: DB_HOST	Value: docker
+2021-12-12T16:46:56+01:00 : Debug : GetConfig() : config: Field: DB_NAME	Value: testdb
+2021-12-12T16:46:56+01:00 : Debug : createUserDevice() : : xxxx - EnabledExampleUser
+2021-12-12T16:46:56+01:00 : Error-Fatal : createUserDevice() : error on find users: Error 1054: Unknown column 'EnabledExampleUser' in 'where clause'
+2021-12-12T16:47:59+01:00 : Debug : GetConfig() : using configfile: ./dev_config.json
+2021-12-12T16:47:59+01:00 : Debug : GetConfig() : config: Field: DB_USERNAME	Value: dbuser
+2021-12-12T16:47:59+01:00 : Debug : GetConfig() : config: Field: DB_PASSWORD	Value: dbpw
+2021-12-12T16:47:59+01:00 : Debug : GetConfig() : config: Field: DB_PORT	Value: 3306
+2021-12-12T16:47:59+01:00 : Debug : GetConfig() : config: Field: DB_HOST	Value: docker
+2021-12-12T16:47:59+01:00 : Debug : GetConfig() : config: Field: DB_NAME	Value: testdb
+2021-12-12T16:47:59+01:00 : Debug : createUserDevice() : : xxxx - EnabledExampleUser
+2021-12-12T16:47:59+01:00 : Error : createUserDevice() : error on find users: Error 1054: Unknown column 'EnabledExampleUser' in 'where clause'
+2021-12-12T16:49:23+01:00 : Debug : GetConfig() : using configfile: ./dev_config.json
+2021-12-12T16:49:23+01:00 : Debug : GetConfig() : config: Field: DB_USERNAME	Value: dbuser
+2021-12-12T16:49:23+01:00 : Debug : GetConfig() : config: Field: DB_PASSWORD	Value: dbpw
+2021-12-12T16:49:23+01:00 : Debug : GetConfig() : config: Field: DB_PORT	Value: 3306
+2021-12-12T16:49:23+01:00 : Debug : GetConfig() : config: Field: DB_HOST	Value: docker
+2021-12-12T16:49:23+01:00 : Debug : GetConfig() : config: Field: DB_NAME	Value: testdb
+2021-12-12T16:49:23+01:00 : Debug : createUserDevice() : : xxxx - EnabledExampleUser
+2021-12-12T16:49:24+01:00 : Error : createUserDevice() : error on find users: sql: expected 0 arguments, got 1
+2021-12-12T16:51:28+01:00 : Debug : GetConfig() : using configfile: ./dev_config.json
+2021-12-12T16:51:28+01:00 : Debug : GetConfig() : config: Field: DB_USERNAME	Value: dbuser
+2021-12-12T16:51:28+01:00 : Debug : GetConfig() : config: Field: DB_PASSWORD	Value: dbpw
+2021-12-12T16:51:28+01:00 : Debug : GetConfig() : config: Field: DB_PORT	Value: 3306
+2021-12-12T16:51:28+01:00 : Debug : GetConfig() : config: Field: DB_HOST	Value: docker
+2021-12-12T16:51:28+01:00 : Debug : GetConfig() : config: Field: DB_NAME	Value: testdb
+2021-12-12T16:51:28+01:00 : Debug : createUserDevice() : : xxxx - EnabledExampleUser
+2021-12-12T16:51:28+01:00 : Debug : createUserDevice() : SQL-Query: SELECT Id, Name, Enabled FROM Users where Name = '"+name+"'
+2021-12-12T16:51:28+01:00 : Error : createUserDevice() : error on find users: sql: expected 0 arguments, got 1
+2021-12-12T16:52:00+01:00 : Debug : GetConfig() : using configfile: ./dev_config.json
+2021-12-12T16:52:00+01:00 : Debug : GetConfig() : config: Field: DB_USERNAME	Value: dbuser
+2021-12-12T16:52:00+01:00 : Debug : GetConfig() : config: Field: DB_PASSWORD	Value: dbpw
+2021-12-12T16:52:00+01:00 : Debug : GetConfig() : config: Field: DB_PORT	Value: 3306
+2021-12-12T16:52:00+01:00 : Debug : GetConfig() : config: Field: DB_HOST	Value: docker
+2021-12-12T16:52:00+01:00 : Debug : GetConfig() : config: Field: DB_NAME	Value: testdb
+2021-12-12T16:52:00+01:00 : Debug : createUserDevice() : : xxxx - EnabledExampleUser
+2021-12-12T16:52:00+01:00 : Debug : createUserDevice() : SQL-Query: SELECT Id, Name, Enabled FROM Users where Name = 'EnabledExampleUser'
+2021-12-12T16:52:00+01:00 : Error : createUserDevice() : error on find users: sql: expected 0 arguments, got 1
+2021-12-12T16:52:17+01:00 : Debug : GetConfig() : using configfile: ./dev_config.json
+2021-12-12T16:52:18+01:00 : Debug : GetConfig() : config: Field: DB_USERNAME	Value: dbuser
+2021-12-12T16:52:18+01:00 : Debug : GetConfig() : config: Field: DB_PASSWORD	Value: dbpw
+2021-12-12T16:52:18+01:00 : Debug : GetConfig() : config: Field: DB_PORT	Value: 3306
+2021-12-12T16:52:18+01:00 : Debug : GetConfig() : config: Field: DB_HOST	Value: docker
+2021-12-12T16:52:18+01:00 : Debug : GetConfig() : config: Field: DB_NAME	Value: testdb
+2021-12-12T16:52:18+01:00 : Debug : createUserDevice() : : xxxx - EnabledExampleUser
+2021-12-12T16:52:18+01:00 : Debug : createUserDevice() : SQL-Query: SELECT Id, Name, Enabled FROM Users where Name = "EnabledExampleUser"
+2021-12-12T16:52:18+01:00 : Error : createUserDevice() : error on find users: sql: expected 0 arguments, got 1
+2021-12-12T16:53:11+01:00 : Debug : GetConfig() : using configfile: ./dev_config.json
+2021-12-12T16:53:11+01:00 : Debug : GetConfig() : config: Field: DB_USERNAME	Value: dbuser
+2021-12-12T16:53:11+01:00 : Debug : GetConfig() : config: Field: DB_PASSWORD	Value: dbpw
+2021-12-12T16:53:11+01:00 : Debug : GetConfig() : config: Field: DB_PORT	Value: 3306
+2021-12-12T16:53:11+01:00 : Debug : GetConfig() : config: Field: DB_HOST	Value: docker
+2021-12-12T16:53:11+01:00 : Debug : GetConfig() : config: Field: DB_NAME	Value: testdb
+2021-12-12T16:53:11+01:00 : Debug : createUserDevice() : : xxxx - EnabledExampleUser
+2021-12-12T16:53:11+01:00 : Debug : createUserDevice() : SQL-Query: SELECT Id, Name, Enabled FROM Users where Name = "EnabledExampleUser"
+2021-12-12T16:53:11+01:00 : Warning : createUserDevice() : user not found: sql: no rows in result set
+2021-12-12T16:54:59+01:00 : Debug : GetConfig() : using configfile: ./dev_config.json
+2021-12-12T16:54:59+01:00 : Debug : GetConfig() : config: Field: DB_USERNAME	Value: dbuser
+2021-12-12T16:54:59+01:00 : Debug : GetConfig() : config: Field: DB_PASSWORD	Value: dbpw
+2021-12-12T16:54:59+01:00 : Debug : GetConfig() : config: Field: DB_PORT	Value: 3306
+2021-12-12T16:54:59+01:00 : Debug : GetConfig() : config: Field: DB_HOST	Value: docker
+2021-12-12T16:54:59+01:00 : Debug : GetConfig() : config: Field: DB_NAME	Value: testdb
+2021-12-12T16:54:59+01:00 : Debug : createUserDevice() : : xxxx - EnabledExampleUser
+2021-12-12T16:54:59+01:00 : Debug : createUserDevice() : SQL-Query: SELECT Id, Name, Enabled FROM Users where Name = "EnabledExampleUser"
+2021-12-12T16:54:59+01:00 : Warning : createUserDevice() : user not found: sql: no rows in result set
+2021-12-12T16:56:51+01:00 : Debug : GetConfig() : using configfile: ./dev_config.json
+2021-12-12T16:56:51+01:00 : Debug : GetConfig() : config: Field: DB_USERNAME	Value: dbuser
+2021-12-12T16:56:51+01:00 : Debug : GetConfig() : config: Field: DB_PASSWORD	Value: dbpw
+2021-12-12T16:56:51+01:00 : Debug : GetConfig() : config: Field: DB_PORT	Value: 3306
+2021-12-12T16:56:51+01:00 : Debug : GetConfig() : config: Field: DB_HOST	Value: docker
+2021-12-12T16:56:51+01:00 : Debug : GetConfig() : config: Field: DB_NAME	Value: testdb
+2021-12-12T16:56:51+01:00 : Debug : createUserDevice() : : xxxx - EnabledExampleUser
+2021-12-12T16:56:51+01:00 : Debug : createUserDevice() : SQL-Query: SELECT Id, Name, Enabled FROM Users where Name = "EnabledExampleUser"
+2021-12-12T16:56:51+01:00 : Warning : createUserDevice() : user not found: sql: no rows in result set
+2021-12-12T17:02:17+01:00 : Debug : GetConfig() : using configfile: ./dev_config.json
+2021-12-12T17:02:17+01:00 : Debug : GetConfig() : config: Field: DB_USERNAME	Value: dbuser
+2021-12-12T17:02:17+01:00 : Debug : GetConfig() : config: Field: DB_PASSWORD	Value: dbpw
+2021-12-12T17:02:17+01:00 : Debug : GetConfig() : config: Field: DB_PORT	Value: 3306
+2021-12-12T17:02:17+01:00 : Debug : GetConfig() : config: Field: DB_HOST	Value: docker
+2021-12-12T17:02:17+01:00 : Debug : GetConfig() : config: Field: DB_NAME	Value: testdb
+2021-12-12T17:02:17+01:00 : Debug : FindUser() : : EnabledExampleUser
+2021-12-12T17:02:17+01:00 : Debug : FindUser() : SQL-Query: SELECT Id, Name, Enabled FROM Users where Name = "EnabledExampleUser"
+2021-12-12T17:02:17+01:00 : Warning : FindUser() : user not found: sql: no rows in result set
+2021-12-12T17:03:57+01:00 : Debug : GetConfig() : using configfile: ./dev_config.json
+2021-12-12T17:03:57+01:00 : Debug : GetConfig() : config: Field: DB_USERNAME	Value: dbuser
+2021-12-12T17:03:57+01:00 : Debug : GetConfig() : config: Field: DB_PASSWORD	Value: dbpw
+2021-12-12T17:03:57+01:00 : Debug : GetConfig() : config: Field: DB_PORT	Value: 3306
+2021-12-12T17:03:57+01:00 : Debug : GetConfig() : config: Field: DB_HOST	Value: docker
+2021-12-12T17:03:57+01:00 : Debug : GetConfig() : config: Field: DB_NAME	Value: testdb
+2021-12-12T17:03:57+01:00 : Debug : FindUser() : : EnabledExampleUser
+2021-12-12T17:03:57+01:00 : Debug : FindUser() : SQL-Query: SELECT Id, Name, Enabled FROM Users where Name = "EnabledExampleUser"
+2021-12-12T17:03:57+01:00 : Warning : FindUser() : user not found: sql: no rows in result set
+2021-12-12T17:06:29+01:00 : Debug : GetConfig() : using configfile: ./dev_config.json
+2021-12-12T17:06:29+01:00 : Debug : GetConfig() : config: Field: DB_USERNAME	Value: dbuser
+2021-12-12T17:06:29+01:00 : Debug : GetConfig() : config: Field: DB_PASSWORD	Value: dbpw
+2021-12-12T17:06:29+01:00 : Debug : GetConfig() : config: Field: DB_PORT	Value: 3306
+2021-12-12T17:06:29+01:00 : Debug : GetConfig() : config: Field: DB_HOST	Value: docker
+2021-12-12T17:06:29+01:00 : Debug : GetConfig() : config: Field: DB_NAME	Value: testdb
+2021-12-12T17:06:29+01:00 : Debug : FindUser() : : EnabledExampleUser
+2021-12-12T17:06:29+01:00 : Debug : FindUser() : SQL-Query: SELECT Id, Name, Enabled FROM Users where Name = "EnabledExampleUser"
+2021-12-12T17:06:29+01:00 : Warning : FindUser() : user not found: sql: no rows in result set
+2021-12-12T17:08:01+01:00 : Debug : GetConfig() : using configfile: ./dev_config.json
+2021-12-12T17:08:01+01:00 : Debug : GetConfig() : config: Field: DB_USERNAME	Value: dbuser
+2021-12-12T17:08:01+01:00 : Debug : GetConfig() : config: Field: DB_PASSWORD	Value: dbpw
+2021-12-12T17:08:01+01:00 : Debug : GetConfig() : config: Field: DB_PORT	Value: 3306
+2021-12-12T17:08:01+01:00 : Debug : GetConfig() : config: Field: DB_HOST	Value: docker
+2021-12-12T17:08:01+01:00 : Debug : GetConfig() : config: Field: DB_NAME	Value: testdb
+2021-12-12T17:08:01+01:00 : Debug : FindUser() : : EnabledExampleUser
+2021-12-12T17:08:01+01:00 : Debug : FindUser() : SQL-Query: SELECT Id, Name, Enabled FROM Users where Name = "EnabledExampleUser"
+2021-12-12T17:09:38+01:00 : Debug : GetConfig() : using configfile: ./dev_config.json
+2021-12-12T17:09:38+01:00 : Debug : GetConfig() : config: Field: DB_USERNAME	Value: dbuser
+2021-12-12T17:09:38+01:00 : Debug : GetConfig() : config: Field: DB_PASSWORD	Value: dbpw
+2021-12-12T17:09:38+01:00 : Debug : GetConfig() : config: Field: DB_PORT	Value: 3306
+2021-12-12T17:09:38+01:00 : Debug : GetConfig() : config: Field: DB_HOST	Value: docker
+2021-12-12T17:09:38+01:00 : Debug : GetConfig() : config: Field: DB_NAME	Value: testdb
+2021-12-12T17:09:38+01:00 : Debug : FindUser() : : EnabledExampleUser
+2021-12-12T17:09:38+01:00 : Debug : FindUser() : SQL-Query: SELECT Id, Name, Enabled FROM Users where Name = "EnabledExampleUser"
+2021-12-12T17:09:38+01:00 : Warning : createUserDevice() : user found id: 
+2021-12-12T17:10:52+01:00 : Debug : GetConfig() : using configfile: ./dev_config.json
+2021-12-12T17:10:52+01:00 : Debug : GetConfig() : config: Field: DB_USERNAME	Value: dbuser
+2021-12-12T17:10:52+01:00 : Debug : GetConfig() : config: Field: DB_PASSWORD	Value: dbpw
+2021-12-12T17:10:52+01:00 : Debug : GetConfig() : config: Field: DB_PORT	Value: 3306
+2021-12-12T17:10:52+01:00 : Debug : GetConfig() : config: Field: DB_HOST	Value: docker
+2021-12-12T17:10:52+01:00 : Debug : GetConfig() : config: Field: DB_NAME	Value: testdb
+2021-12-12T17:10:52+01:00 : Debug : FindUser() : : EnabledExampleUser
+2021-12-12T17:10:52+01:00 : Debug : FindUser() : SQL-Query: SELECT Id, Name, Enabled FROM Users where Name = "EnabledExampleUser"
+2021-12-12T17:10:52+01:00 : Warning : createUserDevice() : user found id: 
+2021-12-12T17:12:15+01:00 : Debug : GetConfig() : using configfile: ./dev_config.json
+2021-12-12T17:12:15+01:00 : Debug : GetConfig() : config: Field: DB_USERNAME	Value: dbuser
+2021-12-12T17:12:15+01:00 : Debug : GetConfig() : config: Field: DB_PASSWORD	Value: dbpw
+2021-12-12T17:12:15+01:00 : Debug : GetConfig() : config: Field: DB_PORT	Value: 3306
+2021-12-12T17:12:15+01:00 : Debug : GetConfig() : config: Field: DB_HOST	Value: docker
+2021-12-12T17:12:15+01:00 : Debug : GetConfig() : config: Field: DB_NAME	Value: testdb
+2021-12-12T17:12:15+01:00 : Debug : FindUser() : : EnabledExampleUser
+2021-12-12T17:12:15+01:00 : Debug : FindUser() : SQL-Query: SELECT Id, Name, Enabled FROM Users where Name = "EnabledExampleUser"
+2021-12-12T17:12:15+01:00 : Warning : createUserDevice() : user found id: 
+2021-12-12T17:13:43+01:00 : Debug : GetConfig() : using configfile: ./dev_config.json
+2021-12-12T17:13:43+01:00 : Debug : GetConfig() : config: Field: DB_USERNAME	Value: dbuser
+2021-12-12T17:13:43+01:00 : Debug : GetConfig() : config: Field: DB_PASSWORD	Value: dbpw
+2021-12-12T17:13:43+01:00 : Debug : GetConfig() : config: Field: DB_PORT	Value: 3306
+2021-12-12T17:13:43+01:00 : Debug : GetConfig() : config: Field: DB_HOST	Value: docker
+2021-12-12T17:13:43+01:00 : Debug : GetConfig() : config: Field: DB_NAME	Value: testdb
+2021-12-12T17:13:43+01:00 : Debug : FindUser() : : EnabledExampleUser
+2021-12-12T17:13:43+01:00 : Debug : FindUser() : SQL-Query: SELECT Id, Name, Enabled FROM Users where Name = "EnabledExampleUser"
+2021-12-12T17:13:43+01:00 : Warning : createUserDevice() : user found id: 
+2021-12-12T17:14:37+01:00 : Debug : GetConfig() : using configfile: ./dev_config.json
+2021-12-12T17:14:37+01:00 : Debug : GetConfig() : config: Field: DB_USERNAME	Value: dbuser
+2021-12-12T17:14:37+01:00 : Debug : GetConfig() : config: Field: DB_PASSWORD	Value: dbpw
+2021-12-12T17:14:37+01:00 : Debug : GetConfig() : config: Field: DB_PORT	Value: 3306
+2021-12-12T17:14:37+01:00 : Debug : GetConfig() : config: Field: DB_HOST	Value: docker
+2021-12-12T17:14:37+01:00 : Debug : GetConfig() : config: Field: DB_NAME	Value: testdb
+2021-12-12T17:14:37+01:00 : Debug : FindUser() : : EnabledExampleUser
+2021-12-12T17:14:37+01:00 : Debug : FindUser() : SQL-Query: SELECT Id, Name, Enabled FROM Users where Name = "EnabledExampleUser"
+2021-12-12T17:14:37+01:00 : Warning : createUserDevice() : user found id: 
+2021-12-12T17:58:18+01:00 : Debug : GetConfig() : using configfile: ./dev_config.json
+2021-12-12T17:58:18+01:00 : Debug : GetConfig() : config: Field: DB_USERNAME	Value: dbuser
+2021-12-12T17:58:18+01:00 : Debug : GetConfig() : config: Field: DB_PASSWORD	Value: dbpw
+2021-12-12T17:58:18+01:00 : Debug : GetConfig() : config: Field: DB_PORT	Value: 3306
+2021-12-12T17:58:18+01:00 : Debug : GetConfig() : config: Field: DB_HOST	Value: docker
+2021-12-12T17:58:18+01:00 : Debug : GetConfig() : config: Field: DB_NAME	Value: testdb
+2021-12-12T17:58:18+01:00 : Debug : FindUser() : : EnabledExampleUser
+2021-12-12T17:58:18+01:00 : Debug : FindUser() : SQL-Query: SELECT Id, Name, Enabled FROM Users where Name = "EnabledExampleUser"
+2021-12-12T17:58:18+01:00 : Warning : createUserDevice() : user found id: 
+2021-12-12T18:10:15+01:00 : Debug : GetConfig() : using configfile: ./dev_config.json
+2021-12-12T18:10:15+01:00 : Debug : GetConfig() : config: Field: DB_USERNAME	Value: dbuser
+2021-12-12T18:10:15+01:00 : Debug : GetConfig() : config: Field: DB_PASSWORD	Value: dbpw
+2021-12-12T18:10:15+01:00 : Debug : GetConfig() : config: Field: DB_PORT	Value: 3306
+2021-12-12T18:10:15+01:00 : Debug : GetConfig() : config: Field: DB_HOST	Value: docker
+2021-12-12T18:10:15+01:00 : Debug : GetConfig() : config: Field: DB_NAME	Value: testdb
+2021-12-12T18:10:15+01:00 : Debug : InitDB() : starting initiating database....
+2021-12-12T18:10:15+01:00 : Debug : QueryDB() : starting query database: 
+	CREATE TABLE IF NOT EXISTS Users (			
+		Id INT auto_increment,		
+		Name VARCHAR(40) not null,			
+		Enabled INT,			
+		primary key (id,Name)
+	);
+2021-12-12T18:10:15+01:00 : Debug : QueryDB() : query finished
+2021-12-12T18:10:15+01:00 : Debug : QueryDB() : starting query database: 
+	CREATE TABLE IF NOT EXISTS TimeAccounting (
+		Uuid INT auto_increment,			
+		FUsers INT NOT NULL,
+		FromDate  TIMESTAMP,
+		ToDate   TIMESTAMP,			
+		primary key (Id)
+	);
+2021-12-12T18:10:15+01:00 : Error-Fatal : QueryDB() : Could not query database: Error 1072: Key column 'Id' doesn't exist in table
+2021-12-12T18:11:08+01:00 : Debug : GetConfig() : using configfile: ./dev_config.json
+2021-12-12T18:11:08+01:00 : Debug : GetConfig() : config: Field: DB_USERNAME	Value: dbuser
+2021-12-12T18:11:08+01:00 : Debug : GetConfig() : config: Field: DB_PASSWORD	Value: dbpw
+2021-12-12T18:11:08+01:00 : Debug : GetConfig() : config: Field: DB_PORT	Value: 3306
+2021-12-12T18:11:08+01:00 : Debug : GetConfig() : config: Field: DB_HOST	Value: docker
+2021-12-12T18:11:08+01:00 : Debug : GetConfig() : config: Field: DB_NAME	Value: testdb
+2021-12-12T18:11:08+01:00 : Debug : InitDB() : starting initiating database....
+2021-12-12T18:11:08+01:00 : Debug : QueryDB() : starting query database: 
+	CREATE TABLE IF NOT EXISTS Users (			
+		Id INT auto_increment,		
+		Name VARCHAR(40) not null,			
+		Enabled INT,			
+		primary key (id,Name)
+	);
+2021-12-12T18:11:08+01:00 : Debug : QueryDB() : query finished
+2021-12-12T18:11:08+01:00 : Debug : QueryDB() : starting query database: 
+	CREATE TABLE IF NOT EXISTS TimeAccounting (
+		Uuid INT auto_increment,			
+		FUsers INT NOT NULL,
+		FromDate  TIMESTAMP,
+		ToDate   TIMESTAMP,			
+		primary key (Uuid)
+	);
+2021-12-12T18:11:08+01:00 : Debug : QueryDB() : query finished
+2021-12-12T18:11:08+01:00 : Debug : QueryDB() : starting query database: 
+	CREATE TABLE IF NOT EXISTS Devices (			
+		Id VARCHAR(40) not null,
+		FUsers INT NOT NULL,		
+		Enabled INT,			
+		primary key (id)
+	);
+2021-12-12T18:11:08+01:00 : Debug : QueryDB() : query finished
+2021-12-12T18:11:08+01:00 : Debug : AddUser() : : EnabledExampleUser
+2021-12-12T18:11:08+01:00 : Error : AddUser() : Error adding User: Error 1064: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near ''EnabledExampleUser, 1)' at line 1
+2021-12-12T18:11:39+01:00 : Debug : GetConfig() : using configfile: ./dev_config.json
+2021-12-12T18:11:39+01:00 : Debug : GetConfig() : config: Field: DB_USERNAME	Value: dbuser
+2021-12-12T18:11:39+01:00 : Debug : GetConfig() : config: Field: DB_PASSWORD	Value: dbpw
+2021-12-12T18:11:39+01:00 : Debug : GetConfig() : config: Field: DB_PORT	Value: 3306
+2021-12-12T18:11:39+01:00 : Debug : GetConfig() : config: Field: DB_HOST	Value: docker
+2021-12-12T18:11:39+01:00 : Debug : GetConfig() : config: Field: DB_NAME	Value: testdb
+2021-12-12T18:11:39+01:00 : Debug : InitDB() : starting initiating database....
+2021-12-12T18:11:39+01:00 : Debug : QueryDB() : starting query database: 
+	CREATE TABLE IF NOT EXISTS Users (			
+		Id INT auto_increment,		
+		Name VARCHAR(40) not null,			
+		Enabled INT,			
+		primary key (id,Name)
+	);
+2021-12-12T18:11:39+01:00 : Debug : QueryDB() : query finished
+2021-12-12T18:11:39+01:00 : Debug : QueryDB() : starting query database: 
+	CREATE TABLE IF NOT EXISTS TimeAccounting (
+		Uuid INT auto_increment,			
+		FUsers INT NOT NULL,
+		FromDate  TIMESTAMP,
+		ToDate   TIMESTAMP,			
+		primary key (Uuid)
+	);
+2021-12-12T18:11:39+01:00 : Debug : QueryDB() : query finished
+2021-12-12T18:11:39+01:00 : Debug : QueryDB() : starting query database: 
+	CREATE TABLE IF NOT EXISTS Devices (			
+		Id VARCHAR(40) not null,
+		FUsers INT NOT NULL,		
+		Enabled INT,			
+		primary key (id)
+	);
+2021-12-12T18:11:39+01:00 : Debug : QueryDB() : query finished
+2021-12-12T18:11:39+01:00 : Debug : AddUser() : : EnabledExampleUser
+2021-12-12T18:11:39+01:00 : Error : AddUser() : User created... 
+2021-12-12T18:11:50+01:00 : Debug : GetConfig() : using configfile: ./dev_config.json
+2021-12-12T18:11:51+01:00 : Debug : GetConfig() : config: Field: DB_USERNAME	Value: dbuser
+2021-12-12T18:11:51+01:00 : Debug : GetConfig() : config: Field: DB_PASSWORD	Value: dbpw
+2021-12-12T18:11:51+01:00 : Debug : GetConfig() : config: Field: DB_PORT	Value: 3306
+2021-12-12T18:11:51+01:00 : Debug : GetConfig() : config: Field: DB_HOST	Value: docker
+2021-12-12T18:11:51+01:00 : Debug : GetConfig() : config: Field: DB_NAME	Value: testdb
+2021-12-12T18:11:51+01:00 : Debug : InitDB() : starting initiating database....
+2021-12-12T18:11:51+01:00 : Debug : QueryDB() : starting query database: 
+	CREATE TABLE IF NOT EXISTS Users (			
+		Id INT auto_increment,		
+		Name VARCHAR(40) not null,			
+		Enabled INT,			
+		primary key (id,Name)
+	);
+2021-12-12T18:11:51+01:00 : Debug : QueryDB() : query finished
+2021-12-12T18:11:51+01:00 : Debug : QueryDB() : starting query database: 
+	CREATE TABLE IF NOT EXISTS TimeAccounting (
+		Uuid INT auto_increment,			
+		FUsers INT NOT NULL,
+		FromDate  TIMESTAMP,
+		ToDate   TIMESTAMP,			
+		primary key (Uuid)
+	);
+2021-12-12T18:11:51+01:00 : Debug : QueryDB() : query finished
+2021-12-12T18:11:51+01:00 : Debug : QueryDB() : starting query database: 
+	CREATE TABLE IF NOT EXISTS Devices (			
+		Id VARCHAR(40) not null,
+		FUsers INT NOT NULL,		
+		Enabled INT,			
+		primary key (id)
+	);
+2021-12-12T18:11:51+01:00 : Debug : QueryDB() : query finished
+2021-12-12T18:11:51+01:00 : Debug : AddUser() : : EnabledExampleUser
+2021-12-12T18:11:51+01:00 : Error : AddUser() : User created... 
+2021-12-12T18:12:30+01:00 : Debug : GetConfig() : using configfile: ./dev_config.json
+2021-12-12T18:12:30+01:00 : Debug : GetConfig() : config: Field: DB_USERNAME	Value: dbuser
+2021-12-12T18:12:30+01:00 : Debug : GetConfig() : config: Field: DB_PASSWORD	Value: dbpw
+2021-12-12T18:12:30+01:00 : Debug : GetConfig() : config: Field: DB_PORT	Value: 3306
+2021-12-12T18:12:30+01:00 : Debug : GetConfig() : config: Field: DB_HOST	Value: docker
+2021-12-12T18:12:30+01:00 : Debug : GetConfig() : config: Field: DB_NAME	Value: testdb
+2021-12-12T18:12:30+01:00 : Debug : InitDB() : starting initiating database....
+2021-12-12T18:12:30+01:00 : Debug : QueryDB() : starting query database: 
+	CREATE TABLE IF NOT EXISTS Users (			
+		Id INT auto_increment,		
+		Name VARCHAR(40) not null,			
+		Enabled INT,			
+		primary key (id,Name)
+	);
+2021-12-12T18:12:30+01:00 : Debug : QueryDB() : query finished
+2021-12-12T18:12:30+01:00 : Debug : QueryDB() : starting query database: 
+	CREATE TABLE IF NOT EXISTS TimeAccounting (
+		Uuid INT auto_increment,			
+		FUsers INT NOT NULL,
+		FromDate  TIMESTAMP,
+		ToDate   TIMESTAMP,			
+		primary key (Uuid)
+	);
+2021-12-12T18:12:30+01:00 : Debug : QueryDB() : query finished
+2021-12-12T18:12:30+01:00 : Debug : QueryDB() : starting query database: 
+	CREATE TABLE IF NOT EXISTS Devices (			
+		Id VARCHAR(40) not null,
+		FUsers INT NOT NULL,		
+		Enabled INT,			
+		primary key (id)
+	);
+2021-12-12T18:12:30+01:00 : Debug : QueryDB() : query finished
+2021-12-12T18:12:30+01:00 : Debug : AddUser() : : EnabledExampleUser
+2021-12-12T18:12:30+01:00 : Debug : AddUser() : User created... 
+2021-12-12T18:14:29+01:00 : Debug : GetConfig() : using configfile: ./dev_config.json
+2021-12-12T18:14:29+01:00 : Debug : GetConfig() : config: Field: DB_USERNAME	Value: dbuser
+2021-12-12T18:14:29+01:00 : Debug : GetConfig() : config: Field: DB_PASSWORD	Value: dbpw
+2021-12-12T18:14:29+01:00 : Debug : GetConfig() : config: Field: DB_PORT	Value: 3306
+2021-12-12T18:14:29+01:00 : Debug : GetConfig() : config: Field: DB_HOST	Value: docker
+2021-12-12T18:14:29+01:00 : Debug : GetConfig() : config: Field: DB_NAME	Value: testdb
+2021-12-12T18:14:29+01:00 : Debug : InitDB() : starting initiating database....
+2021-12-12T18:14:29+01:00 : Debug : QueryDB() : starting query database: 
+	CREATE TABLE IF NOT EXISTS Users (					
+		Name VARCHAR(40) not null,			
+		Enabled INT,			
+		primary key (Name)
+	);
+2021-12-12T18:14:29+01:00 : Debug : QueryDB() : query finished
+2021-12-12T18:14:29+01:00 : Debug : QueryDB() : starting query database: 
+	CREATE TABLE IF NOT EXISTS TimeAccounting (
+		Uuid INT auto_increment,			
+		FUsers INT NOT NULL,
+		FromDate  TIMESTAMP,
+		ToDate   TIMESTAMP,			
+		primary key (Uuid)
+	);
+2021-12-12T18:14:29+01:00 : Debug : QueryDB() : query finished
+2021-12-12T18:14:29+01:00 : Debug : QueryDB() : starting query database: 
+	CREATE TABLE IF NOT EXISTS Devices (			
+		Id VARCHAR(40) not null,
+		FUsers INT NOT NULL,		
+		Enabled INT,			
+		primary key (id)
+	);
+2021-12-12T18:14:29+01:00 : Debug : QueryDB() : query finished
+2021-12-12T18:14:29+01:00 : Debug : AddUser() : : EnabledExampleUser
+2021-12-12T18:14:29+01:00 : Debug : AddUser() : User created... 
+2021-12-12T18:14:43+01:00 : Debug : GetConfig() : using configfile: ./dev_config.json
+2021-12-12T18:14:43+01:00 : Debug : GetConfig() : config: Field: DB_USERNAME	Value: dbuser
+2021-12-12T18:14:43+01:00 : Debug : GetConfig() : config: Field: DB_PASSWORD	Value: dbpw
+2021-12-12T18:14:43+01:00 : Debug : GetConfig() : config: Field: DB_PORT	Value: 3306
+2021-12-12T18:14:43+01:00 : Debug : GetConfig() : config: Field: DB_HOST	Value: docker
+2021-12-12T18:14:43+01:00 : Debug : GetConfig() : config: Field: DB_NAME	Value: testdb
+2021-12-12T18:14:43+01:00 : Debug : InitDB() : starting initiating database....
+2021-12-12T18:14:43+01:00 : Debug : QueryDB() : starting query database: 
+	CREATE TABLE IF NOT EXISTS Users (					
+		Name VARCHAR(40) not null,			
+		Enabled INT,			
+		primary key (Name)
+	);
+2021-12-12T18:14:43+01:00 : Debug : QueryDB() : query finished
+2021-12-12T18:14:43+01:00 : Debug : QueryDB() : starting query database: 
+	CREATE TABLE IF NOT EXISTS TimeAccounting (
+		Uuid INT auto_increment,			
+		FUsers INT NOT NULL,
+		FromDate  TIMESTAMP,
+		ToDate   TIMESTAMP,			
+		primary key (Uuid)
+	);
+2021-12-12T18:14:43+01:00 : Debug : QueryDB() : query finished
+2021-12-12T18:14:43+01:00 : Debug : QueryDB() : starting query database: 
+	CREATE TABLE IF NOT EXISTS Devices (			
+		Id VARCHAR(40) not null,
+		FUsers INT NOT NULL,		
+		Enabled INT,			
+		primary key (id)
+	);
+2021-12-12T18:14:43+01:00 : Debug : QueryDB() : query finished
+2021-12-12T18:14:43+01:00 : Debug : AddUser() : : EnabledExampleUser
+2021-12-12T18:14:43+01:00 : Error : AddUser() : Error adding User: Error 1062: Duplicate entry 'EnabledExampleUser' for key 'Users.PRIMARY'
+2021-12-12T18:15:59+01:00 : Debug : GetConfig() : using configfile: ./dev_config.json
+2021-12-12T18:15:59+01:00 : Debug : GetConfig() : config: Field: DB_USERNAME	Value: dbuser
+2021-12-12T18:15:59+01:00 : Debug : GetConfig() : config: Field: DB_PASSWORD	Value: dbpw
+2021-12-12T18:15:59+01:00 : Debug : GetConfig() : config: Field: DB_PORT	Value: 3306
+2021-12-12T18:15:59+01:00 : Debug : GetConfig() : config: Field: DB_HOST	Value: docker
+2021-12-12T18:15:59+01:00 : Debug : GetConfig() : config: Field: DB_NAME	Value: testdb
+2021-12-12T18:15:59+01:00 : Debug : InitDB() : starting initiating database....
+2021-12-12T18:15:59+01:00 : Debug : QueryDB() : starting query database: 
+	CREATE TABLE IF NOT EXISTS Users (					
+		Name VARCHAR(40) not null,			
+		Enabled INT,			
+		primary key (Name)
+	);
+2021-12-12T18:15:59+01:00 : Debug : QueryDB() : query finished
+2021-12-12T18:15:59+01:00 : Debug : QueryDB() : starting query database: 
+	CREATE TABLE IF NOT EXISTS TimeAccounting (
+		Uuid INT auto_increment,			
+		FUsers VARCHAR(40) NOT NULL,
+		FromDate  TIMESTAMP,
+		ToDate   TIMESTAMP,			
+		primary key (Uuid)
+	);
+2021-12-12T18:15:59+01:00 : Debug : QueryDB() : query finished
+2021-12-12T18:15:59+01:00 : Debug : QueryDB() : starting query database: 
+	CREATE TABLE IF NOT EXISTS Devices (			
+		Id VARCHAR(40) not null,
+		FUsers VARCHAR(40) NOT NULL,		
+		Enabled INT,			
+		primary key (id)
+	);
+2021-12-12T18:15:59+01:00 : Debug : QueryDB() : query finished
+2021-12-12T18:15:59+01:00 : Debug : AddUser() : : EnabledExampleUser
+2021-12-12T18:15:59+01:00 : Debug : AddUser() : User created... 
+2021-12-12T18:17:47+01:00 : Debug : GetConfig() : using configfile: ./dev_config.json
+2021-12-12T18:17:47+01:00 : Debug : GetConfig() : config: Field: DB_USERNAME	Value: dbuser
+2021-12-12T18:17:47+01:00 : Debug : GetConfig() : config: Field: DB_PASSWORD	Value: dbpw
+2021-12-12T18:17:47+01:00 : Debug : GetConfig() : config: Field: DB_PORT	Value: 3306
+2021-12-12T18:17:47+01:00 : Debug : GetConfig() : config: Field: DB_HOST	Value: docker
+2021-12-12T18:17:47+01:00 : Debug : GetConfig() : config: Field: DB_NAME	Value: testdb
+2021-12-12T18:17:47+01:00 : Debug : InitDB() : starting initiating database....
+2021-12-12T18:17:47+01:00 : Debug : QueryDB() : starting query database: 
+	CREATE TABLE IF NOT EXISTS Users (					
+		Name VARCHAR(40) not null,			
+		Enabled INT,			
+		primary key (Name)
+	);
+2021-12-12T18:17:47+01:00 : Debug : QueryDB() : query finished
+2021-12-12T18:17:47+01:00 : Debug : QueryDB() : starting query database: 
+	CREATE TABLE IF NOT EXISTS TimeAccounting (
+		Uuid INT auto_increment,			
+		FUsers VARCHAR(40) NOT NULL,
+		FromDate  TIMESTAMP,
+		ToDate   TIMESTAMP,			
+		primary key (Uuid)
+	);
+2021-12-12T18:17:47+01:00 : Debug : QueryDB() : query finished
+2021-12-12T18:17:47+01:00 : Debug : QueryDB() : starting query database: 
+	CREATE TABLE IF NOT EXISTS Devices (			
+		Id VARCHAR(40) not null,
+		FUsers VARCHAR(40) NOT NULL,		
+		Enabled INT,			
+		primary key (id)
+	);
+2021-12-12T18:17:47+01:00 : Debug : QueryDB() : query finished
+2021-12-12T18:17:47+01:00 : Debug : AddUser() : : EnabledExampleUser
+2021-12-12T18:17:47+01:00 : Error : AddUser() : Error adding User: Error 1062: Duplicate entry 'EnabledExampleUser' for key 'Users.PRIMARY'
+2021-12-12T18:17:47+01:00 : Debug : DisableUser() : : EnabledExampleUser
+2021-12-12T18:17:47+01:00 : Error : DisableUser() : Error disabling User: Error 1064: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near ')' at line 1
+2021-12-12T18:19:36+01:00 : Debug : GetConfig() : using configfile: ./dev_config.json
+2021-12-12T18:19:36+01:00 : Debug : GetConfig() : config: Field: DB_USERNAME	Value: dbuser
+2021-12-12T18:19:36+01:00 : Debug : GetConfig() : config: Field: DB_PASSWORD	Value: dbpw
+2021-12-12T18:19:36+01:00 : Debug : GetConfig() : config: Field: DB_PORT	Value: 3306
+2021-12-12T18:19:36+01:00 : Debug : GetConfig() : config: Field: DB_HOST	Value: docker
+2021-12-12T18:19:36+01:00 : Debug : GetConfig() : config: Field: DB_NAME	Value: testdb
+2021-12-12T18:19:36+01:00 : Debug : InitDB() : starting initiating database....
+2021-12-12T18:19:36+01:00 : Debug : QueryDB() : starting query database: 
+	CREATE TABLE IF NOT EXISTS Users (					
+		Name VARCHAR(40) not null,			
+		Enabled INT,			
+		primary key (Name)
+	);
+2021-12-12T18:19:37+01:00 : Debug : QueryDB() : query finished
+2021-12-12T18:19:37+01:00 : Debug : QueryDB() : starting query database: 
+	CREATE TABLE IF NOT EXISTS TimeAccounting (
+		Uuid INT auto_increment,			
+		FUsers VARCHAR(40) NOT NULL,
+		FromDate  TIMESTAMP,
+		ToDate   TIMESTAMP,			
+		primary key (Uuid)
+	);
+2021-12-12T18:19:37+01:00 : Debug : QueryDB() : query finished
+2021-12-12T18:19:37+01:00 : Debug : QueryDB() : starting query database: 
+	CREATE TABLE IF NOT EXISTS Devices (			
+		Id VARCHAR(40) not null,
+		FUsers VARCHAR(40) NOT NULL,		
+		Enabled INT,			
+		primary key (id)
+	);
+2021-12-12T18:19:37+01:00 : Debug : QueryDB() : query finished
+2021-12-12T18:19:37+01:00 : Debug : AddUser() : : EnabledExampleUser
+2021-12-12T18:19:37+01:00 : Debug : DisableUser() : SQL-Query: INSERT INTO Users (Name, Enabled) VALUES ( 'EnabledExampleUser', 1)
+2021-12-12T18:19:37+01:00 : Error : AddUser() : Error adding User: Error 1062: Duplicate entry 'EnabledExampleUser' for key 'Users.PRIMARY'
+2021-12-12T18:19:37+01:00 : Debug : DisableUser() : : EnabledExampleUser
+2021-12-12T18:19:37+01:00 : Debug : DisableUser() : SQL-Query: UPDATE Users Set Enabled = 0 where Name = 'EnabledExampleUser')
+2021-12-12T18:19:37+01:00 : Error : DisableUser() : Error disabling User: Error 1064: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near ')' at line 1
+2021-12-12T18:20:09+01:00 : Debug : GetConfig() : using configfile: ./dev_config.json
+2021-12-12T18:20:09+01:00 : Debug : GetConfig() : config: Field: DB_USERNAME	Value: dbuser
+2021-12-12T18:20:09+01:00 : Debug : GetConfig() : config: Field: DB_PASSWORD	Value: dbpw
+2021-12-12T18:20:09+01:00 : Debug : GetConfig() : config: Field: DB_PORT	Value: 3306
+2021-12-12T18:20:09+01:00 : Debug : GetConfig() : config: Field: DB_HOST	Value: docker
+2021-12-12T18:20:09+01:00 : Debug : GetConfig() : config: Field: DB_NAME	Value: testdb
+2021-12-12T18:20:09+01:00 : Debug : InitDB() : starting initiating database....
+2021-12-12T18:20:09+01:00 : Debug : QueryDB() : starting query database: 
+	CREATE TABLE IF NOT EXISTS Users (					
+		Name VARCHAR(40) not null,			
+		Enabled INT,			
+		primary key (Name)
+	);
+2021-12-12T18:20:09+01:00 : Debug : QueryDB() : query finished
+2021-12-12T18:20:09+01:00 : Debug : QueryDB() : starting query database: 
+	CREATE TABLE IF NOT EXISTS TimeAccounting (
+		Uuid INT auto_increment,			
+		FUsers VARCHAR(40) NOT NULL,
+		FromDate  TIMESTAMP,
+		ToDate   TIMESTAMP,			
+		primary key (Uuid)
+	);
+2021-12-12T18:20:09+01:00 : Debug : QueryDB() : query finished
+2021-12-12T18:20:09+01:00 : Debug : QueryDB() : starting query database: 
+	CREATE TABLE IF NOT EXISTS Devices (			
+		Id VARCHAR(40) not null,
+		FUsers VARCHAR(40) NOT NULL,		
+		Enabled INT,			
+		primary key (id)
+	);
+2021-12-12T18:20:09+01:00 : Debug : QueryDB() : query finished
+2021-12-12T18:20:09+01:00 : Debug : AddUser() : : EnabledExampleUser
+2021-12-12T18:20:09+01:00 : Debug : DisableUser() : SQL-Query: INSERT INTO Users (Name, Enabled) VALUES ( 'EnabledExampleUser', 1)
+2021-12-12T18:20:09+01:00 : Error : AddUser() : Error adding User: Error 1062: Duplicate entry 'EnabledExampleUser' for key 'Users.PRIMARY'
+2021-12-12T18:20:09+01:00 : Debug : DisableUser() : : EnabledExampleUser
+2021-12-12T18:20:09+01:00 : Debug : DisableUser() : SQL-Query: UPDATE Users Set Enabled = 0 where Name = 'EnabledExampleUser'
+2021-12-12T18:20:09+01:00 : Debug : DisableUser() : User disabled... 
+2021-12-12T19:09:04+01:00 : Debug : GetConfig() : using configfile: ./dev_config.json
+2021-12-12T19:09:04+01:00 : Debug : GetConfig() : config: Field: DB_USERNAME	Value: dbuser
+2021-12-12T19:09:04+01:00 : Debug : GetConfig() : config: Field: DB_PASSWORD	Value: dbpw
+2021-12-12T19:09:04+01:00 : Debug : GetConfig() : config: Field: DB_PORT	Value: 3306
+2021-12-12T19:09:04+01:00 : Debug : GetConfig() : config: Field: DB_HOST	Value: docker
+2021-12-12T19:09:04+01:00 : Debug : GetConfig() : config: Field: DB_NAME	Value: testdb
+2021-12-12T19:09:04+01:00 : Debug : InitDB() : starting initiating database....
+2021-12-12T19:09:04+01:00 : Debug : QueryDB() : starting query database: 
+	CREATE TABLE IF NOT EXISTS Users (					
+		Name VARCHAR(40) not null,			
+		Enabled INT,			
+		primary key (Name)
+	);
+2021-12-12T19:09:04+01:00 : Debug : QueryDB() : query finished
+2021-12-12T19:09:04+01:00 : Debug : QueryDB() : starting query database: 
+	CREATE TABLE IF NOT EXISTS TimeAccounting (
+		Uuid INT auto_increment,			
+		FUsers VARCHAR(40) NOT NULL,
+		FromDate  TIMESTAMP,
+		ToDate   TIMESTAMP,			
+		primary key (Uuid)
+	);
+2021-12-12T19:09:04+01:00 : Debug : QueryDB() : query finished
+2021-12-12T19:09:04+01:00 : Debug : QueryDB() : starting query database: 
+	CREATE TABLE IF NOT EXISTS Devices (			
+		Id VARCHAR(40) not null,
+		FUsers VARCHAR(40) NOT NULL,		
+		Enabled INT,			
+		primary key (id)
+	);
+2021-12-12T19:09:04+01:00 : Debug : QueryDB() : query finished
+2021-12-12T19:09:04+01:00 : Debug : AddUser() : : EnabledExampleUser
+2021-12-12T19:09:04+01:00 : Debug : DisableUser() : SQL-Query: INSERT INTO Users (Name, Enabled) VALUES ( 'EnabledExampleUser', 1)
+2021-12-12T19:09:04+01:00 : Error : AddUser() : Error adding User: Error 1062: Duplicate entry 'EnabledExampleUser' for key 'Users.PRIMARY'
+2021-12-12T19:09:04+01:00 : Debug : DisableUser() : : EnabledExampleUser
+2021-12-12T19:09:04+01:00 : Debug : DisableUser() : SQL-Query: UPDATE Users Set Enabled = 0 where Name = 'EnabledExampleUser'
+2021-12-12T19:09:04+01:00 : Debug : DisableUser() : User has been disabled... 
+2021-12-12T19:09:04+01:00 : Debug : FindUser() : : EnabledExampleUser
+2021-12-12T19:09:04+01:00 : Debug : FindUser() : SQL-Query: Select Name, Enabled from Users where Name = 'EnabledExampleUser', 1)
+2021-12-12T19:09:04+01:00 : Error : FindUser() : Error findung User: Error 1146: Table 'testdb.tags' doesn't exist
+2021-12-12T19:09:35+01:00 : Debug : GetConfig() : using configfile: ./dev_config.json
+2021-12-12T19:09:35+01:00 : Debug : GetConfig() : config: Field: DB_USERNAME	Value: dbuser
+2021-12-12T19:09:35+01:00 : Debug : GetConfig() : config: Field: DB_PASSWORD	Value: dbpw
+2021-12-12T19:09:35+01:00 : Debug : GetConfig() : config: Field: DB_PORT	Value: 3306
+2021-12-12T19:09:35+01:00 : Debug : GetConfig() : config: Field: DB_HOST	Value: docker
+2021-12-12T19:09:35+01:00 : Debug : GetConfig() : config: Field: DB_NAME	Value: testdb
+2021-12-12T19:09:35+01:00 : Debug : InitDB() : starting initiating database....
+2021-12-12T19:09:35+01:00 : Debug : QueryDB() : starting query database: 
+	CREATE TABLE IF NOT EXISTS Users (					
+		Name VARCHAR(40) not null,			
+		Enabled INT,			
+		primary key (Name)
+	);
+2021-12-12T19:09:35+01:00 : Debug : QueryDB() : query finished
+2021-12-12T19:09:35+01:00 : Debug : QueryDB() : starting query database: 
+	CREATE TABLE IF NOT EXISTS TimeAccounting (
+		Uuid INT auto_increment,			
+		FUsers VARCHAR(40) NOT NULL,
+		FromDate  TIMESTAMP,
+		ToDate   TIMESTAMP,			
+		primary key (Uuid)
+	);
+2021-12-12T19:09:35+01:00 : Debug : QueryDB() : query finished
+2021-12-12T19:09:35+01:00 : Debug : QueryDB() : starting query database: 
+	CREATE TABLE IF NOT EXISTS Devices (			
+		Id VARCHAR(40) not null,
+		FUsers VARCHAR(40) NOT NULL,		
+		Enabled INT,			
+		primary key (id)
+	);
+2021-12-12T19:09:35+01:00 : Debug : QueryDB() : query finished
+2021-12-12T19:09:35+01:00 : Debug : AddUser() : : EnabledExampleUser
+2021-12-12T19:09:35+01:00 : Debug : DisableUser() : SQL-Query: INSERT INTO Users (Name, Enabled) VALUES ( 'EnabledExampleUser', 1)
+2021-12-12T19:09:35+01:00 : Error : AddUser() : Error adding User: Error 1062: Duplicate entry 'EnabledExampleUser' for key 'Users.PRIMARY'
+2021-12-12T19:09:35+01:00 : Debug : DisableUser() : : EnabledExampleUser
+2021-12-12T19:09:35+01:00 : Debug : DisableUser() : SQL-Query: UPDATE Users Set Enabled = 0 where Name = 'EnabledExampleUser'
+2021-12-12T19:09:35+01:00 : Debug : DisableUser() : User has been disabled... 
+2021-12-12T19:09:35+01:00 : Debug : FindUser() : : EnabledExampleUser
+2021-12-12T19:09:35+01:00 : Debug : FindUser() : SQL-Query: Select Name, Enabled from Users where Name = 'EnabledExampleUser', 1)
+2021-12-12T19:09:35+01:00 : Error : FindUser() : Error findung User: Error 1054: Unknown column 'id' in 'field list'
+2021-12-12T19:10:14+01:00 : Debug : GetConfig() : using configfile: ./dev_config.json
+2021-12-12T19:10:14+01:00 : Debug : GetConfig() : config: Field: DB_USERNAME	Value: dbuser
+2021-12-12T19:10:14+01:00 : Debug : GetConfig() : config: Field: DB_PASSWORD	Value: dbpw
+2021-12-12T19:10:14+01:00 : Debug : GetConfig() : config: Field: DB_PORT	Value: 3306
+2021-12-12T19:10:14+01:00 : Debug : GetConfig() : config: Field: DB_HOST	Value: docker
+2021-12-12T19:10:14+01:00 : Debug : GetConfig() : config: Field: DB_NAME	Value: testdb
+2021-12-12T19:10:14+01:00 : Debug : InitDB() : starting initiating database....
+2021-12-12T19:10:14+01:00 : Debug : QueryDB() : starting query database: 
+	CREATE TABLE IF NOT EXISTS Users (					
+		Name VARCHAR(40) not null,			
+		Enabled INT,			
+		primary key (Name)
+	);
+2021-12-12T19:10:14+01:00 : Debug : QueryDB() : query finished
+2021-12-12T19:10:14+01:00 : Debug : QueryDB() : starting query database: 
+	CREATE TABLE IF NOT EXISTS TimeAccounting (
+		Uuid INT auto_increment,			
+		FUsers VARCHAR(40) NOT NULL,
+		FromDate  TIMESTAMP,
+		ToDate   TIMESTAMP,			
+		primary key (Uuid)
+	);
+2021-12-12T19:10:14+01:00 : Debug : QueryDB() : query finished
+2021-12-12T19:10:14+01:00 : Debug : QueryDB() : starting query database: 
+	CREATE TABLE IF NOT EXISTS Devices (			
+		Id VARCHAR(40) not null,
+		FUsers VARCHAR(40) NOT NULL,		
+		Enabled INT,			
+		primary key (id)
+	);
+2021-12-12T19:10:14+01:00 : Debug : QueryDB() : query finished
+2021-12-12T19:10:14+01:00 : Debug : AddUser() : : EnabledExampleUser
+2021-12-12T19:10:14+01:00 : Debug : DisableUser() : SQL-Query: INSERT INTO Users (Name, Enabled) VALUES ( 'EnabledExampleUser', 1)
+2021-12-12T19:10:14+01:00 : Error : AddUser() : Error adding User: Error 1062: Duplicate entry 'EnabledExampleUser' for key 'Users.PRIMARY'
+2021-12-12T19:10:14+01:00 : Debug : DisableUser() : : EnabledExampleUser
+2021-12-12T19:10:14+01:00 : Debug : DisableUser() : SQL-Query: UPDATE Users Set Enabled = 0 where Name = 'EnabledExampleUser'
+2021-12-12T19:10:14+01:00 : Debug : DisableUser() : User has been disabled... 
+2021-12-12T19:10:14+01:00 : Debug : FindUser() : : EnabledExampleUser
+2021-12-12T19:10:14+01:00 : Debug : FindUser() : SQL-Query: Select Name, Enabled from Users where Name = 'EnabledExampleUser', 1)
+2021-12-12T19:10:14+01:00 : Error : FindUser() : Error findung User: Error 1064: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near ', 1)' at line 1
+2021-12-12T19:10:35+01:00 : Debug : GetConfig() : using configfile: ./dev_config.json
+2021-12-12T19:10:35+01:00 : Debug : GetConfig() : config: Field: DB_USERNAME	Value: dbuser
+2021-12-12T19:10:35+01:00 : Debug : GetConfig() : config: Field: DB_PASSWORD	Value: dbpw
+2021-12-12T19:10:35+01:00 : Debug : GetConfig() : config: Field: DB_PORT	Value: 3306
+2021-12-12T19:10:35+01:00 : Debug : GetConfig() : config: Field: DB_HOST	Value: docker
+2021-12-12T19:10:35+01:00 : Debug : GetConfig() : config: Field: DB_NAME	Value: testdb
+2021-12-12T19:10:35+01:00 : Debug : InitDB() : starting initiating database....
+2021-12-12T19:10:35+01:00 : Debug : QueryDB() : starting query database: 
+	CREATE TABLE IF NOT EXISTS Users (					
+		Name VARCHAR(40) not null,			
+		Enabled INT,			
+		primary key (Name)
+	);
+2021-12-12T19:10:35+01:00 : Debug : QueryDB() : query finished
+2021-12-12T19:10:35+01:00 : Debug : QueryDB() : starting query database: 
+	CREATE TABLE IF NOT EXISTS TimeAccounting (
+		Uuid INT auto_increment,			
+		FUsers VARCHAR(40) NOT NULL,
+		FromDate  TIMESTAMP,
+		ToDate   TIMESTAMP,			
+		primary key (Uuid)
+	);
+2021-12-12T19:10:35+01:00 : Debug : QueryDB() : query finished
+2021-12-12T19:10:35+01:00 : Debug : QueryDB() : starting query database: 
+	CREATE TABLE IF NOT EXISTS Devices (			
+		Id VARCHAR(40) not null,
+		FUsers VARCHAR(40) NOT NULL,		
+		Enabled INT,			
+		primary key (id)
+	);
+2021-12-12T19:10:35+01:00 : Debug : QueryDB() : query finished
+2021-12-12T19:10:35+01:00 : Debug : AddUser() : : EnabledExampleUser
+2021-12-12T19:10:35+01:00 : Debug : DisableUser() : SQL-Query: INSERT INTO Users (Name, Enabled) VALUES ( 'EnabledExampleUser', 1)
+2021-12-12T19:10:35+01:00 : Error : AddUser() : Error adding User: Error 1062: Duplicate entry 'EnabledExampleUser' for key 'Users.PRIMARY'
+2021-12-12T19:10:35+01:00 : Debug : DisableUser() : : EnabledExampleUser
+2021-12-12T19:10:35+01:00 : Debug : DisableUser() : SQL-Query: UPDATE Users Set Enabled = 0 where Name = 'EnabledExampleUser'
+2021-12-12T19:10:35+01:00 : Debug : DisableUser() : User has been disabled... 
+2021-12-12T19:10:35+01:00 : Debug : FindUser() : : EnabledExampleUser
+2021-12-12T19:10:35+01:00 : Debug : FindUser() : SQL-Query: Select Name, Enabled from Users where Name = 'EnabledExampleUser'
+2021-12-12T19:10:35+01:00 : Debug : FindUser() : User found... 
