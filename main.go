@@ -7,9 +7,11 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/wyrdnixx/KBZOZeit/frontend/api"
+	"github.com/wyrdnixx/KBZOZeit/frontend/database"
 )
 
 func main() {
+	database.Initdb()
 	startWebServer()
 }
 

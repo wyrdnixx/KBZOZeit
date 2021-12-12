@@ -8,7 +8,7 @@ import (
 	"github.com/wyrdnixx/KBZOZeit/frontend/api"
 )
 
-func TestGetEntries(t *testing.T) {
+func TestApi(t *testing.T) {
 	req, err := http.NewRequest("GET", "/api/TestApi", nil)
 	if err != nil {
 		t.Fatal(err)

@@ -1,0 +1,8 @@
+2021-12-12T12:50:45+01:00 : Error-Fatal : InitDB() : Could not create table TimeAccounting: Error 1064: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'EXIS2TS TimeAccounting (
+			Id INT auto_increment,			
+            FUsers INT NOT' at line 1
+2021-12-12T12:53:34+01:00 : Debug : InitDB() : starting initiating database
+2021-12-12T12:53:34+01:00 : Debug : InitDB() : init table Users completed
+2021-12-12T12:53:34+01:00 : Error-Fatal : InitDB() : Could not create table TimeAccounting: Error 1064: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'EXIS2TS TimeAccounting (
+			Id INT auto_increment,			
+            FUsers INT NOT' at line 1
