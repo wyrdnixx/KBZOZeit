@@ -2,6 +2,7 @@ package database
 
 import (
 	"database/sql"
+	"errors"
 
 	_ "github.com/go-sql-driver/mysql"
 
@@ -42,9 +43,9 @@ func Initdb() {
 	QueryDB(crUsers)
 	QueryDB(crTimeAccounting)
 	QueryDB(crDevices)
-	AddUser("EnabledExampleUser")
-	DisableUser("EnabledExampleUser")
-	FindUser("EnabledExampleUser")
+	//	AddUser("EnabledExampleUser")
+	//	DisableUser("EnabledExampleUser")
+	//	FindUser("EnabledExampleUser")
 }
 
 func QueryDB(query string) sql.Rows {
@@ -133,5 +134,22 @@ func FindUser(name string) (models.User, error) {
 			utils.Log(1, "FindUser()", "User found... ")
 			return u, nil
 		}
+	}
+}
+
+func AddDevice(username string, device string) error {
+	utils.Log(1, "AddDevice()", ": "+device+" - to User -> "+username)
+
+	u, err := FindUser(username)
+	if err != nil {
+		return err
+	} else {
+		if u.Enabled == 1 {
+			utils.Log(1, "AddDevice()", ": user "+u.Name+" is valid, creating device...")
+			return nil
+		} else {
+			return errors.New("User is disabled")
+		}
+
 	}
 }

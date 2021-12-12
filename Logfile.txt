@@ -897,3 +897,33 @@
 2021-12-12T19:10:35+01:00 : Debug : FindUser() : : EnabledExampleUser
 2021-12-12T19:10:35+01:00 : Debug : FindUser() : SQL-Query: Select Name, Enabled from Users where Name = 'EnabledExampleUser'
 2021-12-12T19:10:35+01:00 : Debug : FindUser() : User found... 
+2021-12-12T20:05:23+01:00 : Debug : GetConfig() : using configfile: ./dev_config.json
+2021-12-12T20:05:23+01:00 : Debug : GetConfig() : config: Field: DB_USERNAME	Value: dbuser
+2021-12-12T20:05:23+01:00 : Debug : GetConfig() : config: Field: DB_PASSWORD	Value: dbpw
+2021-12-12T20:05:23+01:00 : Debug : GetConfig() : config: Field: DB_PORT	Value: 3306
+2021-12-12T20:05:23+01:00 : Debug : GetConfig() : config: Field: DB_HOST	Value: docker
+2021-12-12T20:05:23+01:00 : Debug : GetConfig() : config: Field: DB_NAME	Value: testdb
+2021-12-12T20:05:23+01:00 : Debug : AddUser() : : EnabledExampleUser
+2021-12-12T20:05:23+01:00 : Debug : DisableUser() : SQL-Query: INSERT INTO Users (Name, Enabled) VALUES ( 'EnabledExampleUser', 1)
+2021-12-12T20:05:23+01:00 : Error : AddUser() : Error adding User: Error 1062: Duplicate entry 'EnabledExampleUser' for key 'Users.PRIMARY'
+2021-12-12T20:05:23+01:00 : Debug : DisableUser() : : EnabledExampleUser
+2021-12-12T20:05:23+01:00 : Debug : DisableUser() : SQL-Query: UPDATE Users Set Enabled = 0 where Name = 'EnabledExampleUser'
+2021-12-12T20:05:23+01:00 : Debug : DisableUser() : User has been disabled... 
+2021-12-12T20:05:23+01:00 : Debug : FindUser() : : EnabledExampleUser
+2021-12-12T20:05:23+01:00 : Debug : FindUser() : SQL-Query: Select Name, Enabled from Users where Name = 'EnabledExampleUser'
+2021-12-12T20:05:23+01:00 : Debug : FindUser() : User found... 
+2021-12-12T20:05:44+01:00 : Debug : GetConfig() : using configfile: ./dev_config.json
+2021-12-12T20:05:44+01:00 : Debug : GetConfig() : config: Field: DB_USERNAME	Value: dbuser
+2021-12-12T20:05:44+01:00 : Debug : GetConfig() : config: Field: DB_PASSWORD	Value: dbpw
+2021-12-12T20:05:44+01:00 : Debug : GetConfig() : config: Field: DB_PORT	Value: 3306
+2021-12-12T20:05:44+01:00 : Debug : GetConfig() : config: Field: DB_HOST	Value: docker
+2021-12-12T20:05:44+01:00 : Debug : GetConfig() : config: Field: DB_NAME	Value: testdb
+2021-12-12T20:05:44+01:00 : Debug : AddUser() : : EnabledExampleUser
+2021-12-12T20:05:44+01:00 : Debug : DisableUser() : SQL-Query: INSERT INTO Users (Name, Enabled) VALUES ( 'EnabledExampleUser', 1)
+2021-12-12T20:05:44+01:00 : Error : AddUser() : Error adding User: Error 1062: Duplicate entry 'EnabledExampleUser' for key 'Users.PRIMARY'
+2021-12-12T20:05:44+01:00 : Debug : DisableUser() : : EnabledExampleUser
+2021-12-12T20:05:44+01:00 : Debug : DisableUser() : SQL-Query: UPDATE Users Set Enabled = 0 where Name = 'EnabledExampleUser'
+2021-12-12T20:05:44+01:00 : Debug : DisableUser() : User has been disabled... 
+2021-12-12T20:05:44+01:00 : Debug : FindUser() : : EnabledExampleUser
+2021-12-12T20:05:44+01:00 : Debug : FindUser() : SQL-Query: Select Name, Enabled from Users where Name = 'EnabledExampleUser'
+2021-12-12T20:05:44+01:00 : Debug : FindUser() : User found... 

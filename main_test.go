@@ -31,15 +31,25 @@ func TestApi(t *testing.T) {
 	}
 }
 
-func TestFindUser(t *testing.T) {
+func TestUser(t *testing.T) {
 	expected := models.User{
-		Id:      1,
 		Name:    "EnabledExampleUser",
-		Enabled: 1,
+		Enabled: 0,
 	}
-	u, err := database.FindUser("EnabledExampleUser")
-	if err != nil {
-		t.Errorf("TestFindUser returned unexpected error: got %v want %v", err, expected)
+
+	errAddUser := database.AddUser("EnabledExampleUser")
+	if errAddUser != nil {
+		t.Errorf("AddUser got error: got %v", errAddUser)
+	}
+
+	errDisableUser := database.DisableUser("EnabledExampleUser")
+	if errDisableUser != nil {
+		t.Errorf("DisableUser got error: got %v", errDisableUser)
+	}
+
+	u, errFindUser := database.FindUser("EnabledExampleUser")
+	if errFindUser != nil {
+		t.Errorf("TestFindUser returned unexpected error: got %v want %v", errFindUser, expected)
 	}
 	if u != expected {
 		t.Errorf("TestFindUser returned unexpected result: got %v want %v", u, expected)
