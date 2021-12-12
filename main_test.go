@@ -5,8 +5,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/wyrdnixx/KBZOZeit/frontend/api"
-	"github.com/wyrdnixx/KBZOZeit/frontend/database"
+	"github.com/wyrdnixx/KBZOZeit/api"
+	"github.com/wyrdnixx/KBZOZeit/database"
 	"github.com/wyrdnixx/KBZOZeit/models"
 )
 

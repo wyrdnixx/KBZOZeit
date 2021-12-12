@@ -6,8 +6,8 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
-	"github.com/wyrdnixx/KBZOZeit/frontend/api"
-	"github.com/wyrdnixx/KBZOZeit/frontend/database"
+	"github.com/wyrdnixx/KBZOZeit/api"
+	"github.com/wyrdnixx/KBZOZeit/database"
 	"github.com/wyrdnixx/KBZOZeit/models"
 )
 
@@ -26,6 +26,7 @@ func startWebServer() {
 	router := mux.NewRouter()
 
 	router.HandleFunc("/api/TestApi", api.TestApi)
+	router.HandleFunc("/api/AdminGetUsers", api.AdminGetUsers)
 	// Create the route
 	router.
 		PathPrefix("/").

@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+
+	"github.com/wyrdnixx/KBZOZeit/database"
 )
 
 func EnableCors(w *http.ResponseWriter) {
@@ -31,6 +33,22 @@ func TestApi(w http.ResponseWriter, r *http.Request) {
 		log.Fatal("JSON Error")
 	} else {
 		w.Write(response)
+	}
+
+}
+
+func AdminGetUsers(w http.ResponseWriter, r *http.Request) {
+	EnableCors(&w)
+	u, err := database.GetUsers()
+	if err != nil {
+		w.Write([]byte(err.Error()))
+	} else {
+		response, err := json.Marshal(u)
+		if err != nil {
+			w.Write([]byte(err.Error()))
+		} else {
+			w.Write(response)
+		}
 	}
 
 }
