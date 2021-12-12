@@ -2,9 +2,7 @@
   <div >    
     <p>
       Nacherfassen
-    </p>   
-        <button class="btn btn-info" v-on:click="TestBannerMessage()">Test-BannerMessage</button>
-
+    </p>
         <div>
           <table class="table table-dark">
   <thead>
@@ -24,6 +22,8 @@
 </table>
 <input type="text" id="entryText" placeholder="was wurde gemacht?"/>
         </div>
+      <hr>
+    <button class="btn btn-info" v-on:click="TestBannerMessage()">Nacherfassen</button>
   </div>
 </template>
 

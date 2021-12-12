@@ -3,7 +3,38 @@
     <p>
       Auswertung
     </p>   
-        <button class="btn btn-info" v-on:click="TestBannerMessage()">Test-BannerMessage</button>
+  <table class="table table-dark">
+  <thead>
+    <tr>            
+      <th scope="col">Von</th>
+      <th scope="col">Bis</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>   
+      <td><input type="date" id="DateFrom" /></td>
+      <td><input type="date" id="DateTo" /></td>      
+    </tr>
+  </tbody>
+</table>
+        <button class="btn btn-info" v-on:click="TestBannerMessage()">Anzeigen</button>
+        <button class="btn btn-info" v-on:click="TestBannerMessage()">CSV-Download</button>
+    <br> <hr>
+    <table class="table table-dark">
+      <thead>
+        <tr>            
+          <th scope="col">Ergebnis</th>
+          <th scope="col">Ergebnis</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>   
+          <td>Eintrag</td>      
+          <td>Eintrag</td>
+        </tr>
+      </tbody>
+    </table>
+
   </div>
 </template>
 
@@ -24,7 +55,7 @@ export default {
   },
   methods: {
       TestBannerMessage() {
-          this.$parent.showAlert("Auswertung")
+          this.$parent.showAlert("CSV-Download")
       }
   }
 }
