@@ -41,10 +41,13 @@ func AdminGetUsers(w http.ResponseWriter, r *http.Request) {
 	EnableCors(&w)
 	u, err := database.GetUsers()
 	if err != nil {
-		w.Write([]byte(err.Error()))
+		http.Error(w, err.Error(), 500)
+		//w.WriteHeader(http.StatusInternalServerError)
+		//w.Write([]byte(err.Error()))
 	} else {
 		response, err := json.Marshal(u)
 		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(err.Error()))
 		} else {
 			w.Write(response)

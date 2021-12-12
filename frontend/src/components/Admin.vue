@@ -59,19 +59,19 @@ export default {
         
         let response = await axios.get(apiURL  + "/AdminGetUsers");
         this.Users = response.data;
-        if (typeof this.Users === 'object' ) {
-            console.log("Users is object")
-        } else {
+        console.log(response.status)
+        if (response.status != 200 ) {        
             console.log("Users not object")
-            this.$parent.showAlert("Server returned an Error:\n" + this.Users ); 
+            this.$parent.showAlert("Server returned an Error:" +response.status+ " - "+ response ); 
         }
       } catch (error) {
         console.log(error);
+        
         this.$parent.showAlert("Server returned an Error:\n" + error); 
       }
     },
     ChangeUserEnabled() {
-        //api call here
+        //ToDo: api call here
         this.GetUsers()
     }
   }
