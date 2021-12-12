@@ -25,7 +25,7 @@ func Log(level int, function string, text string) {
 
 	LogText := Timetext + " : " + lvl + " : " + function + " : " + text + "\n"
 
-	file, err := os.OpenFile("Logfile.txt", os.O_APPEND|os.O_WRONLY, 0644)
+	file, err := os.OpenFile("Logfile.log", os.O_APPEND|os.O_WRONLY, 0644)
 	if err != nil {
 		log.Println(err)
 	}
