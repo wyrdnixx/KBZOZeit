@@ -2,7 +2,6 @@ package database
 
 import (
 	"database/sql"
-	"errors"
 
 	_ "github.com/go-sql-driver/mysql"
 
@@ -166,7 +165,8 @@ func GetUsers() (models.Users, error) {
 	}
 	defer db.Close()
 	if len(users.User) == 0 {
-		return users, errors.New(`No users got from DB`)
+		utils.Log(2, "GetUsers()", "No users found in db: ")
+		//return users, errors.New(`{"error":"No users got from DB"`)
 	}
 	return users, nil
 }

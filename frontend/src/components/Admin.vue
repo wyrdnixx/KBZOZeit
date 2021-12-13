@@ -59,14 +59,17 @@ export default {
         
         let response = await axios.get(apiURL  + "/AdminGetUsers");
         this.Users = response.data;
-        console.log(response.status)
+        if (this.Users.User === null) {
+            console.log("No Users present in DB.")
+            this.$parent.showAlert("No Users present in DB."); 
+        }
+        //console.log(response.status)
+        console.log(response.data)
         if (response.status != 200 ) {        
             console.log("Users not object")
             this.$parent.showAlert("Server returned an Error:" +response.status+ " - "+ response ); 
         }
-      } catch (error) {
-        console.log(error);
-        
+      } catch (error) {                
         this.$parent.showAlert("Server returned an Error:\n" + error); 
       }
     },
