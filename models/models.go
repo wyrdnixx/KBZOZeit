@@ -1,8 +1,9 @@
 package models
 
 type UserDevice struct {
-	Uuid     int    `json:"Uuid"`
-	UserName string `json:"UserName"`
+	Uuid   string `json:"Uuid"`
+	Name   string `json:"Name"`
+	Status string `json:"Status"`
 }
 type User struct {
 	Name    string `json:"Name"`

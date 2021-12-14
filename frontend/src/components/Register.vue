@@ -8,9 +8,9 @@
         <br>
         Bitte registrieren
         <hr>
-        Wer sind Sie? <input type="text" placeholder="Name" v-model="Ident.Name"/>
+        Wer sind Sie? <input type="text" placeholder="Name" v-model="Name"/>
         <hr>
-        Debug -> Name: {{this.Ident.Name}} UUID: {{this.Ident.UUID}} Status: {{this.Ident.Status}}
+        Debug -> Name: {{this.Name}} UUID: {{this.Uuid}} Status: {{this.Status}}
         <button class="btn btn-secondary" v-on:click="RegisterIdent()">Register</button>
     </div>
   </div>
@@ -30,12 +30,11 @@ export default {
     
   },
   data() {
-      return {
-          Ident: {
+      return {          
             Name: "",
-            UUID: "",
-            Status:""
-          } 
+            Uuid: "",
+            Status:"",
+           
       }
   },
   created() {
@@ -44,22 +43,27 @@ export default {
   methods: {
 
     testMethod() {
-      this.Ident.UUID = uuid.v4()
-      this.Ident.Status=""       
+
     },
     async RegisterIdent() {
           console.log("RegisterIdent")
-          if (this.Ident.Name === "") {
+          if (this.Name === "") {
             this.$parent.showAlert("Kein Username angegeben!")
           } else {
-                  
+            this.Uuid = uuid.v4()
+            this.Status=""       
             await   axios.post(apiURL + "/RegisterIdent", {           
-              Ident: this.Ident
+              Name: this.Name,
+              Uuid: this.Uuid
             }, {
               headers: {
                 'Content-Type': 'application/json',
               }
-            }).catch((error)=> this.$parent.showAlert("Server returned an Error:\n" + error));  
+            })
+            .then (function(response) {
+              console.log("Response: " + response.data.Error)
+            })
+            .catch((error)=> this.$parent.showAlert("Server returned an Error:\n" + error));  
     
           }
     },        
