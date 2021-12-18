@@ -27,7 +27,9 @@ func Initdb() {
 	CREATE TABLE IF NOT EXISTS Devices (			
 		Id VARCHAR(40) not null,
 		FUsers VARCHAR(40) NOT NULL,		
-		Enabled INT,			
+		Enabled INT,	
+		RegisterPin VARCHAR(6),
+		RegisterUrl VARCHAR(6),
 		primary key (id)
 	);`
 	crTimeAccounting := `

@@ -52,7 +52,9 @@ export default {
           } else {
             this.Uuid = uuid.v4()
             this.Status=""       
-            await   axios.post(apiURL + "/RegisterIdent", {           
+            //await   axios.post(apiURL + "/RegisterIdent", {  
+              await   axios.post(apiURL + "/TestApi", {  
+              MsgType:"RegisterRequest",         
               Name: this.Name,
               Uuid: this.Uuid
             }, {

@@ -3,7 +3,6 @@ package api
 import (
 	"encoding/json"
 	"io/ioutil"
-	"log"
 	"net/http"
 
 	"github.com/wyrdnixx/KBZOZeit/database"
@@ -24,19 +23,30 @@ func TestApi(w http.ResponseWriter, r *http.Request) {
 	// w.Header().Set("Content-Type", "application/json")
 
 	type Test struct {
-		Msg   string `json:"msg"`
-		Value bool   `json:"value"`
+		MsgType string `json:"MsgType"`
 	}
-	var SendTest Test
-	SendTest.Msg = "Test"
-	SendTest.Value = true
-
-	response, err := json.Marshal(SendTest)
+	reqBody, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		log.Fatal("JSON Error")
-	} else {
-		w.Write(response)
+		utils.Log(3, "TestApi() ", "reading reqBody : "+err.Error())
 	}
+
+	m := Test{}
+	errunmarsh := json.Unmarshal(reqBody, &m)
+	if errunmarsh != nil {
+		utils.Log(3, "TestApi() ", "unmarshal reqBody : ")
+
+	}
+
+	switch m.MsgType {
+	case "test":
+		utils.Log(1, "TestApi() ", "got messagetype Test")
+	case "RegisterRequest":
+		utils.Log(1, "TestApi() ", "got messagetype RegisterRequest")
+	default:
+		utils.Log(3, "TestApi() ", "got unknown messagetype: "+m.MsgType)
+	}
+
+	w.Write([]byte("{TEST-OK-Answer}"))
 
 }
 
