@@ -2,6 +2,8 @@ package database
 
 import (
 	"database/sql"
+	"errors"
+	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 
@@ -34,11 +36,11 @@ func Initdb() {
 	);`
 	crTimeAccounting := `
 	CREATE TABLE IF NOT EXISTS TimeAccounting (
-		Uuid INT auto_increment,			
+		Id INT auto_increment,			
 		FUsers VARCHAR(40) NOT NULL,
-		FromDate  TIMESTAMP,
-		ToDate   TIMESTAMP,			
-		primary key (Uuid)
+		FromDate  DATETIME,
+		ToDate   DATETIME,			
+		primary key (Id)
 	);`
 
 	QueryDB(crUsers)
@@ -47,6 +49,32 @@ func Initdb() {
 	//	AddUser("EnabledExampleUser")
 	//	DisableUser("EnabledExampleUser")
 	//	FindUser("EnabledExampleUser")
+}
+
+func StartTimeAccounting(Name string) error {
+	utils.Log(1, "startTimeAccounting()", "starting ")
+	db, err := sql.Open("mysql", cfg.DB_USERNAME+":"+cfg.DB_PASSWORD+"@tcp("+cfg.DB_HOST+":"+cfg.DB_PORT+")/"+cfg.DB_NAME)
+
+	if err != nil {
+		//log.Fatal(4, "ERROR: DB Connection: "+err.Error())
+		utils.Log(4, "startTimeAccounting()", "Could not connect to database: "+err.Error())
+		return errors.New(`{"Result":"Error connecting DB}`)
+	} else {
+		Timestamp := time.Now().Format("2006-02-01 15:04:05")
+		utils.Log(1, "startTimeAccounting()", "Timestamp TimeAccounting : "+Timestamp)
+		sqlSelect := "INSERT INTO TimeAccounting (FUsers, FromDate) VALUES ( '" + Name + "', '" + Timestamp + "')"
+		utils.Log(1, "startTimeAccounting()", "SQL-Query: "+sqlSelect)
+		_, errQuery := db.Query(sqlSelect)
+		if errQuery != nil {
+			utils.Log(3, "startTimeAccounting()", "Error adding TimeAccounting : "+errQuery.Error())
+			return errQuery
+		} else {
+			utils.Log(3, "startTimeAccounting()", "adding TimeAccounting successfully ")
+		}
+	}
+
+	defer db.Close()
+	return nil
 }
 
 func QueryDB(query string) sql.Rows {

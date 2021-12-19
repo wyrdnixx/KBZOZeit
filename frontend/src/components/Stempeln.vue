@@ -2,12 +2,15 @@
   <div >    
     <p>
       Stempeln
+      Debu: {{this.sendMessage}}
     </p>   
-        <button class="btn btn-info" v-on:click="TestBannerMessage()">Test-BannerMessage</button>
+        <button class="btn btn-info" v-on:click="TestButton()">TestButton</button>
   </div>
 </template>
 
 <script>
+import axios from 'axios';
+const apiURL = window.location.protocol + "//"+ window.location.hostname +":8081/api"
 
 export default {
   name: 'Stempeln',  
@@ -16,16 +19,45 @@ export default {
   },
   data() {
       return {
-
+          sendMessage: {
+            MsgType: "TimeAccounting",            
+            Name: "",
+            Typ:""
+            }
       }
   },
   created() {
-
+    this.sendMessage.Name = this.$parent.username          
   },
   methods: {
-      TestBannerMessage() {
-          this.$parent.showAlert("Stempeln")
-      }
+      TestButton() {
+          //this.$parent.showAlert("Stempeln")
+          this.TimeAccounting()
+      },
+
+      async TimeAccounting() {
+          console.log("TimeAccounting")
+            
+          // start or stop 
+          this.sendMessage.Typ = "startAccounting"
+
+             axios.post(apiURL+ '/TestApi', this.sendMessage)
+                 .then((res) => {
+                     //Perform Success Action
+                     console.log("Resut: "+ res.data.Result)
+                     if (res.data.Result == "login successfully") {
+                       this.$cookies.set("username",this.sendMessage.Name);
+                       this.$parent.checkCookie()
+                     }
+                 })
+                .catch((error) => {                     
+                     console.log("Error:"+ error.response.data.Result)
+                     this.$parent.showAlert(error.response.data)
+                })
+                 .finally(() => {
+                     //Perform action in always
+                 });
+    }
   }
 }
 </script>

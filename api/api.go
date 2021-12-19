@@ -51,6 +51,9 @@ func TestApi(w http.ResponseWriter, r *http.Request) {
 			case "LoginRequest":
 				utils.Log(1, "TestApi() ", "got messagetype LoginRequest")
 				LoginRequest(w, r, string(reqBody))
+			case "TimeAccounting":
+				utils.Log(1, "TestApi() ", "got messagetype TimeAccounting")
+				TimeAccounting(w, r, string(reqBody))
 			case "AddUserRequest":
 				utils.Log(1, "TestApi() ", "got messagetype AddUserRequest")
 				u := models.User{}
@@ -105,6 +108,30 @@ func RegisterIdentOld(w http.ResponseWriter, r *http.Request) {
 		w.Write(reqBody)
 	}
 
+}
+
+func TimeAccounting(w http.ResponseWriter, r *http.Request, request string) {
+	EnableCors(&w)
+	type TimeAccountingMessage struct {
+		MsgType string `json:MsgType`
+		Name    string `json:Name`
+		Typ     string `json:Typ`
+	}
+
+	m := TimeAccountingMessage{}
+	err := json.Unmarshal([]byte(request), &m)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(`{"Result":"error unmarshal TimeAccountingMessage ` + err.Error() + `"}`))
+	} else {
+		switch m.Typ {
+		case "startAccounting":
+			utils.Log(1, "TimeAccounting", "startAccounting for User: "+m.Name)
+			database.StartTimeAccounting(m.Name)
+		case "stopAccounting":
+			utils.Log(1, "TimeAccounting", "stopAccounting for User: "+m.Name)
+		}
+	}
 }
 
 func LoginRequest(w http.ResponseWriter, r *http.Request, request string) {
