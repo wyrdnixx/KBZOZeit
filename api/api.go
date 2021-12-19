@@ -2,6 +2,8 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 
@@ -24,29 +26,74 @@ func TestApi(w http.ResponseWriter, r *http.Request) {
 
 	type Test struct {
 		MsgType string `json:"MsgType"`
+		//MsgData []struct{} // `json:"MsgData"`
 	}
+	type MsgRegisterRequest struct {
+		MsgType string `json:"MsgType"`
+		Name    string `json:"Name"`
+		Uuid    string `json:"Uuid"`
+	}
+	utils.Log(1, "TestApi() ", "got called: ")
+
 	reqBody, err := ioutil.ReadAll(r.Body)
+	utils.Log(1, "TestApi() ", "got called: "+string(reqBody))
+
 	if err != nil {
-		utils.Log(3, "TestApi() ", "reading reqBody : "+err.Error())
+		fmt.Printf("TestApi error: %s \n", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	} else {
+
+		m := Test{}
+		errunmarsh := json.Unmarshal(reqBody, &m)
+		if errunmarsh != nil && errunmarsh != io.EOF {
+			utils.Log(3, "TestApi() ", "unmarshal: "+errunmarsh.Error())
+		} else {
+			utils.Log(1, "TestApi() ", "got MsgType: "+m.MsgType)
+
+			switch m.MsgType {
+			case "test":
+				utils.Log(1, "TestApi() ", "got messagetype Test")
+			case "RegisterRequest":
+				utils.Log(1, "TestApi() ", "got messagetype RegisterRequest")
+				mRegisterReq := MsgRegisterRequest{}
+				errRegister := json.Unmarshal(reqBody, &mRegisterReq)
+				if errRegister != nil {
+
+				} else {
+					utils.Log(1, "TestApi() ", "RegisterRequest got Name: "+mRegisterReq.Name)
+					utils.Log(1, "TestApi() ", "RegisterRequest got Uuid: "+mRegisterReq.Uuid)
+					w.WriteHeader(http.StatusInternalServerError)
+					w.Write([]byte(`{"err":"unexcepted"}`))
+
+				}
+			default:
+				utils.Log(3, "TestApi() ", "got unknown messagetype: "+m.MsgType)
+			}
+
+		}
+
 	}
 
-	m := Test{}
-	errunmarsh := json.Unmarshal(reqBody, &m)
-	if errunmarsh != nil {
-		utils.Log(3, "TestApi() ", "unmarshal reqBody : ")
+	/*
+		reqBody, _ := ioutil.ReadAll(r.Body)
+		utils.Log(1, "TestApi() ", "reading reqBody : "+string(reqBody))
 
-	}
+		m := Test{}
+		errunmarsh := json.Unmarshal(reqBody, &m)
+		if errunmarsh != nil {
+			utils.Log(3, "TestApi() ", "unmarshal reqBody : "+errunmarsh.Error())
 
-	switch m.MsgType {
-	case "test":
-		utils.Log(1, "TestApi() ", "got messagetype Test")
-	case "RegisterRequest":
-		utils.Log(1, "TestApi() ", "got messagetype RegisterRequest")
-	default:
-		utils.Log(3, "TestApi() ", "got unknown messagetype: "+m.MsgType)
-	}
-
-	w.Write([]byte("{TEST-OK-Answer}"))
+		} else {
+			switch m.MsgType {
+			case "test":
+				utils.Log(1, "TestApi() ", "got messagetype Test")
+			case "RegisterRequest":
+				utils.Log(1, "TestApi() ", "got messagetype RegisterRequest")
+			default:
+				utils.Log(3, "TestApi() ", "got unknown messagetype: "+m.MsgType)
+			}
+		}
+	*/
 
 }
 

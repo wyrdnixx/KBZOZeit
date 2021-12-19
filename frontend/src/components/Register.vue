@@ -8,10 +8,11 @@
         <br>
         Bitte registrieren
         <hr>
-        Wer sind Sie? <input type="text" placeholder="Name" v-model="Name"/>
+        Wer sind Sie? <input type="text" placeholder="Name" v-model="sendMessage.Name"/>
         <hr>
-        Debug -> Name: {{this.Name}} UUID: {{this.Uuid}} Status: {{this.Status}}
+        Debug -> Name: {{this.sendMessage.Name}} UUID: {{this.sendMessage.Uuid}} 
         <button class="btn btn-secondary" v-on:click="RegisterIdent()">Register</button>
+        <button class="btn btn-secondary" v-on:click="testMethod('bla')">TestMsg</button>
     </div>
   </div>
 </template>
@@ -19,6 +20,21 @@
 <script>
 import { uuid } from 'vue-uuid'; 
 import axios from 'axios';
+
+/*
+axios.interceptors.response.use(
+  function(response) { return response;}, 
+  function(error) {
+    // handle error
+    if (error.response) {
+        //alert(error.response.data.message);
+        console.log("axios interceptor: " + error.response.data);
+        this.$parent.showAlert(error.response.data)
+        
+    }
+  });
+
+*/
 const apiURL = window.location.protocol + "//"+ window.location.hostname +":8081/api"
 
 export default {
@@ -31,45 +47,42 @@ export default {
   },
   data() {
       return {          
-            Name: "",
-            Uuid: "",
-            Status:"",
-           
-      }
-  },
+          
+          sendMessage: {
+            MsgType: "RegisterRequest",            
+            Name: "TestName",
+            Uuid: "123456"
+            }
+          }
+    },
+  
   created() {
 
   },
   methods: {
 
-    testMethod() {
-
+    testMethod(m,str ) {
+      console.log("here:" + m)
+      this.$parent.showAlert(str)
     },
     async RegisterIdent() {
           console.log("RegisterIdent")
-          if (this.Name === "") {
-            this.$parent.showAlert("Kein Username angegeben!")
-          } else {
-            this.Uuid = uuid.v4()
-            this.Status=""       
-            //await   axios.post(apiURL + "/RegisterIdent", {  
-              await   axios.post(apiURL + "/TestApi", {  
-              MsgType:"RegisterRequest",         
-              Name: this.Name,
-              Uuid: this.Uuid
-            }, {
-              headers: {
-                'Content-Type': 'application/json',
-              }
-            })
-            .then (function(response) {
-              console.log("Response: " + response.data.Error)
-            })
-            .catch((error)=> this.$parent.showAlert("Server returned an Error:\n" + error));  
-    
-          }
-    },        
-  }       
+          this.sendMessage.Uuid = uuid.v1()
+             axios.post(apiURL+ '/TestApi', this.sendMessage)
+                 .then((res) => {
+                     //Perform Success Action
+                     console.log("Resut: "+ res)
+                 })
+                .catch((error) => {
+                     console.log("Error:")
+                     console.log("Error:"+ error.response.data.err)
+                     this.$parent.showAlert(error.response.data)
+                })
+                 .finally(() => {
+                     //Perform action in always
+                 });
+    }
+  }        
 }
 </script>
 
