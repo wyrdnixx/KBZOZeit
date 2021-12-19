@@ -1,7 +1,8 @@
 <template>
   <div>
 
-    <h1>{{ msg }}</h1>
+    <h1 v-if="this.UserAuthenticated">{{ msg }} Wilkommen {{this.username}}</h1>
+    <h1 v-else> {{ msg }} - Bitte anmelden </h1>
     <p>
       Main App
     </p>
@@ -27,7 +28,7 @@
 
 <!-- Toast Message banner  -->
 
-  Debug: User is auth: {{this.UserAuthenticated}}
+  
     <button class="btn btn-secondary" v-on:click="TestChangeAuth()">Clear Auth</button>
     <button class="btn btn-warning" v-on:click="NavChange('Admin')">Admin</button>
     <div v-if="!this.UserAuthenticated">
@@ -78,6 +79,7 @@ export default {
   },
   data() {
     return {
+      Username:"",
       UserAuthenticated: false,
       AlertDismissSecs: 4,
       AlertDismissCountDown: 0,
@@ -95,9 +97,9 @@ export default {
   methods: {
 
     checkCookie() {
-            const username = this.$cookies.get("username");
-            console.log("Cookie got: " + username)
-            if (username != null) {
+            this.username = this.$cookies.get("username");
+            console.log("Cookie got: " + this.username)
+            if (this.username != null) {
               this.UserAuthenticated = true
             } else {
               this.UserAuthenticated = false
@@ -108,16 +110,8 @@ export default {
       this.$cookies.remove("username");
 
       this.checkCookie()
-
+            
       
-      if (this.UserAuthenticated) {
-        console.log("setting false")
-        this.UserAuthenticated = false
-        this.NavCurrentSelected=""
-      } else {
-        console.log("setting true")
-        this.UserAuthenticated = true
-      } 
     },
     countDownChanged(AlertDismissCountDown) {
       this.AlertDismissCountDown = AlertDismissCountDown

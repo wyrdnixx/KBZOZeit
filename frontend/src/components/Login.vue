@@ -9,9 +9,10 @@
         Bitte registrieren
         <hr>
         Wer sind Sie? <input type="text" placeholder="Name" v-model="sendMessage.Name"/>
+         <button class="btn btn-secondary" v-on:click="LoginRequest()">Login </button>
         <hr>
-        Debug -> Name: {{this.sendMessage.Name}} UUID: {{this.sendMessage.Uuid}} 
-        <button class="btn btn-secondary" v-on:click="LoginRequest()">Login</button>
+      <!--  Debug -> Name: {{this.sendMessage.Name}} UUID: {{this.sendMessage.Uuid}} -->
+       
         
     </div>
   </div>
