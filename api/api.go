@@ -62,12 +62,14 @@ func TestApi(w http.ResponseWriter, r *http.Request) {
 				} else {
 					utils.Log(1, "TestApi() ", "RegisterRequest got Name: "+mRegisterReq.Name)
 					utils.Log(1, "TestApi() ", "RegisterRequest got Uuid: "+mRegisterReq.Uuid)
-					w.WriteHeader(http.StatusInternalServerError)
-					w.Write([]byte(`{"err":"unexcepted"}`))
+					//w.WriteHeader(http.StatusInternalServerError)
+					w.Write([]byte(`{"Result":"Processed"}`))
 
 				}
 			default:
 				utils.Log(3, "TestApi() ", "got unknown messagetype: "+m.MsgType)
+				w.WriteHeader(http.StatusInternalServerError)
+				w.Write([]byte(`{"Result":"Got unknown message type ` + m.MsgType + `"}`))
 			}
 
 		}

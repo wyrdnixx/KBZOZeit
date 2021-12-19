@@ -71,11 +71,10 @@ export default {
              axios.post(apiURL+ '/TestApi', this.sendMessage)
                  .then((res) => {
                      //Perform Success Action
-                     console.log("Resut: "+ res)
+                     console.log("Resut: "+ res.data.Result)
                  })
-                .catch((error) => {
-                     console.log("Error:")
-                     console.log("Error:"+ error.response.data.err)
+                .catch((error) => {                     
+                     console.log("Error:"+ error.response.data.Result)
                      this.$parent.showAlert(error.response.data)
                 })
                  .finally(() => {
