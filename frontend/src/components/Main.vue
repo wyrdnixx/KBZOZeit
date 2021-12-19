@@ -27,6 +27,7 @@
 
 <!-- Toast Message banner  -->
 
+  Debug: User is auth: {{this.UserAuthenticated}}
     <button class="btn btn-secondary" v-on:click="TestChangeAuth()">Clear Auth</button>
     <button class="btn btn-warning" v-on:click="NavChange('Admin')">Admin</button>
     <div v-if="!this.UserAuthenticated">
@@ -77,7 +78,7 @@ export default {
   },
   data() {
     return {
-      UserAuthenticated: "",
+      UserAuthenticated: false,
       AlertDismissSecs: 4,
       AlertDismissCountDown: 0,
       AlertShowDismissibleAlert: false,
@@ -87,12 +88,28 @@ export default {
     
   },
   created() {
-
-    this.UserAuthenticated = true
+    
+    //this.UserAuthenticated = false
+    this.checkCookie()
   },
   methods: {
+
+    checkCookie() {
+            const username = this.$cookies.get("username");
+            console.log("Cookie got: " + username)
+            if (username != null) {
+              this.UserAuthenticated = true
+            } else {
+              this.UserAuthenticated = false
+            }
+    },
     TestChangeAuth() {
       console.log("TestChangeAuth")
+      this.$cookies.remove("username");
+
+      this.checkCookie()
+
+      
       if (this.UserAuthenticated) {
         console.log("setting false")
         this.UserAuthenticated = false
@@ -100,7 +117,7 @@ export default {
       } else {
         console.log("setting true")
         this.UserAuthenticated = true
-      }
+      } 
     },
     countDownChanged(AlertDismissCountDown) {
       this.AlertDismissCountDown = AlertDismissCountDown

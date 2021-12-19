@@ -20,6 +20,7 @@
 <script>
 
 import axios from 'axios';
+//import cookies from 'vue-cookies'
 
 const apiURL = window.location.protocol + "//"+ window.location.hostname +":8081/api"
 
@@ -42,10 +43,9 @@ export default {
     },
   
   created() {
-
+      
   },
   methods: {
-    
     async LoginRequest() {
           console.log("LoginRequest")
             
@@ -53,6 +53,10 @@ export default {
                  .then((res) => {
                      //Perform Success Action
                      console.log("Resut: "+ res.data.Result)
+                     if (res.data.Result == "login successfully") {
+                       this.$cookies.set("username",this.sendMessage.Name);
+                       this.$parent.checkCookie()
+                     }
                  })
                 .catch((error) => {                     
                      console.log("Error:"+ error.response.data.Result)
