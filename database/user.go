@@ -85,7 +85,7 @@ func AddUser(name string) error {
 		_, err := db.Query(sqlSelect)
 		if err != nil {
 			utils.Log(3, "AddUser()", "Error adding User: "+err.Error())
-			return nil
+			return err
 
 		} else {
 			utils.Log(1, "AddUser()", "User created... ")
@@ -117,7 +117,7 @@ func DisableUser(name string) error {
 
 func FindUser(name string) (models.User, error) {
 	utils.Log(1, "FindUser()", ": "+name)
-	var u models.User
+	u := models.User{}
 	db, err := sql.Open("mysql", cfg.DB_USERNAME+":"+cfg.DB_PASSWORD+"@tcp("+cfg.DB_HOST+":"+cfg.DB_PORT+")/"+cfg.DB_NAME)
 	if err != nil {
 		utils.Log(4, "FindUser()", "Could not connect to database: "+err.Error())

@@ -27,10 +27,11 @@
 
 <!-- Toast Message banner  -->
 
-    <button class="btn btn-secondary" v-on:click="TestChangeAuth()">Test-ChangeAuthenticated</button>
+    <button class="btn btn-secondary" v-on:click="TestChangeAuth()">Clear Auth</button>
     <button class="btn btn-warning" v-on:click="NavChange('Admin')">Admin</button>
     <div v-if="!this.UserAuthenticated">
-      <Register />
+      <Login /> 
+
     </div>
     <div v-else>
           <button class="btn btn-info" v-on:click="NavChange('s')">Stempeln</button>
@@ -54,7 +55,7 @@
 </template>
 
 <script>
-import Register from './Register.vue'
+import Login from './Login.vue'
 import Stempeln from './Stempeln.vue'
 import Nacherfassen from './Nacherfassen.vue'
 import Auswertung from './Auswertung.vue'
@@ -64,7 +65,7 @@ import Admin from './Admin.vue'
 export default {
   name: 'Main',
   components: {
-    Register,
+    Login,
     Stempeln,
     Auswertung,
     Nacherfassen,
@@ -95,6 +96,7 @@ export default {
       if (this.UserAuthenticated) {
         console.log("setting false")
         this.UserAuthenticated = false
+        this.NavCurrentSelected=""
       } else {
         console.log("setting true")
         this.UserAuthenticated = true

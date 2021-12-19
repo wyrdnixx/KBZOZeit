@@ -45,26 +45,21 @@ func TestApi(w http.ResponseWriter, r *http.Request) {
 			switch m.MsgType {
 			case "test":
 				utils.Log(1, "TestApi() ", "got messagetype Test")
-			case "RegisterRequest":
-				utils.Log(1, "TestApi() ", "got messagetype RegisterRequest")
-				mRegisterReq := models.MsgRegisterRequest{}
-				errRegister := json.Unmarshal(reqBody, &mRegisterReq)
-				if errRegister != nil {
+			case "GetUsers":
+				utils.Log(1, "TestApi() ", "got messagetype GetUsers")
+				AdminGetUsers(w, r)
+			case "LoginRequest":
+				utils.Log(1, "TestApi() ", "got messagetype LoginRequest")
+				LoginRequest(w, r, string(reqBody))
+			case "AddUserRequest":
+				utils.Log(1, "TestApi() ", "got messagetype AddUserRequest")
+				u := models.User{}
+				err := json.Unmarshal(reqBody, &u)
+				if err != nil {
 					w.WriteHeader(http.StatusInternalServerError)
-					w.Write([]byte(`{"Result":"error json.unmarshal ` + errRegister.Error() + `"}`))
+					w.Write([]byte(`{"Result":"error json.unmarshal ` + err.Error() + `"}`))
 				} else {
-					utils.Log(1, "TestApi() ", "RegisterRequest got Name: "+mRegisterReq.Name)
-					utils.Log(1, "TestApi() ", "RegisterRequest got Uuid: "+mRegisterReq.Uuid)
-
-					// ToDo - check for result
-					err := RegisterIdent(mRegisterReq)
-					if err != nil {
-						w.WriteHeader(http.StatusInternalServerError)
-						w.Write([]byte(`{"Result":"` + err.Error() + `"}`))
-					} else {
-						w.Write([]byte(`{"Result":"Processed"}`))
-					}
-
+					AdminAddUser(w, r, u)
 				}
 			default:
 				utils.Log(3, "TestApi() ", "got unknown messagetype: "+m.MsgType)
@@ -75,24 +70,6 @@ func TestApi(w http.ResponseWriter, r *http.Request) {
 		}
 
 	}
-}
-
-func RegisterIdent(m models.MsgRegisterRequest) error {
-	// ToDo - error handling
-	u, err := database.FindUser(m.Name)
-	if (models.User{} == u) { //is empty
-		// ok - user not found in DB
-		database.AddUser(m.Name)
-		database.AddDevice(m.Name, m.Uuid)
-		return nil
-	} else if (models.User{} != u) {
-		utils.Log(2, "RegisterIdent", "requested user existing: "+u.Name)
-		return errors.New("user already registred")
-	} else {
-		utils.Log(2, "RegisterIdent", "error checking user: ")
-		return errors.New("error checking user:" + err.Error())
-	}
-
 }
 
 // OLD: find correct user and do the response
@@ -130,6 +107,29 @@ func RegisterIdentOld(w http.ResponseWriter, r *http.Request) {
 
 }
 
+func LoginRequest(w http.ResponseWriter, r *http.Request, request string) {
+	EnableCors(&w)
+
+	u := models.User{}
+	err := json.Unmarshal([]byte(request), &u)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(`{"Result":"error unmarshal loginRequest ` + err.Error() + `"}`))
+	} else {
+		res, err := database.FindUser(u.Name)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(`{"Result":"error on loginRequest ` + err.Error() + `"}`))
+		} else if res.Enabled == 0 {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(`{"Result":"user not existing or disabled"}`))
+		} else {
+			w.Write([]byte(`{"Result":"login successfully"}`))
+		}
+	}
+
+}
+
 func AdminGetUsers(w http.ResponseWriter, r *http.Request) {
 	EnableCors(&w)
 	u, err := database.GetUsers()
@@ -144,6 +144,24 @@ func AdminGetUsers(w http.ResponseWriter, r *http.Request) {
 			w.Write([]byte(err.Error()))
 		} else {
 			w.Write(response)
+		}
+	}
+
+}
+
+func AdminAddUser(w http.ResponseWriter, r *http.Request, u models.User) {
+	EnableCors(&w)
+	if u.Name == "" {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(errors.New(`{"Result":"no username set"}`).Error()))
+	} else {
+		err := database.AddUser(u.Name)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(err.Error()))
+		} else {
+			response := `{"Result":"user created"}`
+			w.Write([]byte(response))
 		}
 	}
 
