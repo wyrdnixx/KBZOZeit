@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -24,15 +25,6 @@ func TestApi(w http.ResponseWriter, r *http.Request) {
 	EnableCors(&w)
 	// w.Header().Set("Content-Type", "application/json")
 
-	type Test struct {
-		MsgType string `json:"MsgType"`
-		//MsgData []struct{} // `json:"MsgData"`
-	}
-	type MsgRegisterRequest struct {
-		MsgType string `json:"MsgType"`
-		Name    string `json:"Name"`
-		Uuid    string `json:"Uuid"`
-	}
 	utils.Log(1, "TestApi() ", "got called: ")
 
 	reqBody, err := ioutil.ReadAll(r.Body)
@@ -43,7 +35,7 @@ func TestApi(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	} else {
 
-		m := Test{}
+		m := models.ReceivedMessage{}
 		errunmarsh := json.Unmarshal(reqBody, &m)
 		if errunmarsh != nil && errunmarsh != io.EOF {
 			utils.Log(3, "TestApi() ", "unmarshal: "+errunmarsh.Error())
@@ -55,15 +47,23 @@ func TestApi(w http.ResponseWriter, r *http.Request) {
 				utils.Log(1, "TestApi() ", "got messagetype Test")
 			case "RegisterRequest":
 				utils.Log(1, "TestApi() ", "got messagetype RegisterRequest")
-				mRegisterReq := MsgRegisterRequest{}
+				mRegisterReq := models.MsgRegisterRequest{}
 				errRegister := json.Unmarshal(reqBody, &mRegisterReq)
 				if errRegister != nil {
-
+					w.WriteHeader(http.StatusInternalServerError)
+					w.Write([]byte(`{"Result":"error json.unmarshal ` + errRegister.Error() + `"}`))
 				} else {
 					utils.Log(1, "TestApi() ", "RegisterRequest got Name: "+mRegisterReq.Name)
 					utils.Log(1, "TestApi() ", "RegisterRequest got Uuid: "+mRegisterReq.Uuid)
-					//w.WriteHeader(http.StatusInternalServerError)
-					w.Write([]byte(`{"Result":"Processed"}`))
+
+					// ToDo - check for result
+					err := RegisterIdent(mRegisterReq)
+					if err != nil {
+						w.WriteHeader(http.StatusInternalServerError)
+						w.Write([]byte(`{"Result":"` + err.Error() + `"}`))
+					} else {
+						w.Write([]byte(`{"Result":"Processed"}`))
+					}
 
 				}
 			default:
@@ -75,32 +75,28 @@ func TestApi(w http.ResponseWriter, r *http.Request) {
 		}
 
 	}
+}
 
-	/*
-		reqBody, _ := ioutil.ReadAll(r.Body)
-		utils.Log(1, "TestApi() ", "reading reqBody : "+string(reqBody))
-
-		m := Test{}
-		errunmarsh := json.Unmarshal(reqBody, &m)
-		if errunmarsh != nil {
-			utils.Log(3, "TestApi() ", "unmarshal reqBody : "+errunmarsh.Error())
-
-		} else {
-			switch m.MsgType {
-			case "test":
-				utils.Log(1, "TestApi() ", "got messagetype Test")
-			case "RegisterRequest":
-				utils.Log(1, "TestApi() ", "got messagetype RegisterRequest")
-			default:
-				utils.Log(3, "TestApi() ", "got unknown messagetype: "+m.MsgType)
-			}
-		}
-	*/
+func RegisterIdent(m models.MsgRegisterRequest) error {
+	// ToDo - error handling
+	u, err := database.FindUser(m.Name)
+	if (models.User{} == u) { //is empty
+		// ok - user not found in DB
+		database.AddUser(m.Name)
+		database.AddDevice(m.Name, m.Uuid)
+		return nil
+	} else if (models.User{} != u) {
+		utils.Log(2, "RegisterIdent", "requested user existing: "+u.Name)
+		return errors.New("user already registred")
+	} else {
+		utils.Log(2, "RegisterIdent", "error checking user: ")
+		return errors.New("error checking user:" + err.Error())
+	}
 
 }
 
-// ToDo: find correct user and do the response
-func RegisterIdent(w http.ResponseWriter, r *http.Request) {
+// OLD: find correct user and do the response
+func RegisterIdentOld(w http.ResponseWriter, r *http.Request) {
 	EnableCors(&w)
 
 	reqBody, err := ioutil.ReadAll(r.Body)

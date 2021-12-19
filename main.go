@@ -27,7 +27,7 @@ func startWebServer() {
 
 	router.HandleFunc("/api/TestApi", api.TestApi)
 	router.HandleFunc("/api/AdminGetUsers", api.AdminGetUsers)
-	router.HandleFunc("/api/RegisterIdent", api.RegisterIdent)
+	//router.HandleFunc("/api/RegisterIdent", api.RegisterIdent)
 	// Create the route
 	router.
 		PathPrefix("/").
