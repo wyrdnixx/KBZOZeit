@@ -3,6 +3,7 @@ package database
 import (
 	"database/sql"
 	"errors"
+	"strconv"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -51,29 +52,83 @@ func Initdb() {
 	//	FindUser("EnabledExampleUser")
 }
 
-func StartTimeAccounting(Name string) error {
-	utils.Log(1, "startTimeAccounting()", "starting ")
-	db, err := sql.Open("mysql", cfg.DB_USERNAME+":"+cfg.DB_PASSWORD+"@tcp("+cfg.DB_HOST+":"+cfg.DB_PORT+")/"+cfg.DB_NAME)
+type TimeAccountRow struct {
+	Id       int            `json:"Id"`
+	FUsers   string         `json:"FUsers"`
+	FromDate sql.NullString `json:"FromDate"`
+	ToDate   sql.NullString `json:"ToDate"`
+}
 
+func CheckOpenCounters(Name string) (TimeAccountRow, error) {
+	utils.Log(1, "CheckOpenCounters()", "starting ")
+	entry := TimeAccountRow{}
+
+	db, err := sql.Open("mysql", cfg.DB_USERNAME+":"+cfg.DB_PASSWORD+"@tcp("+cfg.DB_HOST+":"+cfg.DB_PORT+")/"+cfg.DB_NAME)
 	if err != nil {
 		//log.Fatal(4, "ERROR: DB Connection: "+err.Error())
 		utils.Log(4, "startTimeAccounting()", "Could not connect to database: "+err.Error())
-		return errors.New(`{"Result":"Error connecting DB}`)
+		return entry, errors.New(`{"Result":"Error connecting DB}`)
 	} else {
-		Timestamp := time.Now().Format("2006-01-02 15:04:05")
-		utils.Log(1, "startTimeAccounting()", "Timestamp TimeAccounting : "+Timestamp)
-		sqlSelect := "INSERT INTO TimeAccounting (FUsers, FromDate) VALUES ( '" + Name + "', '" + Timestamp + "')"
-		utils.Log(1, "startTimeAccounting()", "SQL-Query: "+sqlSelect)
-		_, errQuery := db.Query(sqlSelect)
-		if errQuery != nil {
-			utils.Log(3, "startTimeAccounting()", "Error adding TimeAccounting : "+errQuery.Error())
-			return errQuery
-		} else {
-			utils.Log(3, "startTimeAccounting()", "adding TimeAccounting successfully ")
+		//sqlSelect := "INSERT INTO TimeAccounting (FUsers, FromDate) VALUES ( '" + Name + "', '" + Timestamp + "')"
+		sqlSelect := `
+		SELECT * FROM testdb.TimeAccounting 
+		where Id =(
+			select max(Id) from TimeAccounting
+			where ToDate is null
+			and FUsers = "` + Name + `");`
+		utils.Log(1, "CheckOpenCounters()", "SQL Select: "+sqlSelect)
+
+		row := db.QueryRow(sqlSelect)
+		switch err := row.Scan(&entry.Id, &entry.FUsers, &entry.FromDate, &entry.ToDate); err {
+		case sql.ErrNoRows:
+			utils.Log(1, "CheckOpenCounters()", "Ok - no open TimeAccounting found for: "+Name)
+			return entry, nil
+		case nil:
+			utils.Log(3, "CheckOpenCounters()", "found open accounting: "+strconv.Itoa(entry.Id)+"; "+entry.FUsers+"; "+entry.FromDate.String+"; "+entry.ToDate.String)
+			return entry, nil
+		default:
+			utils.Log(3, "CheckOpenCounters()", ": "+err.Error())
+			return entry, err
 		}
+
 	}
 
-	defer db.Close()
+}
+
+func StartTimeAccounting(Name string) error {
+	utils.Log(1, "startTimeAccounting()", "starting ")
+
+	row, errCheckOpenCounters := CheckOpenCounters(Name)
+	if errCheckOpenCounters != nil {
+
+	} else if (TimeAccountRow{} != row) {
+		utils.Log(2, "startTimeAccounting()", " failed - found open timeaccounting")
+
+	} else {
+
+		db, err := sql.Open("mysql", cfg.DB_USERNAME+":"+cfg.DB_PASSWORD+"@tcp("+cfg.DB_HOST+":"+cfg.DB_PORT+")/"+cfg.DB_NAME)
+
+		if err != nil {
+			//log.Fatal(4, "ERROR: DB Connection: "+err.Error())
+			utils.Log(4, "startTimeAccounting()", "Could not connect to database: "+err.Error())
+			return errors.New(`{"Result":"Error connecting DB}`)
+		} else {
+
+			Timestamp := time.Now().Format("2006-01-02 15:04:05")
+			utils.Log(1, "startTimeAccounting()", "Timestamp TimeAccounting : "+Timestamp)
+			sqlSelect := "INSERT INTO TimeAccounting (FUsers, FromDate) VALUES ( '" + Name + "', '" + Timestamp + "')"
+			utils.Log(1, "startTimeAccounting()", "SQL-Query: "+sqlSelect)
+			_, errQuery := db.Query(sqlSelect)
+			if errQuery != nil {
+				utils.Log(3, "startTimeAccounting()", "Error adding TimeAccounting : "+errQuery.Error())
+				return errQuery
+			} else {
+				utils.Log(3, "startTimeAccounting()", "adding TimeAccounting successfully ")
+			}
+		}
+
+		defer db.Close()
+	}
 	return nil
 }
 
