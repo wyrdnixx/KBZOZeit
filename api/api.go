@@ -127,7 +127,14 @@ func TimeAccounting(w http.ResponseWriter, r *http.Request, request string) {
 		switch m.Typ {
 		case "startAccounting":
 			utils.Log(1, "TimeAccounting", "startAccounting for User: "+m.Name)
-			database.StartTimeAccounting(m.Name)
+			err := database.StartTimeAccounting(m.Name)
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				w.Write([]byte(`{"Result":"error unmarshal TimeAccountingMessage ` + err.Error() + `"}`))
+			} else {
+				w.Write([]byte(`{"Result":"startAccounting successfully"}`))
+
+			}
 		case "stopAccounting":
 			utils.Log(1, "TimeAccounting", "stopAccounting for User: "+m.Name)
 		}

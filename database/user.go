@@ -60,7 +60,7 @@ func StartTimeAccounting(Name string) error {
 		utils.Log(4, "startTimeAccounting()", "Could not connect to database: "+err.Error())
 		return errors.New(`{"Result":"Error connecting DB}`)
 	} else {
-		Timestamp := time.Now().Format("2006-02-01 15:04:05")
+		Timestamp := time.Now().Format("2006-01-02 15:04:05")
 		utils.Log(1, "startTimeAccounting()", "Timestamp TimeAccounting : "+Timestamp)
 		sqlSelect := "INSERT INTO TimeAccounting (FUsers, FromDate) VALUES ( '" + Name + "', '" + Timestamp + "')"
 		utils.Log(1, "startTimeAccounting()", "SQL-Query: "+sqlSelect)
