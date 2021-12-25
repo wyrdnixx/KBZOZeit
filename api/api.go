@@ -64,6 +64,9 @@ func TestApi(w http.ResponseWriter, r *http.Request) {
 				} else {
 					AdminAddUser(w, r, u)
 				}
+			case "GetOpenTimeaccounting":
+				utils.Log(1, "TestApi() ", "got messagetype GetOpenTimeaccounting")
+				GetOpenTimeaccounting(w, r, string(reqBody))
 			default:
 				utils.Log(3, "TestApi() ", "got unknown messagetype: "+m.MsgType)
 				w.WriteHeader(http.StatusInternalServerError)
@@ -73,6 +76,13 @@ func TestApi(w http.ResponseWriter, r *http.Request) {
 		}
 
 	}
+}
+
+func GetOpenTimeaccounting(w http.ResponseWriter, r *http.Request, msg string) {
+
+	// ToDo : reqest open accounting for user
+	w.WriteHeader(http.StatusInternalServerError)
+	w.Write([]byte(`{"Error":"GetOpenTimeaccounting error ` + msg + `"}`))
 }
 
 // OLD: find correct user and do the response

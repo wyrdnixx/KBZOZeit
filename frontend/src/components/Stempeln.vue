@@ -32,9 +32,25 @@ export default {
   methods: {
       TestButton() {
           //this.$parent.showAlert("Stempeln")
-          this.TimeAccounting()
+          //this.TimeAccounting()
+          this.GetOpenTimeaccounting()
       },
-
+      async GetOpenTimeaccounting(){
+          console.log("GetOpenTimeaccounting")
+          this.sendMessage.MsgType= "GetOpenTimeaccounting"
+          this.sendMessage.Name= "testuser"
+          axios.post(apiURL+'/TestApi',this.sendMessage)
+          .then((res) => {
+            console.log("Result: "+ res.data.Result)
+          })
+          .catch((error) => {                     
+               console.log("Error:"+ error.response.data.Result)
+               this.$parent.showAlert(error.response.data)
+          })
+           .finally(() => {
+               //Perform action in always
+           });
+      },
       async TimeAccounting() {
           console.log("TimeAccounting")
             
