@@ -100,10 +100,10 @@ func StartTimeAccounting(Name string) error {
 
 	row, errCheckOpenCounters := CheckOpenCounters(Name)
 	if errCheckOpenCounters != nil {
-
+		return errCheckOpenCounters
 	} else if (TimeAccountRow{} != row) {
 		utils.Log(2, "startTimeAccounting()", " failed - found open timeaccounting")
-
+		return errors.New("failed - found open timeaccounting")
 	} else {
 
 		db, err := sql.Open("mysql", cfg.DB_USERNAME+":"+cfg.DB_PASSWORD+"@tcp("+cfg.DB_HOST+":"+cfg.DB_PORT+")/"+cfg.DB_NAME)

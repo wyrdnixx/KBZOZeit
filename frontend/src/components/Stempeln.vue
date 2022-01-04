@@ -4,7 +4,12 @@
       Stempeln
       Debu: {{this.sendMessage}}
     </p>   
-        <button class="btn btn-info" v-on:click="TestButton()">TestButton</button>
+        <button class="btn btn-info" v-on:click="TestButton()">Einstempeln</button>
+
+        <br>
+        <button class="btn btn-info" v-on:click="TestButtonGetOpenTimer()">Test-offene Timer abfragen</button>
+
+
   </div>
 </template>
 
@@ -33,6 +38,22 @@ export default {
       TestButton() {
           //this.$parent.showAlert("Stempeln")
           this.TimeAccounting()
+      },
+      async TestButtonGetOpenTimer() {
+        console.log("TestButtonGetOpenTimer")
+        this.sendMessage.Typ = "getOpenTimer"
+
+        axios.post (apiURL + '/TestApi', this.sendMessage)
+        .then ((res) => {
+          console.log("Result: " + res.data.FromDate.String)
+        })
+        .catch((error) => {                     
+          console.log("Error:"+ error.response.data.Result)
+          this.$parent.showAlert(error.response.data)
+        })
+        .finally(() => {
+          //Perform action in always
+        });
       },
 
       async TimeAccounting() {

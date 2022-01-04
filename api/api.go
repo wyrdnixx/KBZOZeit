@@ -135,6 +135,12 @@ func TimeAccounting(w http.ResponseWriter, r *http.Request, request string) {
 				w.Write([]byte(`{"Result":"startAccounting successfully"}`))
 
 			}
+		case "getOpenTimer":
+			utils.Log(1, "TimeAccounting", "User request open Timer: "+m.Name)
+			x, _ := database.CheckOpenCounters(m.Name)
+			bytes, _ := json.Marshal(x)
+			utils.Log(1, "TimeAccounting", "found open timer:"+string(bytes))
+			w.Write(bytes)
 		case "stopAccounting":
 			utils.Log(1, "TimeAccounting", "stopAccounting for User: "+m.Name)
 		}
