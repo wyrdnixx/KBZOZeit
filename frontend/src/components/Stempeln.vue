@@ -7,14 +7,28 @@
         <button class="btn btn-info" v-on:click="TestButton()">Einstempeln</button>
 
         <br>
-        <button class="btn btn-info" v-on:click="TestButtonGetOpenTimer()">Test-offene Timer abfragen</button>
+        <button class="btn btn-info" v-on:click="GetOpenTimer()">Test-offene Timer abfragen</button>
+        <br>
+        <div>
+          <h1 v-if="this.openTimerStartTime == '' ">no open Timer</h1>
+          <h1 v-else> OpenTimer:</h1>  
+          
+          <span>Start: {{ this.openTimerStartTime | moment("DD.MM.YYYY hh:mm:ss") }}</span>
+          <br>
+          <span>Now : {{ (new Date()) | moment("DD.MM.YYYY hh:mm:ss") }}</span>                    
+          <br>
+          <span>diff in hours:  {{this.TimeDiff}}</span>
+          <br>
 
+        </div>
+        <button class="btn btn-info" v-on:click="getTimeDiff()">getTimeDiff</button>
 
   </div>
 </template>
 
 <script>
 import axios from 'axios';
+
 const apiURL = window.location.protocol + "//"+ window.location.hostname +":8081/api"
 
 export default {
@@ -28,17 +42,43 @@ export default {
             MsgType: "TimeAccounting",            
             Name: "",
             Typ:""
-            }
+            },
+          openTimerStartTime:"",
+          TimeDiff:""
+          
       }
   },
   created() {
-    this.sendMessage.Name = this.$parent.username          
+    this.sendMessage.Name = this.$parent.username  
+    this.GetOpenTimer()
+
+      //refresh - evtl noch verschieben - nur wenn offener timer gefunden wurde
+      window.setInterval(() => {
+        this.getTimeDiff()
+      }, 10000) // every 10 Seconds
+  },
+  computed: {    
   },
   methods: {
+    getTimeDiff(){
+      //var diff =( (new Date(this.openTimerStartTime)) -(new Date())) / 1000;
+      var now = new Date()
+      var then = new Date(this.openTimerStartTime)
+      console.log("now: " + now)
+      console.log("then: " + then)
+      var diff =( now - then)  / 1000;
+      console.log("diff " + diff)
+      diff /= (60 * 60);  // dif in stunden umgerechnet
+      console.log("diff " + diff)
+      console.log("diff " + diff.toFixed(2) )     
+
+      this.TimeDiff =diff.toFixed(2) 
+    },
       TestButton() {
           //this.$parent.showAlert("Stempeln")
           //this.TimeAccounting()
-          this.GetOpenTimeaccounting()
+          this.TimeAccounting()
+          
       },
       async GetOpenTimeaccounting(){
           console.log("GetOpenTimeaccounting")
@@ -56,13 +96,14 @@ export default {
                //Perform action in always
            });
       },
-      async TestButtonGetOpenTimer() {
+      async GetOpenTimer() {
         console.log("TestButtonGetOpenTimer")
         this.sendMessage.Typ = "getOpenTimer"
 
         axios.post (apiURL + '/TestApi', this.sendMessage)
         .then ((res) => {
           console.log("Result: " + res.data.FromDate.String)
+          this.openTimerStartTime = res.data.FromDate.String
         })
         .catch((error) => {                     
           console.log("Error:"+ error.response.data.Result)
@@ -70,6 +111,7 @@ export default {
         })
         .finally(() => {
           //Perform action in always
+          
         });
       },
 
@@ -94,6 +136,7 @@ export default {
                 })
                  .finally(() => {
                      //Perform action in always
+                     this.GetOpenTimer()
                  });
     }
   }
