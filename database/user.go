@@ -19,6 +19,8 @@ func init() {
 }
 
 func Initdb() {
+	utils.Log(1, "InitDB()", "Using config "+cfg.DB_HOST)
+
 	utils.Log(1, "InitDB()", "starting initiating database....")
 	crUsers := `
 	CREATE TABLE IF NOT EXISTS Users (					
@@ -167,14 +169,14 @@ func QueryDB(query string) sql.Rows {
 
 	if err != nil {
 		//log.Fatal(4, "ERROR: DB Connection: "+err.Error())
-		utils.Log(4, "QueryDB()", "Could not connect to database: "+err.Error())
+		utils.Log(4, "QueryDB()", "Could not connect to database for : "+query+" -> "+err.Error())
 		return sql.Rows{}
 	} else {
 		//res, err := db.Query("select * from bla;")
 
 		res, errQuery := db.Query(query)
 		if errQuery != nil {
-			utils.Log(4, "QueryDB()", "Could not query database: "+errQuery.Error())
+			utils.Log(4, "QueryDB()", "Could not query database: "+query+" -> "+errQuery.Error())
 		} else {
 			utils.Log(1, "QueryDB()", "query finished")
 			return *res

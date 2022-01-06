@@ -5,7 +5,15 @@ import (
 	"log"
 	"os"
 	"time"
+
+	"github.com/wyrdnixx/KBZOZeit/models"
 )
+
+var cfg models.Configuration
+
+func init() {
+	cfg = GetConfig()
+}
 
 func Log(level int, function string, text string) {
 	t := time.Now()
@@ -14,6 +22,10 @@ func Log(level int, function string, text string) {
 	switch level {
 	case 1:
 		lvl = "Debug"
+		if cfg.DEBUG != "On" {
+			return
+		}
+
 	case 2:
 		lvl = "Warning"
 	case 3:

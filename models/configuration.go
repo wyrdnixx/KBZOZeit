@@ -6,4 +6,5 @@ type Configuration struct {
 	DB_PORT     string
 	DB_HOST     string
 	DB_NAME     string
+	DEBUG       string
 }
