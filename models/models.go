@@ -17,3 +17,11 @@ type ReceivedMessage struct {
 	MsgType string `json:"MsgType"`
 	//MsgData []struct{} // `json:"MsgData"`
 }
+
+type TimeAccountingMessage struct {
+	MsgType  string `json:MsgType`
+	Name     string `json:Name`
+	Typ      string `json:Typ`
+	FromDate string `json:fromDate`
+	ToDate   string `json:toDate`
+}

@@ -23,7 +23,8 @@
 import axios from 'axios';
 //import cookies from 'vue-cookies'
 
-const apiURL = window.location.protocol + "//"+ window.location.hostname +":8081/api"
+//const apiURL = window.location.protocol + "//"+ window.location.href +"/api"
+const apiURL = window.location.href +"/api"
 
 export default {
   name: 'Login', 

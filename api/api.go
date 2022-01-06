@@ -7,6 +7,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 
 	"github.com/wyrdnixx/KBZOZeit/database"
 	"github.com/wyrdnixx/KBZOZeit/models"
@@ -122,20 +123,15 @@ func RegisterIdentOld(w http.ResponseWriter, r *http.Request) {
 
 func TimeAccounting(w http.ResponseWriter, r *http.Request, request string) {
 	EnableCors(&w)
-	type TimeAccountingMessage struct {
-		MsgType string `json:MsgType`
-		Name    string `json:Name`
-		Typ     string `json:Typ`
-	}
 
-	m := TimeAccountingMessage{}
+	m := models.TimeAccountingMessage{}
 	err := json.Unmarshal([]byte(request), &m)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(`{"Result":"error unmarshal TimeAccountingMessage ` + err.Error() + `"}`))
 	} else {
 		switch m.Typ {
-		case "startAccounting":
+		case "Einstempeln":
 			utils.Log(1, "TimeAccounting", "startAccounting for User: "+m.Name)
 			err := database.StartTimeAccounting(m.Name)
 			if err != nil {
@@ -151,8 +147,18 @@ func TimeAccounting(w http.ResponseWriter, r *http.Request, request string) {
 			bytes, _ := json.Marshal(x)
 			utils.Log(1, "TimeAccounting", "found open timer:"+string(bytes))
 			w.Write(bytes)
-		case "stopAccounting":
+		case "Ausstempeln":
 			utils.Log(1, "TimeAccounting", "stopAccounting for User: "+m.Name)
+			rows, err := database.Ausstempeln(m)
+			if err != nil || rows == 0 {
+				w.WriteHeader(http.StatusInternalServerError)
+				w.Write([]byte(`{"Result":"error stopAccounting ` + err.Error() + `"}`))
+			} else {
+				//r :=strconv.FormatInt(rows,2)
+				r := strconv.FormatInt(rows, 10)
+				w.Write([]byte(`{"Result":"stopAccounting successfully, updated rows: ` + r + `"}`))
+			}
+
 		}
 	}
 }

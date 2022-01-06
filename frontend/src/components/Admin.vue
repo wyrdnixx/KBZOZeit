@@ -39,9 +39,8 @@
 <script>
 
 import axios from 'axios';
-const apiURL = window.location.protocol + "//"+ window.location.hostname +":8081/api"
-//import { uuid } from 'vue-uuid'; 
-// import ShortUniqueId from 'short-unique-id';
+const apiURL = window.location.href +"api"
+
 
 
 export default {

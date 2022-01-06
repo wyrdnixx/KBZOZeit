@@ -95,6 +95,7 @@ func CheckOpenCounters(Name string) (TimeAccountRow, error) {
 
 }
 
+//// Einstempeln
 func StartTimeAccounting(Name string) error {
 	utils.Log(1, "startTimeAccounting()", "starting ")
 
@@ -130,6 +131,33 @@ func StartTimeAccounting(Name string) error {
 		defer db.Close()
 	}
 	return nil
+}
+
+func Ausstempeln(m models.TimeAccountingMessage) (int64, error) {
+	utils.Log(1, "Ausstempen()", "stop timeAccounting for: "+m.Name)
+	db, err := sql.Open("mysql", cfg.DB_USERNAME+":"+cfg.DB_PASSWORD+"@tcp("+cfg.DB_HOST+":"+cfg.DB_PORT+")/"+cfg.DB_NAME)
+
+	if err != nil {
+		//log.Fatal(4, "ERROR: DB Connection: "+err.Error())
+		utils.Log(4, "Ausstempen()", "Could not connect to database: "+err.Error())
+		return 0, errors.New("could not connect to database")
+	} else {
+		Timestamp := time.Now().Format("2006-01-02 15:04:05")
+		query := `update TimeAccounting set ToDate = '` + Timestamp + `' where FUsers = '` + m.Name + `' and FromDate = '` + m.FromDate + `';`
+
+		utils.Log(1, "Ausstempen()", "SQL-Query: "+query)
+		res, errQuery := db.Exec(query)
+		if errQuery != nil {
+			utils.Log(4, "QueryDB()", "Could not query database: "+errQuery.Error())
+			return 0, errQuery
+		} else {
+			utils.Log(1, "QueryDB()", "query finished")
+			//utils.Log(1, "QueryDB()", "" )
+			return res.RowsAffected()
+		}
+
+	}
+
 }
 
 func QueryDB(query string) sql.Rows {
