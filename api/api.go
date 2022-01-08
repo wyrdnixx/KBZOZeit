@@ -68,6 +68,8 @@ func TestApi(w http.ResponseWriter, r *http.Request) {
 			case "GetOpenTimeaccounting":
 				utils.Log(1, "TestApi() ", "got messagetype GetOpenTimeaccounting")
 				GetOpenTimeaccounting(w, r, string(reqBody))
+			case "GetAccountings":
+				GetAccountings(w, r, string(reqBody))
 			default:
 				utils.Log(3, "TestApi() ", "got unknown messagetype: "+m.MsgType)
 				w.WriteHeader(http.StatusInternalServerError)
@@ -77,6 +79,22 @@ func TestApi(w http.ResponseWriter, r *http.Request) {
 		}
 
 	}
+}
+
+func GetAccountings(w http.ResponseWriter, r *http.Request, msg string) (string, error) {
+	m := models.GetAccountingsMessage{}
+
+	err := json.Unmarshal([]byte(msg), &m)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(`{"Result":"error unmarshal TimeAccountingMessage ` + err.Error() + `"}`))
+		return err.Error(), nil
+	} else {
+		utils.Log(1, "RegisterIdent() ", " reqBody got : "+m.User)
+		return string(m.User), nil
+		//return "Bla", nil
+	}
+	return "nil", nil
 }
 
 func GetOpenTimeaccounting(w http.ResponseWriter, r *http.Request, msg string) {
