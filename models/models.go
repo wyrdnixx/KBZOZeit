@@ -28,7 +28,7 @@ type TimeAccountingMessage struct {
 
 type GetAccountingsMessage struct {
 	MsgType  string `json:"MsgType"`
-	User     string `json:"User"`
+	User     string `json:"Name"`
 	FromDate string `json:"FromDate"`
 	ToDate   string `json:"ToDate"`
 }

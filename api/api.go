@@ -39,7 +39,7 @@ func TestApi(w http.ResponseWriter, r *http.Request) {
 		m := models.ReceivedMessage{}
 		errunmarsh := json.Unmarshal(reqBody, &m)
 		if errunmarsh != nil && errunmarsh != io.EOF {
-			utils.Log(3, "TestApi() ", "unmarshal: "+errunmarsh.Error())
+			utils.Log(3, "TestApi() ", "first unmarshal: "+string(reqBody)+errunmarsh.Error())
 		} else {
 			utils.Log(1, "TestApi() ", "got MsgType: "+m.MsgType)
 
@@ -69,7 +69,9 @@ func TestApi(w http.ResponseWriter, r *http.Request) {
 				utils.Log(1, "TestApi() ", "got messagetype GetOpenTimeaccounting")
 				GetOpenTimeaccounting(w, r, string(reqBody))
 			case "GetAccountings":
-				GetAccountings(w, r, string(reqBody))
+				utils.Log(1, "TestApi", "User requests Accountings: "+string(reqBody))
+				res, _ := GetAccountings(w, r, string(reqBody))
+				w.Write([]byte(res))
 			default:
 				utils.Log(3, "TestApi() ", "got unknown messagetype: "+m.MsgType)
 				w.WriteHeader(http.StatusInternalServerError)
@@ -82,10 +84,10 @@ func TestApi(w http.ResponseWriter, r *http.Request) {
 }
 
 type AccountingEntry struct {
-	Id       string `json:"Id"`
-	User     string `json:"FUser"`
-	FromDate string `json:"FromDate"`
-	ToDate   string `json:"ToDate"`
+	Id       string  `json:"Id"`
+	User     string  `json:"FUser"`
+	FromDate *string `json:"FromDate"`
+	ToDate   *string `json:"ToDate"`
 }
 
 func GetAccountings(w http.ResponseWriter, r *http.Request, msg string) (string, error) {
@@ -94,30 +96,58 @@ func GetAccountings(w http.ResponseWriter, r *http.Request, msg string) (string,
 	err := json.Unmarshal([]byte(msg), &m)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(`{"Result":"error unmarshal TimeAccountingMessage ` + err.Error() + `"}`))
+		w.Write([]byte(`{"Result":"error unmarshal GetAccountingsMessage ` + err.Error() + `"}`))
 		return err.Error(), nil
 	} else {
-		utils.Log(1, "RegisterIdent() ", " reqBody got : "+m.User)
+		utils.Log(2, "GetAccountings() ", " GetAccountings for user: "+m.User)
+		s := "" //initialice emtpy
+		if m.FromDate == "" && m.ToDate == "" {
+			utils.Log(1, "GetAccountings() ", " GetAccountings all for user "+m.User)
+			s = `select * from TimeAccounting where FUsers = "` + m.User + `";`
+		}
+		if m.FromDate != "" && m.ToDate == "" {
+			utils.Log(1, "GetAccountings() ", " GetAccountings range only from: "+m.FromDate)
+			s = `select * from TimeAccounting where FUsers = "` + m.User + `" and FromDate >= "` + m.FromDate + `";`
+		}
+		if m.FromDate == "" && m.ToDate != "" {
+			utils.Log(1, "GetAccountings() ", " GetAccountings range only to: "+m.FromDate)
+			s = `select * from TimeAccounting where FUsers = "` + m.User + `" and ToDate <= "` + m.ToDate + ` 23:59:59";`
+		}
+		if m.FromDate != "" && m.ToDate != "" {
+			utils.Log(1, "GetAccountings() ", " GetAccountings range : "+m.FromDate+" to: "+m.ToDate)
+			s = `select * from TimeAccounting where FUsers = "` + m.User + `" and FromDate >= "` + m.FromDate + `" and ToDate <= "` + m.ToDate + ` 23:59:59";`
+		}
 
-		s := `select * from TimeAccounting where FUsers = "` + m.User + `";`
 		fmt.Println("Select: " + s)
 		rows := database.QueryDB(s)
-		fmt.Println(rows.Columns())
-		x := 0
-		for rows.Next() {
-			x++
-			en := AccountingEntry{}
-			err := rows.Scan(&en.Id, &en.User, &en.FromDate, &en.ToDate)
-			if err != nil {
-				fmt.Println("err: " + err.Error())
-			} else {
-				fmt.Println("Id: " + en.Id)
+
+		//js, err := json.Marshal(rows)
+		if err != nil {
+			utils.Log(2, "GetAccountings: Error marshal sql results: ", err.Error())
+			return "", err
+		} else {
+			//utils.Log(2, "GetAccountings: SQL-Result: ", string(js))
+			//	return string(js), nil
+			var entrys = []AccountingEntry{}
+			for rows.Next() {
+				var e AccountingEntry
+				if err := rows.Scan(&e.Id, &e.User, &e.FromDate, &e.ToDate); err != nil {
+					return "", err
+				}
+				entrys = append(entrys, e)
 			}
 
+			js, err := json.Marshal(entrys)
+			if err != nil {
+				utils.Log(2, "GetAccountings", "error marshal sql results: "+err.Error())
+				return "", err
+			} else {
+				utils.Log(1, "GetAccountings", "SQL-Result: "+string(js))
+				return string(js), nil
+
+			}
 		}
-		fmt.Printf("Count: %d ", x)
-		return string(m.User), nil
-		//return "Bla", nil
+
 	}
 	//return "nil", nil
 }
