@@ -62,7 +62,7 @@ func LoginTest(t *testing.T) {
 
 func TestGetAccountings(t *testing.T) {
 	fmt.Println("TestGetAccountings")
-	testMsg := `{"MsgType":"GetAccountings","User":"Hans","FromDate":"01.01.2021","ToDate":"31.12.2021"}`
+	testMsg := `{"MsgType":"GetAccountings","User":"asdf","FromDate":"01.01.2021","ToDate":"31.12.2021"}`
 
 	res, _ := api.GetAccountings(nil, nil, testMsg)
 

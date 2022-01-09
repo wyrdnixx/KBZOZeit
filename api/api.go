@@ -81,6 +81,13 @@ func TestApi(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+type AccountingEntry struct {
+	Id       string `json:"Id"`
+	User     string `json:"FUser"`
+	FromDate string `json:"FromDate"`
+	ToDate   string `json:"ToDate"`
+}
+
 func GetAccountings(w http.ResponseWriter, r *http.Request, msg string) (string, error) {
 	m := models.GetAccountingsMessage{}
 
@@ -91,10 +98,28 @@ func GetAccountings(w http.ResponseWriter, r *http.Request, msg string) (string,
 		return err.Error(), nil
 	} else {
 		utils.Log(1, "RegisterIdent() ", " reqBody got : "+m.User)
+
+		s := `select * from TimeAccounting where FUsers = "` + m.User + `";`
+		fmt.Println("Select: " + s)
+		rows := database.QueryDB(s)
+		fmt.Println(rows.Columns())
+		x := 0
+		for rows.Next() {
+			x++
+			en := AccountingEntry{}
+			err := rows.Scan(&en.Id, &en.User, &en.FromDate, &en.ToDate)
+			if err != nil {
+				fmt.Println("err: " + err.Error())
+			} else {
+				fmt.Println("Id: " + en.Id)
+			}
+
+		}
+		fmt.Printf("Count: %d ", x)
 		return string(m.User), nil
 		//return "Bla", nil
 	}
-	return "nil", nil
+	//return "nil", nil
 }
 
 func GetOpenTimeaccounting(w http.ResponseWriter, r *http.Request, msg string) {
