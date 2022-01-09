@@ -3,9 +3,9 @@
 
     <h1 v-if="this.UserAuthenticated">{{ msg }} Wilkommen {{this.username}}</h1>
     <h1 v-else> {{ msg }} - Bitte anmelden </h1>
-    <p>
-      Main App
-    </p>
+    <p>Main App </p>
+      <h1> {{this.VUE_APP_NODE_ENV}}</h1>
+    
 
     <!-- Toast Message banner  -->
 
@@ -85,13 +85,29 @@ export default {
       AlertDismissCountDown: 0,
       AlertShowDismissibleAlert: false,
       AlertWebsiteAlertMessage: "",
-      NavCurrentSelected: "s"   
+      NavCurrentSelected: "s",
+      VUE_APP_NODE_ENV:"",
+      APIURL:""
     }
     
   },
   created() {
     
-    //this.UserAuthenticated = false
+    //this.UserAuthenticated = false    
+    this.VUE_APP_NODE_ENV = process.env.VUE_APP_NODE_ENV
+    console.log(" .environment : " + this.VUE_APP_NODE_ENV); // OUTPUT: development
+    if (this.VUE_APP_NODE_ENV != "development") {      
+      console.log("using production env")
+      this.APIURL = window.location.href +"/api"
+    }else {
+      console.log("using development env")
+      //this.APIURL = window.location.protocol + "//"+ window.location.href +":8081/api"
+      this.APIURL= window.location.protocol + "//"+ window.location.hostname +":8081/api"
+
+    }
+
+
+
     this.checkCookie()
   },
   methods: {

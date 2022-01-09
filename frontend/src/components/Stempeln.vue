@@ -32,7 +32,7 @@
 import axios from 'axios';
 
 //const apiURL = window.location.protocol + "//"+ window.location.href +"/api"
-const apiURL = window.location.href +"api"
+//const apiURL = window.location.href +"api"
 
 export default {
   name: 'Stempeln',  
@@ -81,10 +81,10 @@ export default {
       this.TimeDiff =diff.toFixed(2) 
     },     
       async GetOpenTimer() {
-        console.log("GetOpenTimer: " + apiURL + '/TestApi')
+        console.log("GetOpenTimer: " + this.$parent.APIURL + '/TestApi')
         this.sendMessage.Typ = "getOpenTimer"
 
-        axios.post (apiURL + '/TestApi', this.sendMessage)
+        axios.post (this.$parent.APIURL + '/TestApi', this.sendMessage)
         .then ((res) => {
           console.log("Result: " + res.data.FromDate.String)
           this.openTimerStartTime = res.data.FromDate.String
@@ -105,7 +105,7 @@ export default {
           
           this.sendMessage.Typ = "Einstempeln"
           this.sendMessage.FromDate = this.openTimerStartTime
-             axios.post(apiURL+ '/TestApi', this.sendMessage)
+             axios.post(this.$parent.APIURL+ '/TestApi', this.sendMessage)
                  .then((res) => {
                      //Perform Success Action
                      console.log("Resut: "+ res.data.Result)
@@ -129,7 +129,7 @@ export default {
           // start or stop 
           this.sendMessage.Typ = "Ausstempeln"
           this.sendMessage.FromDate = this.openTimerStartTime          
-             axios.post(apiURL+ '/TestApi', this.sendMessage)
+             axios.post(this.$parent.APIURL+ '/TestApi', this.sendMessage)
                  .then((res) => {
                      //Perform Success Action
                      console.log("Resut: "+ res.data.Result)

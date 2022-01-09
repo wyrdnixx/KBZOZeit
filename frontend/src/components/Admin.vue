@@ -39,7 +39,7 @@
 <script>
 
 import axios from 'axios';
-const apiURL = window.location.href +"api"
+//const apiURL = window.location.href +"api"
 
 
 
@@ -73,7 +73,7 @@ export default {
         console.log("GetUsers")
       this.sendMessage.MsgType = "GetUsers"           
 
-             axios.post(apiURL+ '/TestApi', this.sendMessage)
+             axios.post(this.$parent.APIURL+ '/TestApi', this.sendMessage)
                  .then((res) => {
                      //Perform Success Action
                      console.log("Resut: "+ res.data.Result)
@@ -100,7 +100,7 @@ export default {
           }else {
             this.sendMessage.MsgType = "AddUserRequest"           
 
-             axios.post(apiURL+ '/TestApi', this.sendMessage)
+             axios.post(this.$parent.APIURL+ '/TestApi', this.sendMessage)
                  .then((res) => {
                      //Perform Success Action
                      console.log("Resut: "+ res.data.Result)

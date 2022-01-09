@@ -24,7 +24,8 @@ import axios from 'axios';
 //import cookies from 'vue-cookies'
 
 //const apiURL = window.location.protocol + "//"+ window.location.href +"/api"
-const apiURL = window.location.href +"/api"
+//const apiURL = window.location.href +"/api"
+
 
 export default {
   name: 'Login', 
@@ -51,7 +52,8 @@ export default {
     async LoginRequest() {
           console.log("LoginRequest")
             
-             axios.post(apiURL+ '/TestApi', this.sendMessage)
+             //axios.post(apiURL+ '/TestApi', this.sendMessage)
+             axios.post(this.$parent.APIURL+ '/TestApi', this.sendMessage)
                  .then((res) => {
                      //Perform Success Action
                      console.log("Resut: "+ res.data.Result)
