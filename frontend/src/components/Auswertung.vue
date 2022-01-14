@@ -16,25 +16,26 @@
       <td><input type="date" id="GetAccountingsToDate" v-model="GetAccountingsToDate"/></td>      
     </tr>
   </tbody>
-   {{this.GetAccountingsFromDate}}
-</table>
-        <button class="btn btn-info" v-on:click="GetAccountings()">Anzeigen</button>
+   <!-- {{this.GetAccountingsFromDate}} --> 
+           <button class="btn btn-info" v-on:click="GetAccountings()">Anzeigen</button>
         <button class="btn btn-info" v-on:click="TestBannerMessage()">CSV-Download</button>
+</table>
+
     <br>     
     <br>
                <table class="table table-dark">
               <thead>
                 <tr>            
-                  <th scope="col">Username</th>
-                  <th scope="col">Enabled</th>
-                  <th scope="col">Delete</th>
+                  <th scope="col">Von</th>
+                  <th scope="col">bis</th>
+                  
                 </tr>
               </thead>
               <tbody>
                 <tr v-for="entry in this.Accountings" :key="entry.Id">   
                   <td>{{ entry.FromDate }}</td>
                   <td>{{ entry.ToDate }}</td>      
-                  <td><button class="btn btn-warning" v-on:click="DelEntry(entry.Id)">X-notImplemented</button></td>      
+                  
                 </tr>
               </tbody>            
             </table>

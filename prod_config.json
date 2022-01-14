@@ -3,5 +3,5 @@
     "DB_PASSWORD": "dbpw",
     "DB_PORT": "3306",
     "DB_HOST": "docker",
-    "DB_NAME": "testdb"
+    "DB_NAME": "ZeitDB"
 }
