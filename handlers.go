@@ -82,8 +82,45 @@ func handleClocking(content interface{}) ([]byte, error) {
 	default:
 		log.Println("invalid clocking message")
 		response.Type = "clockingResponseError"
-		response.Content = "invalid clocking message" + getcurrentTimestamp()
+		response.Content = "invalid clocking message"
 
+	}
+
+	return json.Marshal(response)
+}
+
+func handlegetBookings(content interface{}) ([]byte, error) {
+	contentStr, ok := content.(string)
+	if !ok {
+		return generateErrorJSON("Invalid content for echoTest")
+	}
+	var response Message
+
+	switch contentStr {
+	case "currentMonth":
+		response.Type = "getBookingsResponse"
+		// Sample input string to be encoded
+		input := `[{"from":"01.01.2020 00:00:00", "to":"01.01.2020 00:01:00"},{"from":"02.01.2020 00:00:00", "to":"02.01.2020 00:13:00"}]`
+
+		// Define a slice of TimeRange to hold the parsed time ranges
+		var timeRanges []TimeRange
+
+		// Parse the input JSON string into the slice
+		err := json.Unmarshal([]byte(input), &timeRanges)
+		if err != nil {
+			fmt.Println("Error parsing input:", err)
+			//	return
+		}
+
+		// Create a Message object with the parsed time ranges as the content
+		response = Message{
+			Type:    "getBookingsResponse",
+			Content: timeRanges,
+		}
+
+	default:
+		response.Type = "getBookingsResponseError"
+		response.Content = "invalid getBookings message"
 	}
 
 	return json.Marshal(response)

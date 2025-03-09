@@ -65,6 +65,9 @@ func processMessage(msg []byte) ([]byte, error) {
 	case "clocking":
 		return handleClocking(message.Content)
 
+	case "getBookings":
+		return handlegetBookings(message.Content)
+
 	// You can add more cases here for different message types
 	default:
 		// Unsupported type

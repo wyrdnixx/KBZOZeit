@@ -23,3 +23,9 @@ type ErrorResponse struct {
 	Type    string `json:"type"`
 	Message string `json:"message"`
 }
+
+// Define the structure for the embedded content (time ranges)
+type TimeRange struct {
+	From string `json:"from"`
+	To   string `json:"to"`
+}
