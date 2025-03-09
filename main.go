@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -26,7 +25,7 @@ var upgrader = websocket.Upgrader{
 
 var wsconnections WSConnections
 
-var eventBus *EventBus
+var dbEventBus *DBEventBus
 
 // Serve the homepage (this serves the HTML page)
 func serveHome(w http.ResponseWriter, r *http.Request) {
@@ -45,56 +44,6 @@ func serveHome(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			log.Fatalf("Error serving frontend: %s", err)
 		} */
-}
-
-// WebSocket handler
-func handleWebSocket_OLD(w http.ResponseWriter, r *http.Request) {
-	conn, err := upgrader.Upgrade(w, r, nil) // Upgrade HTTP to WebSocket
-	if err != nil {
-		log.Println("Upgrade:", err)
-		return
-	} else {
-		wsconnections.C = append(wsconnections.C, conn)
-		log.Printf("Active Connections: %s", wsconnections.C[0].RemoteAddr())
-	}
-	defer conn.Close()
-
-	for {
-		// Read JSON message from client
-		_, msg, err := conn.ReadMessage()
-		if err != nil {
-			log.Println("Read:", err)
-			break
-		}
-
-		// Unmarshal the received message (JSON) into a struct
-		var receivedMessage Message
-		err = json.Unmarshal(msg, &receivedMessage)
-		// Errorhandling JSON processing
-		if err != nil {
-			log.Println("Unmarshal:", err)
-			//break
-			// Write the JSON response back to the client
-			responseMessage := Message{
-				Type:    "err",
-				Content: "failure on JSON Unmarshal client message",
-			}
-			// Marshal the response message to JSON
-			responseJSON, err := json.Marshal(responseMessage)
-			if err != nil {
-				log.Println("Marshal:", err)
-				break
-			}
-			err = conn.WriteMessage(websocket.TextMessage, responseJSON)
-			if err != nil {
-				log.Println("Write:", err)
-				break
-			}
-		}
-
-		//processMessage(conn, receivedMessage)
-
-	}
 }
 
 // handleWebSocket function upgrades the HTTP connection to WebSocket
@@ -123,7 +72,8 @@ func handleWebSocket(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Process the incoming message
-		response, err := processMessage(message)
+		// extract only the token from header - full header is example [Bearer adminToken]
+		response, err := processMessage(message, strings.Split(r.Header.Get("Authorization"), " ")[1])
 		if err != nil {
 			log.Println("Error processing message:", err)
 			break
@@ -157,7 +107,8 @@ func validateBearerToken(r *http.Request) error {
 	// For simplicity, we're checking if the token is "valid-token" (replace with actual validation logic)
 	token := parts[1]
 	//validToken := "asd3245345HDXKXKS3476hjdfksdfasdf"
-	validToken := "valid-token"
+	//validToken := "valid-token"
+	validToken := "adminToken" // ToDO - check against Database
 
 	if token != validToken {
 		log.Println("Invalid Bearer token")
@@ -184,26 +135,13 @@ func main() {
 		os.Exit(1)
 	}
 
-	eventBus := NewEventBus(db)
+	dbEventBus = NewDBEventBus(db)
 
 	errInit := initDB(db)
 	if errInit != nil {
 		log.Fatalf("Error init Database")
 		os.Exit(1)
 	}
-	// Insert a user
-	insertTask := &Task{
-		Action:   "insert",
-		Query:    `INSERT INTO users (name,password) VALUES (?,?);`,
-		Args:     []interface{}{"Alice", "test"},
-		Response: make(chan any),
-	}
-	result, err := eventBus.SubmitTask(insertTask)
-	if err != nil {
-
-		log.Fatalf("insert failed: %s", err)
-	}
-	fmt.Println("Insert result:", result)
 
 	// Get port from environment variable
 	port := os.Getenv("PORT")
@@ -244,7 +182,7 @@ func main() {
 	log.Println("Shutting down server...")
 
 	// Close the EventBus gracefully
-	eventBus.Close()
+	dbEventBus.Close()
 
 	log.Println("Server stopped.")
 }

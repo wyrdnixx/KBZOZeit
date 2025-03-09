@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -12,7 +13,7 @@ func handleEchoTest(content interface{}) ([]byte, error) {
 	// Convert content to string (it's expected to be a string)
 	contentStr, ok := content.(string)
 	if !ok {
-		return generateErrorJSON("Invalid content for echoTest")
+		return generateResponse("handleEchoTestResponse", true, "Invalid content for echoTest")
 	}
 
 	// Respond with the same content
@@ -28,25 +29,25 @@ func handleTimeBooking(content interface{}) ([]byte, error) {
 	// First, convert content to a map
 	contentMap, ok := content.(map[string]interface{})
 	if !ok {
-		return generateErrorJSON("Invalid content format for timebooking")
+		return generateResponse("handleTimeBookingResponse", true, "Invalid content format for timebooking")
 	}
 
 	// Extract the "from" and "to" fields
 	fromStr, okFrom := contentMap["from"].(string)
 	toStr, okTo := contentMap["to"].(string)
 	if !okFrom || !okTo {
-		return generateErrorJSON("Missing 'from' or 'to' in timebooking content")
+		return generateResponse("handleTimeBookingResponse", true, "Missing 'from' or 'to' in timebooking content")
 	}
 
 	// Parse the datetime strings into time.Time objects
 	layout := "02.01.2006 15:04:05"
 	fromTime, err := time.Parse(layout, fromStr)
 	if err != nil {
-		return generateErrorJSON("Invalid 'from' datetime format")
+		return generateResponse("handleTimeBookingResponse", true, "Invalid 'from' datetime format")
 	}
 	toTime, err := time.Parse(layout, toStr)
 	if err != nil {
-		return generateErrorJSON("Invalid 'to' datetime format")
+		return generateResponse("handleTimeBookingResponse", true, "Invalid 'to' datetime format")
 	}
 
 	fmt.Printf("got booking from %s to %s\n", fromTime.String(), toTime.String())
@@ -64,23 +65,20 @@ func handleTimeBooking(content interface{}) ([]byte, error) {
 func handleClocking(content interface{}) ([]byte, error) {
 	contentStr, ok := content.(string)
 	if !ok {
-		return generateErrorJSON("Invalid content for echoTest")
+		return generateResponse("handleClockingResponse", true, "invalid string in contend")
 	}
 	var response Message
 	switch contentStr {
 	case "clockIn":
 		log.Println("clocking in")
-		// Insert a user
-		insertTask := &Task{
-			Action:   "insert",
-			Query:    `INSERT INTO users (name,password) VALUES (?,?);`,
-			Args:     []interface{}{"Alice", "test"},
-			Response: make(chan any),
+		_, err := testInsert()
+		if err != nil {
+			return generateResponse("handleClockingResponse", true, "error clocking in processed : "+err.Error())
+			//response.Type = "clockingResponseError"
+			//response.Content = "error clocking in processed : " + err.Error() + " - " + getcurrentTimestamp()
+		} else {
+			return generateResponse("handleClockingResponse", false, "clocking in processed successfully ")
 		}
-
-		result, _ := eventBus.SubmitTask(insertTask)
-		response.Type = "clockingResponse"
-		response.Content = "clocking in processed successfully" + getcurrentTimestamp() + result.(string)
 
 	case "clockOut":
 		log.Println("clocking out")
@@ -97,10 +95,10 @@ func handleClocking(content interface{}) ([]byte, error) {
 	return json.Marshal(response)
 }
 
-func handlegetBookings(content interface{}) ([]byte, error) {
+func handleGetBookings(content interface{}) ([]byte, error) {
 	contentStr, ok := content.(string)
 	if !ok {
-		return generateErrorJSON("Invalid content for echoTest")
+		return generateResponse("handleGetBookingsResponse", true, "Invalid content format for timebooking")
 	}
 	var response Message
 
@@ -125,13 +123,14 @@ func handlegetBookings(content interface{}) ([]byte, error) {
 			Type:    "getBookingsResponse",
 			Content: timeRanges,
 		}
+		return generateResponse("handleGetBookingsResponse", false, timeRanges)
 
 	default:
-		response.Type = "getBookingsResponseError"
-		response.Content = "invalid getBookings message"
+		return generateResponse("handleGetBookingsResponse", true, "invalid getBookings message - use 'currentMonth' for example")
+
 	}
 
-	return json.Marshal(response)
+	//return json.Marshal(response)
 }
 
 func getcurrentTimestamp() string {
@@ -144,4 +143,47 @@ func getcurrentTimestamp() string {
 	// Format the current time using the specified layout
 	formattedTime := currentTime.Format(layout)
 	return formattedTime
+}
+
+func testInsert() (int64, error) {
+	// Insert a user
+	insertTask := &DBTask{
+		Action:   "insert",
+		Query:    `INSERT INTO users (name,password) VALUES (?,?);`,
+		Args:     []interface{}{"Alice", "test"},
+		Response: make(chan any),
+	}
+	var rowsAffected int64
+	result, err := dbEventBus.SubmitTask(insertTask)
+	if err != nil {
+		return 0, err
+	}
+	if result, ok := result.(sql.Result); ok {
+		fmt.Println("Result is of type sql.Result")
+		// Now you can use sqlResult
+		rowsAffected, err = result.RowsAffected()
+		if err == nil {
+			fmt.Printf("Rows affected: %d\n", rowsAffected)
+
+		}
+
+	}
+	return rowsAffected, nil
+}
+
+func getUserbyToken(token string) (any, error) {
+	// Fetch users
+	fetchTask := &DBTask{
+		Action:   "fetch",
+		Query:    `SELECT name FROM users where token = (?);`,
+		Args:     []interface{}{token},
+		Response: make(chan any),
+	}
+	users, err := dbEventBus.SubmitTask(fetchTask)
+	if err != nil {
+		log.Fatal(err)
+		return nil, err
+	}
+	fmt.Println("Fetched users:", users)
+	return users, nil
 }

@@ -4,27 +4,10 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
-	"sync"
 
+	"github.com/mattn/go-sqlite3"
 	_ "github.com/mattn/go-sqlite3"
 )
-
-// Task represents a database operation, either a fetch or an insert.
-type Task struct {
-	Action   string        // "fetch" or "insert"
-	Query    string        // SQL query
-	Args     []interface{} // Arguments for the query
-	Response chan any      // Response channel for the result or error
-}
-
-// EventBus manages the processing of tasks sequentially.
-type EventBus struct {
-	db     *sql.DB
-	tasks  chan *Task
-	wg     sync.WaitGroup
-	closed bool
-	mu     sync.Mutex
-}
 
 func initDB(db *sql.DB) error {
 
@@ -36,33 +19,52 @@ func initDB(db *sql.DB) error {
 	}
 	fmt.Println("Database file path:", filePath)
 
-	// Create the EventBus
-	//eventBus := NewEventBus(db)
-
 	// Create a simple table
-
 	//_, err = db.Exec(`CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, name TEXT not null);`)
-	/* _, err = db.Exec(`CREATE TABLE IF NOT EXISTS "users" ("id" INTEGER NOT NULL,"name"	TEXT NOT NULL,"password" TEXT NOT NULL,PRIMARY KEY("id"));`)
+	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS "users" ("id" INTEGER NOT NULL,"name"	TEXT NOT NULL UNIQUE,"password" TEXT NOT NULL,"token" TEXT, "isClockedIn" INT, PRIMARY KEY("id"));`)
 	if err != nil {
 		log.Fatal("initDB: " + err.Error())
 		return err
-	} */
+	}
+
+	//inital insert default user
+
+	insertTask := &DBTask{
+		Action:   "insert",
+		Query:    `INSERT INTO users (name,password, token,isClockedIn) VALUES (?,?,?,?);`,
+		Args:     []interface{}{"admin", "admin", "adminToken", 0},
+		Response: make(chan any),
+	}
+
+	result, err := dbEventBus.SubmitTask(insertTask)
+	if err != nil {
+		// Check for error if user already exists - "UNIQUE constraint failed"
+		if sqliteErr, ok := err.(sqlite3.Error); ok && sqliteErr.Code == sqlite3.ErrConstraint && sqliteErr.ExtendedCode == sqlite3.ErrConstraintUnique {
+			log.Printf("inital Admin user already exists")
+		} else {
+			log.Printf("error creating inital Admin user: %s", err)
+		}
+
+	} else {
+		log.Printf("inital Admin user created: %s", result)
+	}
+
 	return nil
 }
 
-// NewEventBus creates a new EventBus and starts the task worker.
-func NewEventBus(db *sql.DB) *EventBus {
+// NewDBEventBus creates a new EventBus and starts the task worker.
+func NewDBEventBus(db *sql.DB) *DBEventBus {
 	log.Printf("creating eventbus\n")
-	bus := &EventBus{
+	bus := &DBEventBus{
 		db:    db,
-		tasks: make(chan *Task, 100), // Buffered channel to hold tasks
+		tasks: make(chan *DBTask, 100), // Buffered channel to hold tasks
 	}
 	bus.startWorker()
 	return bus
 }
 
 // startWorker starts the task processor in a separate Goroutine.
-func (bus *EventBus) startWorker() {
+func (bus *DBEventBus) startWorker() {
 	go func() {
 		for task := range bus.tasks {
 			bus.processTask(task)
@@ -71,7 +73,7 @@ func (bus *EventBus) startWorker() {
 }
 
 // processTask processes a single task (either fetch or insert).
-func (bus *EventBus) processTask(task *Task) {
+func (bus *DBEventBus) processTask(task *DBTask) {
 	log.Printf("new processTask: %s : %s : %s \n", task.Action, task.Query, task.Args)
 
 	defer bus.wg.Done()
@@ -119,7 +121,7 @@ func (bus *EventBus) processTask(task *Task) {
 }
 
 // SubmitTask submits a task to the EventBus and waits for a result.
-func (bus *EventBus) SubmitTask(task *Task) (any, error) {
+func (bus *DBEventBus) SubmitTask(task *DBTask) (any, error) {
 	log.Printf("new db-task submitted\n")
 	bus.mu.Lock()
 	defer bus.mu.Unlock()
@@ -145,7 +147,7 @@ func (bus *EventBus) SubmitTask(task *Task) (any, error) {
 }
 
 // Close closes the EventBus and waits for all tasks to complete.
-func (bus *EventBus) Close() {
+func (bus *DBEventBus) Close() {
 	bus.mu.Lock()
 	if bus.closed {
 		bus.mu.Unlock()

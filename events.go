@@ -2,49 +2,28 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
-
-	"github.com/gorilla/websocket"
 )
 
-func processMessage_OLD(conn *websocket.Conn, msg Message) {
-
-	log.Printf("Processing Message from Client %s : %s", conn.RemoteAddr(), msg)
-
-	switch msg.Type {
-	case "textMessage":
-		log.Printf("Text message received: %s", msg.Content)
-		err := conn.WriteMessage(websocket.TextMessage, []byte("{\"text\":\"got your message\"}"))
-		if err != nil {
-			log.Println("Write:", err)
-			break
-		}
-
-	case "echoTest":
-		log.Printf("Echo request message received: %s", msg.Content)
-		responseJSON, err := json.Marshal(msg)
-		if err != nil {
-			log.Println("Write:", err)
-			break
-		}
-		err = conn.WriteMessage(websocket.TextMessage, responseJSON)
-		if err != nil {
-			log.Println("Write:", err)
-			break
-		}
-
-	}
-}
-
 // processMessage handles the incoming message based on its "type"
-func processMessage(msg []byte) ([]byte, error) {
+func processMessage(msg []byte, token string) ([]byte, error) {
 	var message Message
 
 	// Try to unmarshal the incoming message into the Message struct
 	if err := json.Unmarshal(msg, &message); err != nil {
-		return generateErrorJSON("Invalid JSON format on message")
+		return generateResponse("processMessageResponse", true, "Invalid JSON format on message")
 	}
+
+	// ToDo: username auslesen damit er für DB verwendet werden kann
+	users, _ := getUserbyToken(token)
+	if users == nil {
+		log.Fatalf("user not found")
+	}
+
+	/* if message.User == "" {
+		//return generateErrorJSON("Invalid JSON - no user specified")
+		return generateResponse("processMessageResponse", true, "JSON Error - no User specified")
+	} */
 
 	// Switch on the "type" field to handle different types of messages
 	switch message.Type {
@@ -66,20 +45,23 @@ func processMessage(msg []byte) ([]byte, error) {
 		return handleClocking(message.Content)
 
 	case "getBookings":
-		return handlegetBookings(message.Content)
+		return handleGetBookings(message.Content)
 
 	// You can add more cases here for different message types
 	default:
 		// Unsupported type
-		return generateErrorJSON(fmt.Sprintf("Unsupported message type: %s", message.Type))
+		//return generateResponse(fmt.Sprintf("Unsupported message type: %s", message.Type))
+		return generateResponse("processMessageResponse", true, "Unsupported message type: "+message.Type)
 	}
 }
 
 // generateErrorJSON creates an error JSON response
-func generateErrorJSON(errorMessage string) ([]byte, error) {
-	errorResponse := ErrorResponse{
-		Type:    "error",
-		Message: errorMessage,
+func generateResponse(MsgType string, isError bool, responseMessage interface{}) ([]byte, error) {
+	Response := Response{
+		Type:      MsgType,
+		IsError:   isError,
+		Timestamp: getcurrentTimestamp(),
+		Message:   responseMessage,
 	}
-	return json.Marshal(errorResponse)
+	return json.Marshal(Response)
 }
