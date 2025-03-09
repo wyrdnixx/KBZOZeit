@@ -70,9 +70,17 @@ func handleClocking(content interface{}) ([]byte, error) {
 	switch contentStr {
 	case "clockIn":
 		log.Println("clocking in")
+		// Insert a user
+		insertTask := &Task{
+			Action:   "insert",
+			Query:    `INSERT INTO users (name,password) VALUES (?,?);`,
+			Args:     []interface{}{"Alice", "test"},
+			Response: make(chan any),
+		}
 
+		result, _ := eventBus.SubmitTask(insertTask)
 		response.Type = "clockingResponse"
-		response.Content = "clocking in processed successfully" + getcurrentTimestamp()
+		response.Content = "clocking in processed successfully" + getcurrentTimestamp() + result.(string)
 
 	case "clockOut":
 		log.Println("clocking out")
