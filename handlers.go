@@ -24,6 +24,73 @@ func handleEchoTest(content interface{}) ([]byte, error) {
 	return json.Marshal(response)
 }
 
+func handleLogin(content interface{}) ([]byte, error) {
+
+	// Check contend of the authentication request
+	contentMap, ok := content.(map[string]interface{})
+	if !ok {
+		return generateResponse("handleLoginResponse", true, "Invalid content format for timebooking")
+	}
+	log.Printf("handleLogin")
+	// Extract the "from" and "to" fields
+	username, okUsr := contentMap["username"].(string)
+	passwrd, okPwd := contentMap["passwd"].(string)
+	if !okUsr || !okPwd {
+		return generateResponse("handleLoginResponse", true, "Problem with password from authenticatoin request")
+	}
+
+	// check user against database
+	test, err := dbCheckUserPasswd(username, passwrd)
+	log.Printf("back from dbCheckUserPasswd")
+	if err != nil {
+		log.Printf("error checking user in DB: %s\n", err)
+		return generateResponse("handleLoginResponse", true, "error checking user in DB")
+	} else {
+		log.Printf("got User from DB: %s\n", test)
+
+		// generate bearer Token and write to DB
+		token, err := GenerateJWT()
+		if err != nil {
+			fmt.Println("Error generating token:", err)
+			return generateResponse("handleLoginResponse", true, "Error generating token")
+		} else {
+
+		}
+
+		// return successfull authentication
+		return generateResponse("handleLoginResponse", false, "TestResponseOK")
+	}
+
+}
+
+func dbCheckUserPasswd(user string, passwd string) (int64, string, error) {
+	// Fetch users
+	fetchTask := &DBTask{
+		Action:   "fetch",
+		Query:    `SELECT id, name, password FROM users where name = (?) and password = (?);`,
+		Args:     []interface{}{user, passwd},
+		Response: make(chan any),
+	}
+	users, err := dbEventBus.SubmitTask(fetchTask)
+	if err != nil {
+		//log.Fatal(err)
+		return 0, "", err
+	}
+	fmt.Println("Fetched users from DB:", users)
+	return users["id"], "", nil
+}
+
+func dbUpdateUserToken(token string) err {
+	updateTask := &DBTask{
+		Action:   "update",
+		Query:    `update INTO users (name,password, token,isClockedIn) VALUES (?,?,?,?);`,
+		Args:     []interface{}{"admin", "admin", "adminToken", 0},
+		Response: make(chan any),
+	}
+
+	result, err := dbEventBus.SubmitTask(insertTask)
+}
+
 // handleTimeBooking processes timebooking type messages
 func handleTimeBooking(content interface{}) ([]byte, error) {
 	// First, convert content to a map

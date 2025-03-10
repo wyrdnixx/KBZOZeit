@@ -27,6 +27,8 @@ func processMessage(msg []byte, user string) ([]byte, error) {
 		//	"content": message.Content,
 		//}
 		//return json.Marshal(response)
+	case "login":
+		return handleLogin(message.Content)
 
 	case "timebooking":
 		// Handle the timebooking case where content is an object

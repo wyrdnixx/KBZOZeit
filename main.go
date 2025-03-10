@@ -149,23 +149,6 @@ func validateBearerToken(r *http.Request) (string, error) {
 
 }
 
-func getUserbyToken(token string) (any, error) {
-	// Fetch users
-	fetchTask := &DBTask{
-		Action:   "fetch",
-		Query:    `SELECT name FROM users where token = (?);`,
-		Args:     []interface{}{token},
-		Response: make(chan any),
-	}
-	users, err := dbEventBus.SubmitTask(fetchTask)
-	if err != nil {
-		log.Fatal(err)
-		return nil, err
-	}
-	fmt.Println("Fetched users from DB:", users)
-	return users, nil
-}
-
 func main() {
 
 	// Load .env file
