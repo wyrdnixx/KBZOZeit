@@ -6,7 +6,7 @@ import (
 )
 
 // processMessage handles the incoming message based on its "type"
-func processMessage(msg []byte, token string) ([]byte, error) {
+func processMessage(msg []byte, user string) ([]byte, error) {
 	var message Message
 
 	// Try to unmarshal the incoming message into the Message struct
@@ -14,16 +14,7 @@ func processMessage(msg []byte, token string) ([]byte, error) {
 		return generateResponse("processMessageResponse", true, "Invalid JSON format on message")
 	}
 
-	// ToDo: username auslesen damit er für DB verwendet werden kann
-	users, _ := getUserbyToken(token)
-	if users == nil {
-		log.Fatalf("user not found")
-	}
-
-	/* if message.User == "" {
-		//return generateErrorJSON("Invalid JSON - no user specified")
-		return generateResponse("processMessageResponse", true, "JSON Error - no User specified")
-	} */
+	log.Printf("websocket message from user: %s : %s", user, message)
 
 	// Switch on the "type" field to handle different types of messages
 	switch message.Type {

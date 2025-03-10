@@ -49,11 +49,14 @@ func serveHome(w http.ResponseWriter, r *http.Request) {
 // handleWebSocket function upgrades the HTTP connection to WebSocket
 func handleWebSocket(w http.ResponseWriter, r *http.Request) {
 
-	// Validate the bearer token
-	err := validateBearerToken(r)
+	// Validate the bearer token user
+	user, err := validateBearerToken(r)
 	if err != nil {
+		log.Printf("user not found for token")
 		http.Error(w, "Unauthorized: "+err.Error(), http.StatusUnauthorized)
 		return
+	} else {
+		log.Printf("connection from user: %s", user)
 	}
 
 	conn, err := upgrader.Upgrade(w, r, nil)
@@ -73,7 +76,7 @@ func handleWebSocket(w http.ResponseWriter, r *http.Request) {
 
 		// Process the incoming message
 		// extract only the token from header - full header is example [Bearer adminToken]
-		response, err := processMessage(message, strings.Split(r.Header.Get("Authorization"), " ")[1])
+		response, err := processMessage(message, user)
 		if err != nil {
 			log.Println("Error processing message:", err)
 			break
@@ -89,34 +92,78 @@ func handleWebSocket(w http.ResponseWriter, r *http.Request) {
 }
 
 // Token validation function
-func validateBearerToken(r *http.Request) error {
+func validateBearerToken(r *http.Request) (string, error) {
 	// Get the Authorization header from the HTTP request
 	authHeader := r.Header.Get("Authorization")
 	if authHeader == "" {
 		log.Println("Authorization header is missing")
-		return fmt.Errorf("Authorization header is missing")
+		return "", fmt.Errorf("Authorization header is missing")
 	}
 
 	// Split the header to extract the token
 	parts := strings.Split(authHeader, " ")
 	if len(parts) != 2 || parts[0] != "Bearer" {
 		log.Println("Invalid Authorization header format")
-		return fmt.Errorf("Invalid Authorization header format")
+		return "", fmt.Errorf("Invalid Authorization header format")
 	}
 
 	// For simplicity, we're checking if the token is "valid-token" (replace with actual validation logic)
 	token := parts[1]
+
+	// ToDo: username error / unknown user not catched
+	users, _ := getUserbyToken(token)
+	if users == "" {
+		log.Println("Token for user not found - not authenticated")
+		return "", fmt.Errorf("token not found")
+	}
 	//validToken := "asd3245345HDXKXKS3476hjdfksdfasdf"
 	//validToken := "valid-token"
-	validToken := "adminToken" // ToDO - check against Database
+	//validToken := "adminToken" // ToDO - check against Database
 
-	if token != validToken {
+	/* if token != validToken {
 		log.Println("Invalid Bearer token")
-		return fmt.Errorf("Invalid Bearer token")
+		return "", fmt.Errorf("Invalid Bearer token")
+	} */
+
+	// Type assert that `data` is a map
+	// Type assert that `result` is a slice of maps
+	if records, ok := users.([]map[string]any); ok {
+		if len(records) > 0 {
+			// Access the first record (assuming you want the first result)
+			firstRecord := records[0]
+
+			// Type assert the "name" field to be a string
+			if username, ok := firstRecord["name"].(string); ok {
+				log.Printf("authenticated username: %s", username) // Output: Username: admin
+				// Token is valid
+				return username, nil
+			} else {
+				return "", fmt.Errorf("error authenticating: 'name' field is not a string")
+			}
+		} else {
+			return "", fmt.Errorf("error no user records found")
+		}
+	} else {
+		return "", fmt.Errorf("error fetching user from DB : Result is not of type []map[string]any")
 	}
 
-	// Token is valid
-	return nil
+}
+
+func getUserbyToken(token string) (any, error) {
+	// Fetch users
+	fetchTask := &DBTask{
+		Action:   "fetch",
+		Query:    `SELECT name FROM users where token = (?);`,
+		Args:     []interface{}{token},
+		Response: make(chan any),
+	}
+	users, err := dbEventBus.SubmitTask(fetchTask)
+	if err != nil {
+		log.Fatal(err)
+		return nil, err
+	}
+	fmt.Println("Fetched users from DB:", users)
+	return users, nil
 }
 
 func main() {
