@@ -72,7 +72,7 @@ func (bus *DBEventBus) startWorker() {
 	}()
 }
 
-// processTask processes a single task (either fetch or insert).
+/* // processTask processes a single task (either fetch or insert).
 func (bus *DBEventBus) processTask(task *DBTask) {
 	log.Printf("new processTask: %s : %s : %s \n", task.Action, task.Query, task.Args)
 
@@ -118,9 +118,34 @@ func (bus *DBEventBus) processTask(task *DBTask) {
 		}
 		task.Response <- results
 	}
+} */
+
+// processTask processes a single task (fetch or insert/update/delete).
+func (bus *DBEventBus) processTask(task *DBTask) {
+	switch task.Action {
+	case "insert", "update", "delete":
+		result, err := bus.db.Exec(task.Query, task.Args...)
+		if err != nil {
+			task.Response <- err
+			return
+		}
+		rowsAffected, err := result.RowsAffected()
+		if err != nil {
+			task.Response <- err
+			return
+		}
+		task.Response <- rowsAffected
+	case "fetch":
+		rows, err := bus.db.Query(task.Query, task.Args...)
+		if err != nil {
+			task.Response <- err
+			return
+		}
+		task.Response <- rows
+	}
 }
 
-// SubmitTask submits a task to the EventBus and waits for a result.
+/* // SubmitTask submits a task to the EventBus and waits for a result.
 func (bus *DBEventBus) SubmitTask(task *DBTask) (any, error) {
 	log.Printf("new db-task submitted\n")
 	bus.mu.Lock()
@@ -136,6 +161,19 @@ func (bus *DBEventBus) SubmitTask(task *DBTask) (any, error) {
 
 	// bus.mu.Unlock()
 
+	// Wait for the response
+	response := <-task.Response
+	switch v := response.(type) {
+	case error:
+		return nil, v
+	default:
+		return v, nil
+	}
+} */
+
+// SubmitTask submits a task to the EventBus and waits for a result.
+func (bus *DBEventBus) SubmitTask(task *DBTask) (any, error) {
+	bus.tasks <- task
 	// Wait for the response
 	response := <-task.Response
 	switch v := response.(type) {
@@ -171,19 +209,33 @@ func getDatabaseFilePath(db *sql.DB) (string, error) {
 	return file, nil
 }
 
-func getUserbyToken(token string) (any, error) {
+func getUserbyToken(token string) (User, error) {
 	// Fetch users
 	fetchTask := &DBTask{
 		Action:   "fetch",
-		Query:    `SELECT name FROM users where token = (?);`,
+		Query:    `SELECT id, name FROM users where token = (?);`,
 		Args:     []interface{}{token},
 		Response: make(chan any),
 	}
-	users, err := dbEventBus.SubmitTask(fetchTask)
+	rowsResult, err := dbEventBus.SubmitTask(fetchTask)
 	if err != nil {
 		//log.Fatal(err)
-		return nil, err
+		return User{}, err
 	}
-	fmt.Println("Fetched users from DB:", users)
-	return users, nil
+
+	rows := rowsResult.(*sql.Rows)
+	defer rows.Close()
+
+	var user User
+	fmt.Println("Fetched users:")
+	for rows.Next() {
+		var id int
+		var name string
+		if err := rows.Scan(&user.Id, &user.Username); err != nil {
+			log.Fatal(err)
+		}
+		fmt.Printf("ID: %d, Name: %s\n", id, name)
+	}
+	//fmt.Println("Fetched users from DB:", users)
+	return user, nil
 }

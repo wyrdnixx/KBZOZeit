@@ -52,9 +52,9 @@ func handleWebSocket(w http.ResponseWriter, r *http.Request) {
 	// Validate the bearer token user
 	user, err := validateBearerToken(r)
 	if err != nil {
-		log.Printf("user not found for token")
-		http.Error(w, "Unauthorized: "+err.Error(), http.StatusUnauthorized)
-		return
+		log.Printf("user not found for token: %s", err)
+		//http.Error(w, "Unauthorized: "+err.Error(), http.StatusUnauthorized)
+		//return
 	} else {
 		log.Printf("connection from user: %s", user)
 	}
@@ -112,9 +112,11 @@ func validateBearerToken(r *http.Request) (string, error) {
 
 	// ToDo: username error / unknown user not catched
 	users, _ := getUserbyToken(token)
-	if users == "" {
+	if (users == User{}) {
 		log.Println("Token for user not found - not authenticated")
 		return "", fmt.Errorf("token not found")
+	} else {
+		return "User: " + users.Username.(string), nil
 	}
 	//validToken := "asd3245345HDXKXKS3476hjdfksdfasdf"
 	//validToken := "valid-token"
@@ -125,27 +127,7 @@ func validateBearerToken(r *http.Request) (string, error) {
 		return "", fmt.Errorf("Invalid Bearer token")
 	} */
 
-	// Type assert that `data` is a map
-	// Type assert that `result` is a slice of maps
-	if records, ok := users.([]map[string]any); ok {
-		if len(records) > 0 {
-			// Access the first record (assuming you want the first result)
-			firstRecord := records[0]
-
-			// Type assert the "name" field to be a string
-			if username, ok := firstRecord["name"].(string); ok {
-				log.Printf("authenticated username: %s", username) // Output: Username: admin
-				// Token is valid
-				return username, nil
-			} else {
-				return "", fmt.Errorf("error authenticating: 'name' field is not a string")
-			}
-		} else {
-			return "", fmt.Errorf("error no user records found")
-		}
-	} else {
-		return "", fmt.Errorf("error fetching user from DB : Result is not of type []map[string]any")
-	}
+	return "", fmt.Errorf("error fetching user from DB")
 
 }
 

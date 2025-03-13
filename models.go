@@ -20,6 +20,11 @@ type timebookingMessage struct {
 	To   string `json:"to"`   // Actual message content
 }
 
+type User struct {
+	Id       interface{} `json:"id"`   // UserID
+	Username interface{} `json:"name"` // Username
+}
+
 type WSConnections struct {
 	C []*websocket.Conn
 }
