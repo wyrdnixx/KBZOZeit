@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"strconv"
 
 	"github.com/mattn/go-sqlite3"
 	_ "github.com/mattn/go-sqlite3"
@@ -124,6 +125,8 @@ func (bus *DBEventBus) processTask(task *DBTask) {
 func (bus *DBEventBus) processTask(task *DBTask) {
 	switch task.Action {
 	case "insert", "update", "delete":
+		log.Printf("token: %s", task.Query)
+		fmt.Printf("Executing Query: %s with Args: %v\n", task.Query, task.Args)
 		result, err := bus.db.Exec(task.Query, task.Args...)
 		if err != nil {
 			task.Response <- err
@@ -272,11 +275,13 @@ func dbCheckUserPasswd(username string, passwd string) (User, error) {
 }
 
 func dbUpdateToken(userID int64, token string) (int64, error) {
-	// Insert a user
+	// update user token
+	id := strconv.FormatInt(userID, 10)
 	insertTask := &DBTask{
-		Action:   "update",
-		Query:    `UPDATE users SET token = ? WHERE id = ?;`,
-		Args:     []interface{}{userID, token},
+		Action: "update",
+		Query:  `UPDATE users SET token = ? WHERE id = 2;`,
+		Args:   []interface{}{token, id},
+		//Args:     []interface{}{token},
 		Response: make(chan any),
 	}
 	var rowsAffected int64
@@ -302,7 +307,7 @@ func testInsert() (int64, error) {
 	insertTask := &DBTask{
 		Action:   "insert",
 		Query:    `INSERT INTO users (name,password) VALUES (?,?);`,
-		Args:     []interface{}{"Alice", "test"},
+		Args:     []interface{}{"123", "test"},
 		Response: make(chan any),
 	}
 	var rowsAffected int64
