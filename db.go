@@ -239,3 +239,86 @@ func getUserbyToken(token string) (User, error) {
 	//fmt.Println("Fetched users from DB:", users)
 	return user, nil
 }
+
+func dbCheckUserPasswd(username string, passwd string) (User, error) {
+	// Fetch users
+	fetchTask := &DBTask{
+		Action:   "fetch",
+		Query:    `SELECT id, name  FROM users where name = (?) and password = (?);`,
+		Args:     []interface{}{username, passwd},
+		Response: make(chan any),
+	}
+	rowsResult, err := dbEventBus.SubmitTask(fetchTask)
+	if err != nil {
+		//log.Fatal(err)
+		return User{}, err
+	}
+
+	rows := rowsResult.(*sql.Rows)
+	defer rows.Close()
+
+	var user User
+	fmt.Println("Fetched users:")
+	for rows.Next() {
+		var id int
+		var name string
+		if err := rows.Scan(&user.Id, &user.Username); err != nil {
+			log.Fatal(err)
+		}
+		fmt.Printf("ID: %d, Name: %s\n", id, name)
+	}
+	//fmt.Println("Fetched users from DB:", users)
+	return user, nil
+}
+
+func dbUpdateToken(userID int64, token string) (int64, error) {
+	// Insert a user
+	insertTask := &DBTask{
+		Action:   "update",
+		Query:    `UPDATE users SET token = ? WHERE id = ?;`,
+		Args:     []interface{}{userID, token},
+		Response: make(chan any),
+	}
+	var rowsAffected int64
+	result, err := dbEventBus.SubmitTask(insertTask)
+	if err != nil {
+		return 0, err
+	}
+	if result, ok := result.(sql.Result); ok {
+		fmt.Println("Result is of type sql.Result")
+		// Now you can use sqlResult
+		rowsAffected, err = result.RowsAffected()
+		if err == nil {
+			fmt.Printf("Rows affected: %d\n", rowsAffected)
+
+		}
+
+	}
+	return rowsAffected, nil
+}
+
+func testInsert() (int64, error) {
+	// Insert a user
+	insertTask := &DBTask{
+		Action:   "insert",
+		Query:    `INSERT INTO users (name,password) VALUES (?,?);`,
+		Args:     []interface{}{"Alice", "test"},
+		Response: make(chan any),
+	}
+	var rowsAffected int64
+	result, err := dbEventBus.SubmitTask(insertTask)
+	if err != nil {
+		return 0, err
+	}
+	if result, ok := result.(sql.Result); ok {
+		fmt.Println("Result is of type sql.Result")
+		// Now you can use sqlResult
+		rowsAffected, err = result.RowsAffected()
+		if err == nil {
+			fmt.Printf("Rows affected: %d\n", rowsAffected)
+
+		}
+
+	}
+	return rowsAffected, nil
+}

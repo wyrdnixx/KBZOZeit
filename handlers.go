@@ -1,9 +1,7 @@
 package main
 
 import (
-	"database/sql"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"log"
 	"time"
@@ -41,13 +39,13 @@ func handleLogin(content interface{}) ([]byte, error) {
 	}
 
 	// check user against database
-	test, err := dbCheckUserPasswd(username, passwrd)
-	log.Printf("back from dbCheckUserPasswd: %s", test)
+	res, err := dbCheckUserPasswd(username, passwrd)
+	log.Printf("back from dbCheckUserPasswd: %s", res)
 	if err != nil {
 		log.Printf("error checking user in DB: %s\n", err)
 		return generateResponse("handleLoginResponse", true, "error checking user in DB")
 	} else {
-		log.Printf("got User from DB: %s\n", test)
+		log.Printf("got User from DB: %s\n", res)
 
 		// generate bearer Token and write to DB
 		token, err := GenerateJWT()
@@ -56,66 +54,20 @@ func handleLogin(content interface{}) ([]byte, error) {
 			return generateResponse("handleLoginResponse", true, "Error generating token")
 		} else {
 			log.Printf("new token generated: %s\n", token)
+
+			// TODO: update geht noch nicht - 0 rows affected
+			_, err := dbUpdateToken(res.Id.(int64), token)
+			if err != nil {
+				log.Printf("error updating token: %s\n", err)
+				return generateResponse("handleLoginResponse", true, "Error updating token ind DB: "+err.Error())
+			} else {
+				return generateResponse("handleLoginResponse", false, token)
+			}
+
 		}
 
 		// return successfull authentication
-		return generateResponse("handleLoginResponse", false, "TestResponseOK")
-	}
 
-}
-
-// func dbCheckUserPasswd(user string, passwd string) (int64, string, error) {
-func dbCheckUserPasswd(user string, passwd string) (User, error) {
-	// Fetch users
-	fetchTask := &DBTask{
-		Action:   "fetch",
-		Query:    `SELECT id, name  FROM users where name = (?) and password = (?);`,
-		Args:     []interface{}{user, passwd},
-		Response: make(chan any),
-	}
-	users, err := dbEventBus.SubmitTask(fetchTask)
-	if err != nil {
-		//log.Fatal(err)
-		return User{}, err
-	}
-	log.Printf("Fetched users from DB: %s\n", users)
-
-	// Convert the `any` result to `[]map[string]interface{}`
-	data, ok := users.([]map[string]interface{})
-	if !ok {
-		fmt.Println("Error: result is not of type []map[string]interface{}")
-		return User{}, errors.New("error: result is not of type []map[string]interface{}")
-	}
-	// Get the first row (first map in the slice)
-	row := data[0]
-
-	// Extract the "id" and "name" fields from the map
-	//idPtr, idOk := row["id"].(*interface{})       // pointer to interface{}
-	idPtr, idOk := row["id"].(*interface{})       // pointer to interface{}
-	namePtr, nameOk := row["name"].(*interface{}) // pointer to interface{}
-
-	if idOk && nameOk {
-		// Dereference the pointers and assert their actual type (string in this case)
-		id, idOk := (*idPtr).(string)
-		name, nameOk := (*namePtr).(string)
-
-		if idOk && nameOk {
-			// Create the User struct and assign the extracted values
-			user := User{
-				Id:       id,
-				Username: name,
-			}
-
-			// Now you can work with the `user` struct
-			fmt.Printf("User Struct: %+v\n", user)
-			return user, nil
-		} else {
-			fmt.Println("Error: Could not assert id or name to string")
-			return User{}, errors.New("error: could not assert id or name to string")
-		}
-	} else {
-		fmt.Println("Error: Missing or invalid id or name in map")
-		return User{}, errors.New("error: missing or invalid id or name in map")
 	}
 
 }
@@ -251,30 +203,4 @@ func getcurrentTimestamp() string {
 	// Format the current time using the specified layout
 	formattedTime := currentTime.Format(layout)
 	return formattedTime
-}
-
-func testInsert() (int64, error) {
-	// Insert a user
-	insertTask := &DBTask{
-		Action:   "insert",
-		Query:    `INSERT INTO users (name,password) VALUES (?,?);`,
-		Args:     []interface{}{"Alice", "test"},
-		Response: make(chan any),
-	}
-	var rowsAffected int64
-	result, err := dbEventBus.SubmitTask(insertTask)
-	if err != nil {
-		return 0, err
-	}
-	if result, ok := result.(sql.Result); ok {
-		fmt.Println("Result is of type sql.Result")
-		// Now you can use sqlResult
-		rowsAffected, err = result.RowsAffected()
-		if err == nil {
-			fmt.Printf("Rows affected: %d\n", rowsAffected)
-
-		}
-
-	}
-	return rowsAffected, nil
 }
