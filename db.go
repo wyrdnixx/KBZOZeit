@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
-	"strconv"
 
 	"github.com/mattn/go-sqlite3"
 	_ "github.com/mattn/go-sqlite3"
@@ -145,34 +144,17 @@ func (bus *DBEventBus) processTask(task *DBTask) {
 			return
 		}
 		task.Response <- rows
+
+	case "fetchRow":
+		// Handle select queries (fetch task)
+		rows, err := bus.db.Query(task.Query, task.Args...)
+		if err != nil {
+			task.Response <- err
+			return
+		}
+		task.Response <- rows
 	}
 }
-
-/* // SubmitTask submits a task to the EventBus and waits for a result.
-func (bus *DBEventBus) SubmitTask(task *DBTask) (any, error) {
-	log.Printf("new db-task submitted\n")
-	bus.mu.Lock()
-	defer bus.mu.Unlock()
-
-	if bus.closed {
-		bus.mu.Unlock()
-		return nil, fmt.Errorf("event bus is closed")
-	}
-	bus.wg.Add(1)
-
-	bus.tasks <- task
-
-	// bus.mu.Unlock()
-
-	// Wait for the response
-	response := <-task.Response
-	switch v := response.(type) {
-	case error:
-		return nil, v
-	default:
-		return v, nil
-	}
-} */
 
 // SubmitTask submits a task to the EventBus and waits for a result.
 func (bus *DBEventBus) SubmitTask(task *DBTask) (any, error) {
@@ -243,6 +225,7 @@ func getUserbyToken(token string) (User, error) {
 	return user, nil
 }
 
+// Old method from Test using websocket
 func dbCheckUserPasswd(username string, passwd string) (User, error) {
 	// Fetch users
 	fetchTask := &DBTask{
@@ -274,20 +257,52 @@ func dbCheckUserPasswd(username string, passwd string) (User, error) {
 	return user, nil
 }
 
-func dbUpdateToken(userID int64, token string) (int64, error) {
+// Function to validate user credentials from SQLite database
+func validateUser(username, password string) bool {
+	var storedPassword string
+	// Fetch user
+	fetchTask := &DBTask{
+		Action:   "fetchRow",
+		Query:    "SELECT password FROM users WHERE name = ?",
+		Args:     []interface{}{username},
+		Response: make(chan any),
+	}
+	rowResult, err := dbEventBus.SubmitTask(fetchTask)
+	if err != nil {
+		//log.Fatal(err)
+		return false
+	}
+
+	// Assert the response to *sql.Rows
+	rows, ok := rowResult.(*sql.Rows)
+	if !ok {
+		log.Fatal("Failed to assert rowsResult to *sql.Rows")
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		if err := rows.Scan(&storedPassword); err != nil {
+			log.Fatal(err)
+		}
+	}
+	// ToDO: In a real-world app, use a hashed password comparison, not plaintext
+	return password == storedPassword
+}
+
+func dbUpdateToken(username string, token string) error {
 	// update user token
-	id := strconv.FormatInt(userID, 10)
+	//id := strconv.FormatInt(userID, 10)
 	insertTask := &DBTask{
 		Action: "update",
-		Query:  `UPDATE users SET token = ? WHERE id = 2;`,
-		Args:   []interface{}{token, id},
+		Query:  `UPDATE users SET token = ? WHERE name = ?;`,
+		Args:   []interface{}{token, username},
 		//Args:     []interface{}{token},
 		Response: make(chan any),
 	}
 	var rowsAffected int64
 	result, err := dbEventBus.SubmitTask(insertTask)
 	if err != nil {
-		return 0, err
+		return err
 	}
 	if result, ok := result.(sql.Result); ok {
 		fmt.Println("Result is of type sql.Result")
@@ -299,7 +314,7 @@ func dbUpdateToken(userID int64, token string) (int64, error) {
 		}
 
 	}
-	return rowsAffected, nil
+	return nil
 }
 
 func testInsert() (int64, error) {

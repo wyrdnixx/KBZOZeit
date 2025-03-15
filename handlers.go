@@ -23,7 +23,7 @@ func handleEchoTest(content interface{}) ([]byte, error) {
 	return json.Marshal(response)
 }
 
-func handleLogin(content interface{}) ([]byte, error) {
+/* func handleLogin_Old(content interface{}) ([]byte, error) {
 
 	// Check contend of the authentication request
 	contentMap, ok := content.(map[string]interface{})
@@ -50,7 +50,9 @@ func handleLogin(content interface{}) ([]byte, error) {
 		log.Printf("got User from DB: %s\n", res)
 
 		// generate bearer Token and write to DB
-		token, err := GenerateJWT()
+		//token, err := GenerateJWT()
+		// Temp - old function
+		token, err := GenerateJWT("nix")
 		if err != nil {
 			fmt.Println("Error generating token:", err)
 			return generateResponse("handleLoginResponse", true, "Error generating token")
@@ -72,7 +74,7 @@ func handleLogin(content interface{}) ([]byte, error) {
 
 	}
 
-}
+} */
 
 //ToDo
 /* func dbUpdateUserToken(token string) err {

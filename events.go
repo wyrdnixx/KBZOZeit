@@ -21,14 +21,10 @@ func processMessage(msg []byte, user string) ([]byte, error) {
 	case "echoTest":
 		// Handle the echoTest case where content is a string
 		return handleEchoTest(message.Content)
-		// Example case: Echo the content back
-		//response := map[string]string{
-		//	"type":    "echoResponse",
-		//	"content": message.Content,
-		//}
-		//return json.Marshal(response)
-	case "login":
-		return handleLogin(message.Content)
+
+	// handleLogin jetzt aus websocket raus genommen
+	/* case "login":
+	return handleLogin(message.Content) */
 
 	case "timebooking":
 		// Handle the timebooking case where content is an object

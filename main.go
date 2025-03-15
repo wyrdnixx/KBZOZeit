@@ -2,12 +2,11 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
+	"encoding/json"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
-	"strings"
 	"syscall"
 
 	"github.com/gorilla/websocket"
@@ -44,6 +43,51 @@ func serveHome(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			log.Fatalf("Error serving frontend: %s", err)
 		} */
+}
+
+// Serve the homepage (this serves the HTML page)
+func handleLogin(w http.ResponseWriter, r *http.Request) {
+
+	// Only allow POST requests
+	if r.Method != http.MethodPost {
+		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// Parse the request body to get the username and password
+	var loginUser LoginUser
+	err := json.NewDecoder(r.Body).Decode(&loginUser)
+	if err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	// Validate user credentials
+	if !validateUser(loginUser.Username, loginUser.Password) {
+		http.Error(w, "Invalid username or password", http.StatusUnauthorized)
+		return
+	}
+
+	// Create JWT token
+	token, err := GenerateJWT(loginUser.Username)
+	if err != nil {
+		http.Error(w, "Failed to generate token", http.StatusInternalServerError)
+		return
+	}
+
+	// update token in DB
+
+	errUpdToken := dbUpdateToken(loginUser.Username, token)
+	if errUpdToken != nil {
+		http.Error(w, "Failed to update token in db", http.StatusInternalServerError)
+	}
+
+	// Return the token in the response
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]string{
+		"token": token,
+	})
 }
 
 // handleWebSocket function upgrades the HTTP connection to WebSocket
@@ -91,46 +135,6 @@ func handleWebSocket(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// Token validation function
-func validateBearerToken(r *http.Request) (string, error) {
-	// Get the Authorization header from the HTTP request
-	authHeader := r.Header.Get("Authorization")
-	if authHeader == "" {
-		log.Println("Authorization header is missing")
-		return "", fmt.Errorf("Authorization header is missing")
-	}
-
-	// Split the header to extract the token
-	parts := strings.Split(authHeader, " ")
-	if len(parts) != 2 || parts[0] != "Bearer" {
-		log.Println("Invalid Authorization header format")
-		return "", fmt.Errorf("Invalid Authorization header format")
-	}
-
-	// For simplicity, we're checking if the token is "valid-token" (replace with actual validation logic)
-	token := parts[1]
-
-	// ToDo: username error / unknown user not catched
-	users, _ := getUserbyToken(token)
-	if (users == User{}) {
-		log.Println("Token for user not found - not authenticated")
-		return "", fmt.Errorf("token not found")
-	} else {
-		return "User: " + users.Username.(string), nil
-	}
-	//validToken := "asd3245345HDXKXKS3476hjdfksdfasdf"
-	//validToken := "valid-token"
-	//validToken := "adminToken" // ToDO - check against Database
-
-	/* if token != validToken {
-		log.Println("Invalid Bearer token")
-		return "", fmt.Errorf("Invalid Bearer token")
-	} */
-
-	return "", fmt.Errorf("error fetching user from DB")
-
-}
-
 func main() {
 
 	// Load .env file
@@ -164,6 +168,8 @@ func main() {
 	http.HandleFunc("/", serveHome) // Serve the index page
 
 	http.HandleFunc("/ws", handleWebSocket) // WebSocket endpoint
+
+	http.HandleFunc("/login", handleLogin) // Login endpoint
 
 	// Serve static files (e.g., JavaScript)
 	//http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))

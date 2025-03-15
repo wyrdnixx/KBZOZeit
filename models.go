@@ -25,6 +25,11 @@ type User struct {
 	Username interface{} `json:"name"` // Username
 }
 
+type LoginUser struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
 type WSConnections struct {
 	C []*websocket.Conn
 }
