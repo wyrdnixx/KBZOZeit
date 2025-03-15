@@ -44,6 +44,8 @@ func handleLogin(content interface{}) ([]byte, error) {
 	if err != nil {
 		log.Printf("error checking user in DB: %s\n", err)
 		return generateResponse("handleLoginResponse", true, "error checking user in DB")
+	} else if res.Id == nil {
+		return generateResponse("handleLoginResponse", true, "wrong username or password")
 	} else {
 		log.Printf("got User from DB: %s\n", res)
 
