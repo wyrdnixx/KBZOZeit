@@ -21,7 +21,7 @@ func initDB(db *sql.DB) error {
 
 	// Create a simple table
 	//_, err = db.Exec(`CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, name TEXT not null);`)
-	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS "users" ("id" INTEGER NOT NULL,"name"	TEXT NOT NULL UNIQUE,"password" TEXT NOT NULL,"token" TEXT, "isClockedIn" INT, PRIMARY KEY("id"));`)
+	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS "users" ("id" INTEGER NOT NULL,"name"	TEXT NOT NULL UNIQUE,"pwdHash" TEXT NOT NULL, "token" TEXT, "isClockedIn" INT, PRIMARY KEY("id"));`)
 	if err != nil {
 		log.Fatal("initDB: " + err.Error())
 		return err
@@ -31,8 +31,8 @@ func initDB(db *sql.DB) error {
 
 	insertTask := &DBTask{
 		Action:   "insert",
-		Query:    `INSERT INTO users (name,password, token,isClockedIn) VALUES (?,?,?,?);`,
-		Args:     []interface{}{"admin", "admin", "adminToken", 0},
+		Query:    `INSERT INTO users (name, pwdHash, token,isClockedIn) VALUES (?,?,?,?);`,
+		Args:     []interface{}{"admin", "testhash", "adminToken", 0},
 		Response: make(chan any),
 	}
 
@@ -71,54 +71,6 @@ func (bus *DBEventBus) startWorker() {
 		}
 	}()
 }
-
-/* // processTask processes a single task (either fetch or insert).
-func (bus *DBEventBus) processTask(task *DBTask) {
-	log.Printf("new processTask: %s : %s : %s \n", task.Action, task.Query, task.Args)
-
-	defer bus.wg.Done()
-
-	switch task.Action {
-	case "insert":
-		result, err := bus.db.Exec(task.Query, task.Args...)
-		if err != nil {
-			task.Response <- err
-			return
-		}
-		task.Response <- result
-	case "fetch":
-		rows, err := bus.db.Query(task.Query, task.Args...)
-		if err != nil {
-			task.Response <- err
-			return
-		}
-		defer rows.Close()
-
-		var results []map[string]interface{}
-		cols, err := rows.Columns()
-		if err != nil {
-			task.Response <- err
-			return
-		}
-		for rows.Next() {
-			rowData := make([]interface{}, len(cols))
-			rowPointers := make([]interface{}, len(cols))
-			for i := range rowData {
-				rowPointers[i] = &rowData[i]
-			}
-			if err := rows.Scan(rowPointers...); err != nil {
-				task.Response <- err
-				return
-			}
-			rowMap := make(map[string]interface{})
-			for i, col := range cols {
-				rowMap[col] = rowData[i]
-			}
-			results = append(results, rowMap)
-		}
-		task.Response <- results
-	}
-} */
 
 // processTask processes a single task (fetch or insert/update/delete).
 func (bus *DBEventBus) processTask(task *DBTask) {
@@ -225,45 +177,13 @@ func getUserbyToken(token string) (User, error) {
 	return user, nil
 }
 
-// Old method from Test using websocket
-func dbCheckUserPasswd(username string, passwd string) (User, error) {
-	// Fetch users
-	fetchTask := &DBTask{
-		Action:   "fetch",
-		Query:    `SELECT id, name  FROM users where name = (?) and password = (?);`,
-		Args:     []interface{}{username, passwd},
-		Response: make(chan any),
-	}
-	rowsResult, err := dbEventBus.SubmitTask(fetchTask)
-	if err != nil {
-		//log.Fatal(err)
-		return User{}, err
-	}
-
-	rows := rowsResult.(*sql.Rows)
-	defer rows.Close()
-
-	var user User
-	fmt.Println("Fetched users:")
-	for rows.Next() {
-		var id int
-		var name string
-		if err := rows.Scan(&user.Id, &user.Username); err != nil {
-			log.Fatal(err)
-		}
-		fmt.Printf("ID: %d, Name: %s\n", id, name)
-	}
-	//fmt.Println("Fetched users from DB:", users)
-	return user, nil
-}
-
 // Function to validate user credentials from SQLite database
-func validateUser(username, password string) bool {
-	var storedPassword string
+func validateUser(username, pwdHash string) bool {
+	var storedpwdHash string
 	// Fetch user
 	fetchTask := &DBTask{
 		Action:   "fetchRow",
-		Query:    "SELECT password FROM users WHERE name = ?",
+		Query:    "SELECT pwdHash FROM users WHERE name = ?",
 		Args:     []interface{}{username},
 		Response: make(chan any),
 	}
@@ -281,12 +201,12 @@ func validateUser(username, password string) bool {
 	defer rows.Close()
 
 	for rows.Next() {
-		if err := rows.Scan(&storedPassword); err != nil {
+		if err := rows.Scan(&storedpwdHash); err != nil {
 			log.Fatal(err)
 		}
 	}
 	// ToDO: In a real-world app, use a hashed password comparison, not plaintext
-	return password == storedPassword
+	return pwdHash == storedpwdHash
 }
 
 func dbUpdateToken(username string, token string) error {

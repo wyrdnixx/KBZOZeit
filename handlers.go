@@ -4,7 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"net/http"
 	"time"
+
+	"github.com/gorilla/websocket"
 )
 
 // handleEchoTest processes echoTest type messages
@@ -23,70 +26,95 @@ func handleEchoTest(content interface{}) ([]byte, error) {
 	return json.Marshal(response)
 }
 
-/* func handleLogin_Old(content interface{}) ([]byte, error) {
+// Serve the homepage (this serves the HTML page)
+func handleLogin(w http.ResponseWriter, r *http.Request) {
 
-	// Check contend of the authentication request
-	contentMap, ok := content.(map[string]interface{})
-	if !ok {
-		return generateResponse("handleLoginResponse", true, "Invalid content format for timebooking")
-	}
-	log.Printf("handleLogin")
-	// Extract the "from" and "to" fields
-	username, okUsr := contentMap["username"].(string)
-	passwrd, okPwd := contentMap["passwd"].(string)
-	if !okUsr || !okPwd {
-		return generateResponse("handleLoginResponse", true, "Problem with password from authenticatoin request")
+	// Only allow POST requests
+	if r.Method != http.MethodPost {
+		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		return
 	}
 
-	// check user against database
-	res, err := dbCheckUserPasswd(username, passwrd)
-	log.Printf("back from dbCheckUserPasswd: %s", res)
+	// Parse the request body to get the username and password
+	var loginUser LoginUser
+	err := json.NewDecoder(r.Body).Decode(&loginUser)
 	if err != nil {
-		log.Printf("error checking user in DB: %s\n", err)
-		return generateResponse("handleLoginResponse", true, "error checking user in DB")
-	} else if res.Id == nil {
-		return generateResponse("handleLoginResponse", true, "wrong username or password")
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	// Validate user credentials
+	if !validateUser(loginUser.Username, loginUser.PwdHash) {
+		http.Error(w, "Invalid username or password", http.StatusUnauthorized)
+		return
+	}
+
+	// Create JWT token
+	token, err := GenerateJWT(loginUser.Username)
+	if err != nil {
+		http.Error(w, "Failed to generate token", http.StatusInternalServerError)
+		return
+	}
+
+	// update token in DB
+
+	errUpdToken := dbUpdateToken(loginUser.Username, token)
+	if errUpdToken != nil {
+		http.Error(w, "Failed to update token in db", http.StatusInternalServerError)
+	}
+
+	// Return the token in the response
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]string{
+		"token": token,
+	})
+}
+
+// handleWebSocket function upgrades the HTTP connection to WebSocket
+func handleWebSocket(w http.ResponseWriter, r *http.Request) {
+
+	// Validate the bearer token user
+	user, err := validateBearerToken(r)
+	if err != nil {
+		log.Printf("user not found for token: %s", err)
+		http.Error(w, "Unauthorized: "+err.Error(), http.StatusUnauthorized)
+		//return
 	} else {
-		log.Printf("got User from DB: %s\n", res)
+		log.Printf("connection from user: %s", user)
+	}
 
-		// generate bearer Token and write to DB
-		//token, err := GenerateJWT()
-		// Temp - old function
-		token, err := GenerateJWT("nix")
+	conn, err := upgrader.Upgrade(w, r, nil)
+	if err != nil {
+		log.Println("WebSocket upgrade error:", err)
+		return
+	}
+	defer conn.Close()
+
+	for {
+		// Read message from WebSocket client
+		_, message, err := conn.ReadMessage()
 		if err != nil {
-			fmt.Println("Error generating token:", err)
-			return generateResponse("handleLoginResponse", true, "Error generating token")
-		} else {
-			log.Printf("new token generated: %s\n", token)
-
-			// TODO: update geht noch nicht - 0 rows affected
-			_, err := dbUpdateToken(res.Id.(int64), token)
-			if err != nil {
-				log.Printf("error updating token: %s\n", err)
-				return generateResponse("handleLoginResponse", true, "Error updating token ind DB: "+err.Error())
-			} else {
-				return generateResponse("handleLoginResponse", false, token)
-			}
-
+			log.Println("read error:", err)
+			break
 		}
 
-		// return successfull authentication
+		// Process the incoming message
+		// extract only the token from header - full header is example [Bearer adminToken]
+		response, err := processMessage(message, user)
+		if err != nil {
+			log.Println("Error processing message:", err)
+			break
+		}
 
+		// Send the response back to the client
+		err = conn.WriteMessage(websocket.TextMessage, response)
+		if err != nil {
+			log.Println("write error:", err)
+			break
+		}
 	}
-
-} */
-
-//ToDo
-/* func dbUpdateUserToken(token string) err {
-	updateTask := &DBTask{
-		Action:   "update",
-		Query:    `update INTO users (name,password, token,isClockedIn) VALUES (?,?,?,?);`,
-		Args:     []interface{}{"admin", "admin", "adminToken", 0},
-		Response: make(chan any),
-	}
-
-	result, err := dbEventBus.SubmitTask(insertTask)
-} */
+}
 
 // handleTimeBooking processes timebooking type messages
 func handleTimeBooking(content interface{}) ([]byte, error) {
