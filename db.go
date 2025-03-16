@@ -27,6 +27,11 @@ func initDB(db *sql.DB) error {
 		return err
 	}
 
+	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS "bookings" ("id" INTEGER NOT NULL,"user" INTEGER NOT NULL,"from" TEXT NOT NULL, "to" TEXT, PRIMARY KEY("id"));`)
+	if err != nil {
+		log.Fatal("initDB: " + err.Error())
+		return err
+	}
 	//inital insert default user
 
 	insertTask := &DBTask{
@@ -177,6 +182,58 @@ func getUserbyToken(token string) (User, error) {
 	return user, nil
 }
 
+func getOpenBookings(user User) (bool, error) {
+
+	fetchTask := &DBTask{
+		Action:   "fetch",
+		Query:    `SELECT id, "from" FROM bookings WHERE user = (?) AND "to" IS NULL ;`,
+		Args:     []interface{}{user.Id},
+		Response: make(chan any),
+	}
+	rowsResult, err := dbEventBus.SubmitTask(fetchTask)
+	if err != nil {
+		//log.Fatal(err)
+		return false, err
+	}
+
+	rows := rowsResult.(*sql.Rows)
+	defer rows.Close()
+
+	if rows.Next() {
+		log.Printf("Error: found open booking...")
+		return true, nil
+	} else {
+		return false, nil
+	}
+
+}
+
+func BookingIn(user User, from string) error {
+
+	insertTask := &DBTask{
+		Action: "insert",
+		Query: `INSERT INTO "main"."bookings" ("user", "from") VALUES (?, ?);
+`,
+		Args:     []interface{}{user.Id, from},
+		Response: make(chan any),
+	}
+
+	var rowsAffected int64
+	result, err := dbEventBus.SubmitTask(insertTask)
+	if err != nil {
+		return err
+	}
+	if result, ok := result.(sql.Result); ok {
+		rowsAffected, err = result.RowsAffected()
+		if err == nil {
+			log.Printf("Booking in DB ok - Rows affected: %d\n", rowsAffected)
+			return nil
+		}
+	}
+	return err
+
+}
+
 // Function to validate user credentials from SQLite database
 func validateUser(username, pwdHash string) bool {
 	var storedpwdHash string
@@ -251,7 +308,7 @@ func testInsert() (int64, error) {
 		return 0, err
 	}
 	if result, ok := result.(sql.Result); ok {
-		fmt.Println("Result is of type sql.Result")
+		//fmt.Println("Result is of type sql.Result")
 		// Now you can use sqlResult
 		rowsAffected, err = result.RowsAffected()
 		if err == nil {

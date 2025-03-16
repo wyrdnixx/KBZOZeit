@@ -117,7 +117,71 @@ func handleWebSocket(w http.ResponseWriter, r *http.Request) {
 }
 
 // handleTimeBooking processes timebooking type messages
-func handleTimeBooking(content interface{}) ([]byte, error) {
+func handleTimeBooking(content interface{}, user User) ([]byte, error) {
+	// First, convert content to a map
+	contentMap, ok := content.(map[string]interface{})
+	if !ok {
+		return generateResponse("handleTimeBookingResponse", true, "Invalid content format for timebooking")
+	}
+
+	// Extract the "from" and "to" fields
+	fromStr, okFrom := contentMap["from"].(string)
+	toStr, okTo := contentMap["to"].(string)
+	/* 	if !okFrom || !okTo {
+		return generateResponse("handleTimeBookingResponse", true, "Missing 'from' or 'to' in timebooking content")
+	} */
+
+	if okFrom && !okTo {
+		// insert from to new booking
+		log.Printf(`got "from" booking: %s`, fromStr)
+
+		// Check if user has alrady open bookings
+		res, err := getOpenBookings(user)
+		if err != nil {
+			log.Printf("Error db check for open bookings: %s", err)
+			return generateResponse("handleClockingResponse", true, "Error: cannot check fo open bookings")
+		}
+		if res { // Error - user has open bookings
+			return generateResponse("handleClockingResponse", true, "Error: User has already open booking")
+		}
+
+		// ToDo: insert booking
+		return generateResponse("handleClockingResponse", false, "booking processed")
+
+	} else if !okFrom && okTo {
+		// insert "to" to existing booking
+		log.Printf(`got "to" booking: %s`, toStr)
+
+		// ToDo: insert booking
+		return generateResponse("handleClockingResponse", false, "booking processed")
+
+	} else if okFrom && okTo {
+		// insert from and to
+		log.Printf(`got full booking: %s - %s `, fromStr, toStr)
+
+		// Check if user has alrady open bookings
+		res, err := getOpenBookings(user)
+		if err != nil {
+			log.Printf("Error db check for open bookings: %s", err)
+			return generateResponse("handleClockingResponse", true, "Error: cannot check fo open bookings")
+		}
+		if res { // Error - user has open bookings
+			return generateResponse("handleClockingResponse", true, "Error: User has already open booking")
+		}
+
+		// ToDo: insert booking
+
+		// ToDo: insert booking
+		return generateResponse("handleClockingResponse", false, "booking processed")
+	}
+
+	// error - got no values or other error
+	return generateResponse("handleTimeBookingResponse", true, "Error: Missing / error timeBooking values.")
+
+}
+
+// handleTimeBooking processes timebooking type messages
+func handleTimeBooking_OLD_TEST(content interface{}) ([]byte, error) {
 	// First, convert content to a map
 	contentMap, ok := content.(map[string]interface{})
 	if !ok {
@@ -154,6 +218,7 @@ func handleTimeBooking(content interface{}) ([]byte, error) {
 	return json.Marshal(response)
 }
 
+// OLD - do everything in handleTimeBooking
 func handleClocking(content interface{}, user User) ([]byte, error) {
 	contentStr, ok := content.(string)
 	if !ok {
@@ -167,14 +232,20 @@ func handleClocking(content interface{}, user User) ([]byte, error) {
 	case "clockIn":
 		log.Println("clocking in")
 		// ToDo DB ClockIn User
-		_, err := testInsert()
+		//_, err := testInsert()
+
+		res, err := getOpenBookings(user)
 
 		if err != nil {
-			return generateResponse("handleClockingResponse", true, "error clocking in processed : "+err.Error())
+			return generateResponse("handleClockingResponse", true, "Error checking open bookings : "+err.Error())
 			//response.Type = "clockingResponseError"
 			//response.Content = "error clocking in processed : " + err.Error() + " - " + getcurrentTimestamp()
+		} else if res { // if user has open booking
+			return generateResponse("handleClockingResponse", true, "Error: User has already open booking")
 		} else {
-			return generateResponse("handleClockingResponse", false, "clocking in processed successfully ")
+			// booking for user
+
+			return generateResponse("handleClockingResponse", false, "booking successfull")
 		}
 
 	case "clockOut":
