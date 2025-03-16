@@ -31,41 +31,44 @@ func GenerateJWT(username string) (string, error) {
 }
 
 // Token validation function
-func validateBearerToken(r *http.Request) (string, error) {
+func validateBearerToken(r *http.Request) (User, error) {
 	// Get the Authorization header from the HTTP request
 	authHeader := r.Header.Get("Authorization")
 	if authHeader == "" {
 		log.Println("Authorization header is missing")
-		return "", fmt.Errorf("Authorization header is missing")
+		return User{}, fmt.Errorf("Authorization header is missing")
 	}
 
 	// Split the header to extract the token
 	parts := strings.Split(authHeader, " ")
 	if len(parts) != 2 || parts[0] != "Bearer" {
 		log.Println("Invalid Authorization header format")
-		return "", fmt.Errorf("Invalid Authorization header format")
+		return User{}, fmt.Errorf("Invalid Authorization header format")
 	}
 
 	// For simplicity, we're checking if the token is "valid-token" (replace with actual validation logic)
 	token := parts[1]
 
 	// ToDo: username error / unknown user not catched
-	users, _ := getUserbyToken(token)
-	if (users == User{}) {
+	user, _ := getUserbyToken(token)
+	if (user == User{}) {
 		log.Println("Token for user not found - not authenticated")
-		return "", fmt.Errorf("token not found")
+		return User{}, fmt.Errorf("token not found")
 	} else {
-		return "User: " + users.Username.(string), nil
+		//return "User: " + users.Username.(string), nil
+		return user, nil
 	}
-	//validToken := "asd3245345HDXKXKS3476hjdfksdfasdf"
-	//validToken := "valid-token"
-	//validToken := "adminToken" // ToDO - check against Database
 
-	/* if token != validToken {
-		log.Println("Invalid Bearer token")
-		return "", fmt.Errorf("Invalid Bearer token")
-	} */
+}
 
-	return "", fmt.Errorf("error fetching user from DB")
+func getcurrentTimestamp() string {
+	// Define the layout
+	layout := "02.01.2006 15:04"
 
+	// Get the current date and time
+	currentTime := time.Now()
+
+	// Format the current time using the specified layout
+	formattedTime := currentTime.Format(layout)
+	return formattedTime
 }

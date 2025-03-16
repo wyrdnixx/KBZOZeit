@@ -6,7 +6,7 @@ import (
 )
 
 // processMessage handles the incoming message based on its "type"
-func processMessage(msg []byte, user string) ([]byte, error) {
+func processMessage(msg []byte, user User) ([]byte, error) {
 	var message Message
 
 	// Try to unmarshal the incoming message into the Message struct
@@ -31,7 +31,7 @@ func processMessage(msg []byte, user string) ([]byte, error) {
 		return handleTimeBooking(message.Content)
 
 	case "clocking":
-		return handleClocking(message.Content)
+		return handleClocking(message.Content, user)
 
 	case "getBookings":
 		return handleGetBookings(message.Content)

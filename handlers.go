@@ -154,16 +154,21 @@ func handleTimeBooking(content interface{}) ([]byte, error) {
 	return json.Marshal(response)
 }
 
-func handleClocking(content interface{}) ([]byte, error) {
+func handleClocking(content interface{}, user User) ([]byte, error) {
 	contentStr, ok := content.(string)
 	if !ok {
 		return generateResponse("handleClockingResponse", true, "invalid string in contend")
 	}
 	var response Message
+
+	log.Printf("clocking user: %s", user.Username)
+
 	switch contentStr {
 	case "clockIn":
 		log.Println("clocking in")
+		// ToDo DB ClockIn User
 		_, err := testInsert()
+
 		if err != nil {
 			return generateResponse("handleClockingResponse", true, "error clocking in processed : "+err.Error())
 			//response.Type = "clockingResponseError"
@@ -223,16 +228,4 @@ func handleGetBookings(content interface{}) ([]byte, error) {
 	}
 
 	//return json.Marshal(response)
-}
-
-func getcurrentTimestamp() string {
-	// Define the layout
-	layout := "02.01.2006 15:04:05"
-
-	// Get the current date and time
-	currentTime := time.Now()
-
-	// Format the current time using the specified layout
-	formattedTime := currentTime.Format(layout)
-	return formattedTime
 }
