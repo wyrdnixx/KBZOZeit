@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"time"
 
 	"github.com/gorilla/websocket"
 )
@@ -198,89 +197,6 @@ func handleTimeBooking(content interface{}, user User) ([]byte, error) {
 	// error - got no values or other error
 	return generateResponse("handleTimeBookingResponse", true, "Error: Missing / error timeBooking values.")
 
-}
-
-// handleTimeBooking processes timebooking type messages
-func handleTimeBooking_OLD_TEST(content interface{}) ([]byte, error) {
-	// First, convert content to a map
-	contentMap, ok := content.(map[string]interface{})
-	if !ok {
-		return generateResponse("handleTimeBookingResponse", true, "Invalid content format for timebooking")
-	}
-
-	// Extract the "from" and "to" fields
-	fromStr, okFrom := contentMap["from"].(string)
-	toStr, okTo := contentMap["to"].(string)
-	if !okFrom || !okTo {
-		return generateResponse("handleTimeBookingResponse", true, "Missing 'from' or 'to' in timebooking content")
-	}
-
-	// Parse the datetime strings into time.Time objects
-	layout := "02.01.2006 15:04:05"
-	fromTime, err := time.Parse(layout, fromStr)
-	if err != nil {
-		return generateResponse("handleTimeBookingResponse", true, "Invalid 'from' datetime format")
-	}
-	toTime, err := time.Parse(layout, toStr)
-	if err != nil {
-		return generateResponse("handleTimeBookingResponse", true, "Invalid 'to' datetime format")
-	}
-
-	fmt.Printf("got booking from %s to %s\n", fromTime.String(), toTime.String())
-
-	// Respond with a success message and the parsed time data
-	response := map[string]interface{}{
-		"type":    "timebookingResponse",
-		"from":    fromTime.String(),
-		"to":      toTime.String(),
-		"message": "Time booking processed successfully",
-	}
-	return json.Marshal(response)
-}
-
-// OLD - do everything in handleTimeBooking
-func handleClocking_OLD(content interface{}, user User) ([]byte, error) {
-	contentStr, ok := content.(string)
-	if !ok {
-		return generateResponse("handleClockingResponse", true, "invalid string in contend")
-	}
-	var response Message
-
-	log.Printf("clocking user: %s", user.Username)
-
-	switch contentStr {
-	case "clockIn":
-		log.Println("clocking in")
-		// ToDo DB ClockIn User
-		//_, err := testInsert()
-
-		res, err := getOpenBookings(user)
-
-		if err != nil {
-			return generateResponse("handleClockingResponse", true, "Error checking open bookings : "+err.Error())
-			//response.Type = "clockingResponseError"
-			//response.Content = "error clocking in processed : " + err.Error() + " - " + getcurrentTimestamp()
-		} else if res { // if user has open booking
-			return generateResponse("handleClockingResponse", true, "Error: User has already open booking")
-		} else {
-			// booking for user
-
-			return generateResponse("handleClockingResponse", false, "booking successfull")
-		}
-
-	case "clockOut":
-		log.Println("clocking out")
-		response.Type = "clockingResponse"
-		response.Content = "clocking out processed successfully" + getcurrentTimestamp()
-
-	default:
-		log.Println("invalid clocking message")
-		response.Type = "clockingResponseError"
-		response.Content = "invalid clocking message"
-
-	}
-
-	return json.Marshal(response)
 }
 
 func handleGetBookings(content interface{}) ([]byte, error) {
