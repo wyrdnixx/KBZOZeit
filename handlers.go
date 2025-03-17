@@ -199,7 +199,16 @@ func handleTimeBooking(content interface{}, user User) ([]byte, error) {
 
 }
 
-func handleGetBookings(content interface{}) ([]byte, error) {
+func handleGetBookings(content interface{}, user User) ([]byte, error) {
+	bookings, err := dbGetBookings(user)
+	if err != nil {
+		return generateResponse("handleGetBookingsResponse", true, "Error: Error getting Bookings: "+err.Error())
+	}
+
+	return generateResponse("handleGetBookingsResponse", false, bookings)
+}
+
+func handleGetBookings_OLD(content interface{}) ([]byte, error) {
 	contentStr, ok := content.(string)
 	if !ok {
 		return generateResponse("handleGetBookingsResponse", true, "Invalid content format for timebooking")

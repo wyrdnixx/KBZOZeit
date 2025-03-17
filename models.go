@@ -20,6 +20,12 @@ type timebookingMessage struct {
 	To   string `json:"to"`   // Actual message content
 }
 
+type Booking struct {
+	Id   string `json:"id"`   // Actual message content
+	From string `json:"from"` // Actual message content
+	To   string `json:"to"`   // Actual message content
+}
+
 type User struct {
 	Id       interface{} `json:"id"`   // UserID
 	Username interface{} `json:"name"` // Username

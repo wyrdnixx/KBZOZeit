@@ -34,7 +34,7 @@ func processMessage(msg []byte, user User) ([]byte, error) {
 	return handleClocking(message.Content, user) */
 
 	case "getBookings":
-		return handleGetBookings(message.Content)
+		return handleGetBookings(message.Content, user)
 
 	// You can add more cases here for different message types
 	default:

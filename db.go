@@ -210,6 +210,37 @@ func getOpenBookings(user User) (bool, error) {
 
 }
 
+func dbGetBookings(user User) ([]Booking, error) {
+
+	fetchTask := &DBTask{
+		Action:   "fetch",
+		Query:    `SELECT id, "from", "to" FROM bookings WHERE userId = (?) ;`,
+		Args:     []interface{}{user.Id},
+		Response: make(chan any),
+	}
+	rowsResult, err := dbEventBus.SubmitTask(fetchTask)
+	if err != nil {
+		//log.Fatal(err)
+		return nil, err
+	}
+
+	rows := rowsResult.(*sql.Rows)
+	defer rows.Close()
+
+	var allBookings []Booking
+
+	for rows.Next() {
+		var booking Booking // Create a variable for each row
+		if err := rows.Scan(&booking.Id, &booking.From, &booking.To); err != nil {
+			log.Printf("Error get bookings for user : %s : %s", user, err)
+		}
+
+		//log.Printf("UserID: %s Got booking from:  %s to: %s\n", user.Id, booking.From, booking.To)
+		allBookings = append(allBookings, booking)
+	}
+	return allBookings, nil
+}
+
 func BookingIn(user User, from string) error {
 
 	insertTask := &DBTask{
