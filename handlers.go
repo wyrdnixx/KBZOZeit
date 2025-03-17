@@ -131,7 +131,7 @@ func handleTimeBooking(content interface{}, user User) ([]byte, error) {
 		return generateResponse("handleTimeBookingResponse", true, "Missing 'from' or 'to' in timebooking content")
 	} */
 
-	if okFrom && !okTo {
+	if okFrom && !okTo { // only clock in
 		// insert from to new booking
 		log.Printf(`got "from" booking: %s`, fromStr)
 
@@ -145,17 +145,35 @@ func handleTimeBooking(content interface{}, user User) ([]byte, error) {
 			return generateResponse("handleClockingResponse", true, "Error: User has already open booking")
 		}
 
-		// ToDo: insert booking
+		// insert booking
+		errInsert := insertBooking(user.Id.(int64), fromStr, "")
+		if errInsert != nil {
+			return generateResponse("handleClockingResponse", true, "Error: DB error: "+errInsert.Error())
+		}
+
 		return generateResponse("handleClockingResponse", false, "booking processed")
 
-	} else if !okFrom && okTo {
+	} else if !okFrom && okTo { // only clock out
 		// insert "to" to existing booking
 		log.Printf(`got "to" booking: %s`, toStr)
 
-		// ToDo: insert booking
+		// Check if user has alrady open bookings
+		res, err := getOpenBookings(user)
+		if err != nil {
+			log.Printf("Error db check for open bookings: %s", err)
+			return generateResponse("handleClockingResponse", true, "Error: cannot check fo open bookings")
+		}
+		if !res { // Error - user has no open bookings
+			return generateResponse("handleClockingResponse", true, "Error: User has no open booking")
+		}
+
+		errInsert := insertBooking(user.Id.(int64), "", toStr)
+		if errInsert != nil {
+			return generateResponse("handleClockingResponse", true, "Error: DB error: "+errInsert.Error())
+		}
 		return generateResponse("handleClockingResponse", false, "booking processed")
 
-	} else if okFrom && okTo {
+	} else if okFrom && okTo { // full clocking
 		// insert from and to
 		log.Printf(`got full booking: %s - %s `, fromStr, toStr)
 
@@ -168,8 +186,6 @@ func handleTimeBooking(content interface{}, user User) ([]byte, error) {
 		if res { // Error - user has open bookings
 			return generateResponse("handleClockingResponse", true, "Error: User has already open booking")
 		}
-
-		// ToDo: insert booking
 
 		// ToDo: insert booking
 		return generateResponse("handleClockingResponse", false, "booking processed")
@@ -219,7 +235,7 @@ func handleTimeBooking_OLD_TEST(content interface{}) ([]byte, error) {
 }
 
 // OLD - do everything in handleTimeBooking
-func handleClocking(content interface{}, user User) ([]byte, error) {
+func handleClocking_OLD(content interface{}, user User) ([]byte, error) {
 	contentStr, ok := content.(string)
 	if !ok {
 		return generateResponse("handleClockingResponse", true, "invalid string in contend")

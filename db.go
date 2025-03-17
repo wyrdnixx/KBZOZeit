@@ -21,13 +21,13 @@ func initDB(db *sql.DB) error {
 
 	// Create a simple table
 	//_, err = db.Exec(`CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, name TEXT not null);`)
-	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS "users" ("id" INTEGER NOT NULL,"name"	TEXT NOT NULL UNIQUE,"pwdHash" TEXT NOT NULL, "token" TEXT, "isClockedIn" INT, PRIMARY KEY("id"));`)
+	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS "users" ("id" INTEGER NOT NULL, "name"	TEXT NOT NULL UNIQUE,"pwdHash" TEXT NOT NULL, "token" TEXT, PRIMARY KEY("id"));`)
 	if err != nil {
 		log.Fatal("initDB: " + err.Error())
 		return err
 	}
 
-	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS "bookings" ("id" INTEGER NOT NULL,"user" INTEGER NOT NULL,"from" TEXT NOT NULL, "to" TEXT, PRIMARY KEY("id"));`)
+	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS "bookings" ("id" INTEGER NOT NULL,"userId" INTEGER NOT NULL,"from" TEXT NOT NULL, "to" TEXT, PRIMARY KEY("id"));`)
 	if err != nil {
 		log.Fatal("initDB: " + err.Error())
 		return err
@@ -81,7 +81,7 @@ func (bus *DBEventBus) startWorker() {
 func (bus *DBEventBus) processTask(task *DBTask) {
 	switch task.Action {
 	case "insert", "update", "delete":
-		log.Printf("token: %s", task.Query)
+		//log.Printf("token: %s", task.Query)
 		fmt.Printf("Executing Query: %s with Args: %v\n", task.Query, task.Args)
 		result, err := bus.db.Exec(task.Query, task.Args...)
 		if err != nil {
@@ -118,6 +118,7 @@ func (bus *DBEventBus) SubmitTask(task *DBTask) (any, error) {
 	bus.tasks <- task
 	// Wait for the response
 	response := <-task.Response
+	//log.Printf("Query finished")
 	switch v := response.(type) {
 	case error:
 		return nil, v
@@ -187,7 +188,7 @@ func getOpenBookings(user User) (bool, error) {
 
 	fetchTask := &DBTask{
 		Action:   "fetch",
-		Query:    `SELECT id, "from" FROM bookings WHERE user = (?) AND "to" IS NULL ;`,
+		Query:    `SELECT id, "from" FROM bookings WHERE userId = (?) AND "to" IS NULL ;`,
 		Args:     []interface{}{user.Id},
 		Response: make(chan any),
 	}
@@ -213,7 +214,7 @@ func BookingIn(user User, from string) error {
 
 	insertTask := &DBTask{
 		Action: "insert",
-		Query: `INSERT INTO "main"."bookings" ("user", "from") VALUES (?, ?);
+		Query: `INSERT INTO "main"."bookings" ("userId", "from") VALUES (?, ?);
 `,
 		Args:     []interface{}{user.Id, from},
 		Response: make(chan any),
@@ -221,6 +222,7 @@ func BookingIn(user User, from string) error {
 
 	var rowsAffected int64
 	result, err := dbEventBus.SubmitTask(insertTask)
+	log.Printf("Finshed")
 	if err != nil {
 		return err
 	}
@@ -314,9 +316,51 @@ func testInsert() (int64, error) {
 		rowsAffected, err = result.RowsAffected()
 		if err == nil {
 			fmt.Printf("Rows affected: %d\n", rowsAffected)
-
 		}
 
 	}
 	return rowsAffected, nil
+}
+
+func insertBooking(userId int64, from string, to string) error {
+
+	if from != "" && to == "" { // only clocking in
+
+		insertTask := &DBTask{
+			Action:   "insert",
+			Query:    `INSERT INTO bookings ("userID","from") VALUES (?,?);`,
+			Args:     []interface{}{userId, from},
+			Response: make(chan any),
+		}
+
+		_, err := dbEventBus.SubmitTask(insertTask)
+		if err != nil {
+			log.Printf("Error executing insert booking: %s", err)
+			return err
+		} else {
+			return nil
+		}
+	} else if from == "" && to != "" { // only clocking out
+
+		insertTask := &DBTask{
+			Action:   "update",
+			Query:    `UPDATE bookings set "to" = ? where userId = ? and "to" is null ;`,
+			Args:     []interface{}{to, userId, to},
+			Response: make(chan any),
+		}
+
+		_, err := dbEventBus.SubmitTask(insertTask)
+		if err != nil {
+			log.Printf("Error executing update booking: %s", err)
+			return err
+		} else {
+			return nil
+		}
+
+	} else if from != "" && to != "" { // full timeBooking
+
+	}
+
+	return fmt.Errorf("ERROR: unexpected error time clocking")
+
 }

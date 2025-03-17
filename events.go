@@ -30,8 +30,8 @@ func processMessage(msg []byte, user User) ([]byte, error) {
 		// Handle the timebooking case where content is an object
 		return handleTimeBooking(message.Content, user)
 
-	case "clocking":
-		return handleClocking(message.Content, user)
+	/* case "clocking":
+	return handleClocking(message.Content, user) */
 
 	case "getBookings":
 		return handleGetBookings(message.Content)
