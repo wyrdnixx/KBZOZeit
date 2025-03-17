@@ -187,8 +187,12 @@ func handleTimeBooking(content interface{}, user User) ([]byte, error) {
 			return generateResponse("handleClockingResponse", true, "Error: User has already open booking")
 		}
 
-		// ToDo: insert booking
+		errInsert := insertBooking(user.Id.(int64), fromStr, toStr)
+		if errInsert != nil {
+			return generateResponse("handleClockingResponse", true, "Error: DB error: "+errInsert.Error())
+		}
 		return generateResponse("handleClockingResponse", false, "booking processed")
+
 	}
 
 	// error - got no values or other error

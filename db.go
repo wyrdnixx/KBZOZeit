@@ -358,7 +358,20 @@ func insertBooking(userId int64, from string, to string) error {
 		}
 
 	} else if from != "" && to != "" { // full timeBooking
+		insertTask := &DBTask{
+			Action:   "insert",
+			Query:    `INSERT INTO bookings ("userID","from", "to") VALUES (?,?,?);`,
+			Args:     []interface{}{userId, from, to},
+			Response: make(chan any),
+		}
 
+		_, err := dbEventBus.SubmitTask(insertTask)
+		if err != nil {
+			log.Printf("Error executing insert booking: %s", err)
+			return err
+		} else {
+			return nil
+		}
 	}
 
 	return fmt.Errorf("ERROR: unexpected error time clocking")
