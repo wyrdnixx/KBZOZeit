@@ -52,8 +52,7 @@ func validateBearerToken(r *http.Request) (User, error) {
 	// ToDo: username error / unknown user not catched
 	user, _ := getUserbyToken(token)
 	if (user == User{}) {
-		log.Println("Token for user not found - not authenticated")
-		return User{}, fmt.Errorf("token not found")
+		return User{}, fmt.Errorf("ERROR: could not validate user - token not found: %s", token)
 	} else {
 		//return "User: " + users.Username.(string), nil
 		return user, nil

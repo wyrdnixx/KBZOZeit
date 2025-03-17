@@ -169,14 +169,15 @@ func getUserbyToken(token string) (User, error) {
 	defer rows.Close()
 
 	var user User
-	fmt.Println("Fetched users:")
+
 	for rows.Next() {
-		var id int
-		var name string
+		//var id int
+		//var name string
 		if err := rows.Scan(&user.Id, &user.Username); err != nil {
-			log.Fatal(err)
+			log.Fatal("User validation using token error: " + err.Error())
+
 		}
-		fmt.Printf("ID: %d, Name: %s\n", id, name)
+		log.Printf("User validated - ID: %d, Name: %s\n", user.Id, user.Username)
 	}
 	//fmt.Println("Fetched users from DB:", users)
 	return user, nil
