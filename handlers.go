@@ -131,6 +131,12 @@ func handleTimeBooking(content interface{}, user User) ([]byte, error) {
 	} */
 
 	if okFrom && !okTo { // only clock in
+
+		// check for valid dateTime Format
+		if !checkDateTimeFormat(fromStr) {
+			log.Printf("ERROR: From string not in valid DateTime format.")
+			return generateResponse("handleTimeBookingResponse", true, "ERROR: From string not in valid DateTime format.")
+		}
 		// insert from to new booking
 		log.Printf(`got "from" booking: %s`, fromStr)
 
@@ -138,21 +144,28 @@ func handleTimeBooking(content interface{}, user User) ([]byte, error) {
 		res, err := getOpenBookings(user)
 		if err != nil {
 			log.Printf("Error db check for open bookings: %s", err)
-			return generateResponse("handleClockingResponse", true, "Error: cannot check fo open bookings")
+			return generateResponse("handleTimeBookingResponse", true, "Error: cannot check fo open bookings")
 		}
 		if res { // Error - user has open bookings
-			return generateResponse("handleClockingResponse", true, "Error: User has already open booking")
+			return generateResponse("handleTimeBookingResponse", true, "Error: User has already open booking")
 		}
 
 		// insert booking
 		errInsert := insertBooking(user.Id.(int64), fromStr, "")
 		if errInsert != nil {
-			return generateResponse("handleClockingResponse", true, "Error: DB error: "+errInsert.Error())
+			return generateResponse("handleTimeBookingResponse", true, "Error: DB error: "+errInsert.Error())
 		}
 
-		return generateResponse("handleClockingResponse", false, "booking processed")
+		return generateResponse("handleTimeBookingResponse", false, "booking processed")
 
 	} else if !okFrom && okTo { // only clock out
+
+		// check for valid dateTime Format
+		if !checkDateTimeFormat(toStr) {
+			log.Printf("ERROR: To string not in valid DateTime format.")
+			return generateResponse("handleTimeBookingResponse", true, "ERROR: To string not in valid DateTime format.")
+		}
+
 		// insert "to" to existing booking
 		log.Printf(`got "to" booking: %s`, toStr)
 
@@ -160,19 +173,26 @@ func handleTimeBooking(content interface{}, user User) ([]byte, error) {
 		res, err := getOpenBookings(user)
 		if err != nil {
 			log.Printf("Error db check for open bookings: %s", err)
-			return generateResponse("handleClockingResponse", true, "Error: cannot check fo open bookings")
+			return generateResponse("handleTimeBookingResponse", true, "Error: cannot check fo open bookings")
 		}
 		if !res { // Error - user has no open bookings
-			return generateResponse("handleClockingResponse", true, "Error: User has no open booking")
+			return generateResponse("handleTimeBookingResponse", true, "Error: User has no open booking")
 		}
 
 		errInsert := insertBooking(user.Id.(int64), "", toStr)
 		if errInsert != nil {
-			return generateResponse("handleClockingResponse", true, "Error: DB error: "+errInsert.Error())
+			return generateResponse("handleTimeBookingResponse", true, "Error: DB error: "+errInsert.Error())
 		}
-		return generateResponse("handleClockingResponse", false, "booking processed")
+		return generateResponse("handleTimeBookingResponse", false, "booking processed")
 
 	} else if okFrom && okTo { // full clocking
+
+		// check for valid dateTime Format
+		if !checkDateTimeFormat(fromStr) || !checkDateTimeFormat(toStr) {
+			log.Printf("ERROR: From or To string not in valid DateTime format.")
+			return generateResponse("handleTimeBookingResponse", true, "ERROR: From or To string not in valid DateTime format.")
+		}
+
 		// insert from and to
 		log.Printf(`got full booking: %s - %s `, fromStr, toStr)
 
@@ -180,17 +200,17 @@ func handleTimeBooking(content interface{}, user User) ([]byte, error) {
 		res, err := getOpenBookings(user)
 		if err != nil {
 			log.Printf("Error db check for open bookings: %s", err)
-			return generateResponse("handleClockingResponse", true, "Error: cannot check fo open bookings")
+			return generateResponse("handleTimeBookingResponse", true, "Error: cannot check fo open bookings")
 		}
 		if res { // Error - user has open bookings
-			return generateResponse("handleClockingResponse", true, "Error: User has already open booking")
+			return generateResponse("handleTimeBookingResponse", true, "Error: User has already open booking")
 		}
 
 		errInsert := insertBooking(user.Id.(int64), fromStr, toStr)
 		if errInsert != nil {
-			return generateResponse("handleClockingResponse", true, "Error: DB error: "+errInsert.Error())
+			return generateResponse("handleTimeBookingResponse", true, "Error: DB error: "+errInsert.Error())
 		}
-		return generateResponse("handleClockingResponse", false, "booking processed")
+		return generateResponse("handleTimeBookingResponse", false, "booking processed")
 
 	}
 

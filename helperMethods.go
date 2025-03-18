@@ -71,3 +71,10 @@ func getcurrentTimestamp() string {
 	formattedTime := currentTime.Format(layout)
 	return formattedTime
 }
+
+func checkDateTimeFormat(dateStr string) bool {
+
+	layout := "02.01.2006 15:04"
+	_, err := time.Parse(layout, dateStr)
+	return err == nil // If parsing is successful, return true; otherwise, false
+}
