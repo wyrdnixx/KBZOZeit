@@ -27,7 +27,7 @@ func initDB(db *sql.DB) error {
 		return err
 	}
 
-	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS "bookings" ("id" INTEGER NOT NULL,"userId" INTEGER NOT NULL,"from" TEXT NOT NULL, "to" TEXT, PRIMARY KEY("id"));`)
+	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS "bookings" ("id" INTEGER NOT NULL,"userId" INTEGER NOT NULL,"from" TEXT NOT NULL, "to" TEXT, "duration" TEXT, PRIMARY KEY("id"));`)
 	if err != nil {
 		log.Fatal("initDB: " + err.Error())
 		return err
@@ -353,7 +353,7 @@ func testInsert() (int64, error) {
 	return rowsAffected, nil
 }
 
-func insertBooking(userId int64, from string, to string) error {
+func insertBooking(userId int64, from string, to string, duration string) error {
 
 	if from != "" && to == "" { // only clocking in
 
@@ -375,8 +375,8 @@ func insertBooking(userId int64, from string, to string) error {
 
 		insertTask := &DBTask{
 			Action:   "update",
-			Query:    `UPDATE bookings set "to" = ? where userId = ? and "to" is null ;`,
-			Args:     []interface{}{to, userId, to},
+			Query:    `UPDATE bookings set "to" = ?, "duration" = ?  where userId = ? and "to" is null ;`,
+			Args:     []interface{}{to, duration, userId, to},
 			Response: make(chan any),
 		}
 
@@ -391,8 +391,8 @@ func insertBooking(userId int64, from string, to string) error {
 	} else if from != "" && to != "" { // full timeBooking
 		insertTask := &DBTask{
 			Action:   "insert",
-			Query:    `INSERT INTO bookings ("userID","from", "to") VALUES (?,?,?);`,
-			Args:     []interface{}{userId, from, to},
+			Query:    `INSERT INTO bookings ("userID","from", "to", "duration") VALUES (?,?,?,?);`,
+			Args:     []interface{}{userId, from, to, duration},
 			Response: make(chan any),
 		}
 

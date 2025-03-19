@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/gorilla/websocket"
 )
@@ -151,7 +152,7 @@ func handleTimeBooking(content interface{}, user User) ([]byte, error) {
 		}
 
 		// insert booking
-		errInsert := insertBooking(user.Id.(int64), fromStr, "")
+		errInsert := insertBooking(user.Id.(int64), fromStr, "", "")
 		if errInsert != nil {
 			return generateResponse("handleTimeBookingResponse", true, "Error: DB error: "+errInsert.Error())
 		}
@@ -179,7 +180,8 @@ func handleTimeBooking(content interface{}, user User) ([]byte, error) {
 			return generateResponse("handleTimeBookingResponse", true, "Error: User has no open booking")
 		}
 
-		errInsert := insertBooking(user.Id.(int64), "", toStr)
+		// ToDo: calculate duration
+		errInsert := insertBooking(user.Id.(int64), "", toStr, TODO_DurationCalc)
 		if errInsert != nil {
 			return generateResponse("handleTimeBookingResponse", true, "Error: DB error: "+errInsert.Error())
 		}
@@ -206,7 +208,26 @@ func handleTimeBooking(content interface{}, user User) ([]byte, error) {
 			return generateResponse("handleTimeBookingResponse", true, "Error: User has already open booking")
 		}
 
-		errInsert := insertBooking(user.Id.(int64), fromStr, toStr)
+		//calculate duration
+		layout := "02.01.2006 15:04"
+		startTime, err1 := time.Parse(layout, fromStr)
+		endTime, err2 := time.Parse(layout, toStr)
+		// Check for parsing errors
+		if err1 != nil || err2 != nil {
+			log.Printf("Error parsing dates: %s - %s", err1, err2)
+			return generateResponse("handleTimeBookingResponse", true, "Error: Error parsing dates for duration calculation")
+		}
+		// Calculate the duration between the two times
+		timeDuration := endTime.Sub(startTime)
+		// Convert the duration to hours and minutes
+		totalHours := timeDuration.Hours()
+		hours := int(totalHours)                           // Get the integer part (hours)
+		minutes := int((totalHours - float64(hours)) * 60) // Get the fractional part as minutes
+
+		// Format the duration as "hours.minutes"
+		duration := fmt.Sprintf("%d.%02d", hours, minutes)
+
+		errInsert := insertBooking(user.Id.(int64), fromStr, toStr, duration)
 		if errInsert != nil {
 			return generateResponse("handleTimeBookingResponse", true, "Error: DB error: "+errInsert.Error())
 		}
@@ -226,42 +247,4 @@ func handleGetBookings(content interface{}, user User) ([]byte, error) {
 	}
 
 	return generateResponse("handleGetBookingsResponse", false, bookings)
-}
-
-func handleGetBookings_OLD(content interface{}) ([]byte, error) {
-	contentStr, ok := content.(string)
-	if !ok {
-		return generateResponse("handleGetBookingsResponse", true, "Invalid content format for timebooking")
-	}
-	var response Message
-
-	switch contentStr {
-	case "currentMonth":
-		response.Type = "getBookingsResponse"
-		// Sample input string to be encoded
-		input := `[{"from":"01.01.2020 00:00:00", "to":"01.01.2020 00:01:00"},{"from":"02.01.2020 00:00:00", "to":"02.01.2020 00:13:00"}]`
-
-		// Define a slice of TimeRange to hold the parsed time ranges
-		var timeRanges []TimeRange
-
-		// Parse the input JSON string into the slice
-		err := json.Unmarshal([]byte(input), &timeRanges)
-		if err != nil {
-			fmt.Println("Error parsing input:", err)
-			//	return
-		}
-
-		// Create a Message object with the parsed time ranges as the content
-		response = Message{
-			Type:    "getBookingsResponse",
-			Content: timeRanges,
-		}
-		return generateResponse("handleGetBookingsResponse", false, timeRanges)
-
-	default:
-		return generateResponse("handleGetBookingsResponse", true, "invalid getBookings message - use 'currentMonth' for example")
-
-	}
-
-	//return json.Marshal(response)
 }

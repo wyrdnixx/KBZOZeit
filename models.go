@@ -21,9 +21,11 @@ type timebookingMessage struct {
 }
 
 type Booking struct {
-	Id   string `json:"id"`   // Actual message content
-	From string `json:"from"` // Actual message content
-	To   string `json:"to"`   // Actual message content
+	Id       string `json:"id"`       // Actual message content
+	From     string `json:"from"`     // Actual message content
+	To       string `json:"to"`       // Actual message content
+	Duration string `json:"duration"` // Actual message content
+
 }
 
 type User struct {
