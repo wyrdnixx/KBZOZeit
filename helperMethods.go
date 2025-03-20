@@ -78,3 +78,27 @@ func checkDateTimeFormat(dateStr string) bool {
 	_, err := time.Parse(layout, dateStr)
 	return err == nil // If parsing is successful, return true; otherwise, false
 }
+
+func calcDuration(fromStr string, toStr string) (string, error) {
+	// calculate duration
+	layout := "02.01.2006 15:04"
+	startTime, err1 := time.Parse(layout, fromStr)
+	endTime, err2 := time.Parse(layout, toStr)
+	// Check for parsing errors
+	if err1 != nil || err2 != nil {
+		log.Printf("Error parsing dates: %s - %s", err1, err2)
+		return "", fmt.Errorf("Error parsing dates for calcDuration")
+	}
+	// Calculate the duration between the two times
+	timeDuration := endTime.Sub(startTime)
+	// Convert the duration to hours and minutes
+	totalHours := timeDuration.Hours()
+	hours := int(totalHours)                           // Get the integer part (hours)
+	minutes := int((totalHours - float64(hours)) * 60) // Get the fractional part as minutes
+
+	// Format the duration as "hours.minutes"
+	duration := fmt.Sprintf("%d.%02d", hours, minutes)
+
+	return duration, nil
+
+}

@@ -2,10 +2,8 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
-	"time"
 
 	"github.com/gorilla/websocket"
 )
@@ -131,7 +129,7 @@ func handleTimeBooking(content interface{}, user User) ([]byte, error) {
 		return generateResponse("handleTimeBookingResponse", true, "Missing 'from' or 'to' in timebooking content")
 	} */
 
-	if okFrom && !okTo { // only clock in
+	if okFrom && !okTo { /////////////////////////////////////////// only clock in
 
 		// check for valid dateTime Format
 		if !checkDateTimeFormat(fromStr) {
@@ -159,7 +157,7 @@ func handleTimeBooking(content interface{}, user User) ([]byte, error) {
 
 		return generateResponse("handleTimeBookingResponse", false, "booking processed")
 
-	} else if !okFrom && okTo { // only clock out
+	} else if !okFrom && okTo { ///////////////////////////////////////// only clock out
 
 		// check for valid dateTime Format
 		if !checkDateTimeFormat(toStr) {
@@ -170,7 +168,7 @@ func handleTimeBooking(content interface{}, user User) ([]byte, error) {
 		// insert "to" to existing booking
 		log.Printf(`got "to" booking: %s`, toStr)
 
-		// Check if user has alrady open bookings
+		/* 	// Check if user has alrady open bookings
 		res, err := getOpenBookings(user)
 		if err != nil {
 			log.Printf("Error db check for open bookings: %s", err)
@@ -178,8 +176,25 @@ func handleTimeBooking(content interface{}, user User) ([]byte, error) {
 		}
 		if !res { // Error - user has no open bookings
 			return generateResponse("handleTimeBookingResponse", true, "Error: User has no open booking")
+		} */
+
+		// Check if user has alrady open bookings
+		openBooking, err := getOpenBookings(user)
+		var zeroBooking Booking
+		if err != nil {
+			log.Printf("Error db check for open bookings: %s", err)
+			return generateResponse("handleTimeBookingResponse", true, "Error: cannot check fo open bookings")
+		}
+		// ToDO : UNklar ob richtig?
+		if openBooking == zeroBooking {
+			log.Printf("Error: found open booking from: %s", openBooking.From)
+			return generateResponse("handleTimeBookingResponse", true, "Error: User has already open booking")
 		}
 
+		duration, err := calcDuration(fromStr, toStr)
+		if err != nil {
+			return generateResponse("handleTimeBookingResponse", true, "Error: Error parsing dates for duration calculation")
+		}
 		// ToDo: calculate duration
 		errInsert := insertBooking(user.Id.(int64), "", toStr, TODO_DurationCalc)
 		if errInsert != nil {
@@ -187,7 +202,7 @@ func handleTimeBooking(content interface{}, user User) ([]byte, error) {
 		}
 		return generateResponse("handleTimeBookingResponse", false, "booking processed")
 
-	} else if okFrom && okTo { // full clocking
+	} else if okFrom && okTo { ///////////////////////////////////////// full clocking
 
 		// check for valid dateTime Format
 		if !checkDateTimeFormat(fromStr) || !checkDateTimeFormat(toStr) {
@@ -199,16 +214,23 @@ func handleTimeBooking(content interface{}, user User) ([]byte, error) {
 		log.Printf(`got full booking: %s - %s `, fromStr, toStr)
 
 		// Check if user has alrady open bookings
-		res, err := getOpenBookings(user)
+		openBooking, err := getOpenBookings(user)
+		var zeroBooking Booking
 		if err != nil {
 			log.Printf("Error db check for open bookings: %s", err)
 			return generateResponse("handleTimeBookingResponse", true, "Error: cannot check fo open bookings")
 		}
-		if res { // Error - user has open bookings
+
+		if openBooking == zeroBooking {
+			log.Printf("Error: found open booking from: %s", openBooking.From)
 			return generateResponse("handleTimeBookingResponse", true, "Error: User has already open booking")
 		}
 
-		//calculate duration
+		duration, err := calcDuration(fromStr, toStr)
+		if err != nil {
+			return generateResponse("handleTimeBookingResponse", true, "Error: Error parsing dates for duration calculation")
+		}
+		/* //calculate duration
 		layout := "02.01.2006 15:04"
 		startTime, err1 := time.Parse(layout, fromStr)
 		endTime, err2 := time.Parse(layout, toStr)
@@ -225,7 +247,7 @@ func handleTimeBooking(content interface{}, user User) ([]byte, error) {
 		minutes := int((totalHours - float64(hours)) * 60) // Get the fractional part as minutes
 
 		// Format the duration as "hours.minutes"
-		duration := fmt.Sprintf("%d.%02d", hours, minutes)
+		duration := fmt.Sprintf("%d.%02d", hours, minutes) */
 
 		errInsert := insertBooking(user.Id.(int64), fromStr, toStr, duration)
 		if errInsert != nil {

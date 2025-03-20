@@ -184,7 +184,8 @@ func getUserbyToken(token string) (User, error) {
 	return user, nil
 }
 
-func getOpenBookings(user User) (bool, error) {
+// func getOpenBookings(user User) (bool, error) {
+func getOpenBookings(user User) (Booking, error) {
 
 	fetchTask := &DBTask{
 		Action:   "fetch",
@@ -195,7 +196,7 @@ func getOpenBookings(user User) (bool, error) {
 	rowsResult, err := dbEventBus.SubmitTask(fetchTask)
 	if err != nil {
 		//log.Fatal(err)
-		return false, err
+		return Booking{}, err
 	}
 
 	rows := rowsResult.(*sql.Rows)
@@ -203,9 +204,13 @@ func getOpenBookings(user User) (bool, error) {
 
 	if rows.Next() {
 		log.Printf("Error: found open booking...")
-		return true, nil
+		var booking Booking // Create a variable for each row
+		if err := rows.Scan(&booking.Id, &booking.From, &booking.To); err != nil {
+			log.Printf("Error get bookings for user : %s : %s", user, err)
+		}
+		return booking, nil
 	} else {
-		return false, nil
+		return Booking{}, nil
 	}
 
 }
