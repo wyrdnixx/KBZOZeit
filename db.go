@@ -189,7 +189,7 @@ func getOpenBookings(user User) (Booking, error) {
 
 	fetchTask := &DBTask{
 		Action:   "fetch",
-		Query:    `SELECT id, "from" FROM bookings WHERE userId = (?) AND "to" IS NULL ;`,
+		Query:    `SELECT id, "from", "to", "duration" FROM bookings WHERE userId = (?) AND "to" IS NULL ;`,
 		Args:     []interface{}{user.Id},
 		Response: make(chan any),
 	}
@@ -205,7 +205,7 @@ func getOpenBookings(user User) (Booking, error) {
 	if rows.Next() {
 		log.Printf("Error: found open booking...")
 		var booking Booking // Create a variable for each row
-		if err := rows.Scan(&booking.Id, &booking.From, &booking.To); err != nil {
+		if err := rows.Scan(&booking.Id, &booking.From, &booking.To, &booking.Duration); err != nil {
 			log.Printf("Error get bookings for user : %s : %s", user, err)
 		}
 		return booking, nil

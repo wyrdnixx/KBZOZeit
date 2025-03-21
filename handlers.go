@@ -140,12 +140,14 @@ func handleTimeBooking(content interface{}, user User) ([]byte, error) {
 		log.Printf(`got "from" booking: %s`, fromStr)
 
 		// Check if user has alrady open bookings
-		res, err := getOpenBookings(user)
+		//ToDO - Fehler - wird immer erstellt
+		openBooking, err := getOpenBookings(user)
+		var zeroBooking Booking
 		if err != nil {
 			log.Printf("Error db check for open bookings: %s", err)
 			return generateResponse("handleTimeBookingResponse", true, "Error: cannot check fo open bookings")
 		}
-		if res { // Error - user has open bookings
+		if openBooking != zeroBooking { // Error - user has open bookings
 			return generateResponse("handleTimeBookingResponse", true, "Error: User has already open booking")
 		}
 
@@ -185,18 +187,18 @@ func handleTimeBooking(content interface{}, user User) ([]byte, error) {
 			log.Printf("Error db check for open bookings: %s", err)
 			return generateResponse("handleTimeBookingResponse", true, "Error: cannot check fo open bookings")
 		}
-		// ToDO : UNklar ob richtig?
+
 		if openBooking == zeroBooking {
-			log.Printf("Error: found open booking from: %s", openBooking.From)
-			return generateResponse("handleTimeBookingResponse", true, "Error: User has already open booking")
+			log.Printf("Error: No open booking found. ")
+			return generateResponse("handleTimeBookingResponse", true, "Error: User has no open booking")
 		}
 
-		duration, err := calcDuration(fromStr, toStr)
+		duration, err := calcDuration(openBooking.From, toStr)
 		if err != nil {
 			return generateResponse("handleTimeBookingResponse", true, "Error: Error parsing dates for duration calculation")
 		}
 		// ToDo: calculate duration
-		errInsert := insertBooking(user.Id.(int64), "", toStr, TODO_DurationCalc)
+		errInsert := insertBooking(user.Id.(int64), "", toStr, duration)
 		if errInsert != nil {
 			return generateResponse("handleTimeBookingResponse", true, "Error: DB error: "+errInsert.Error())
 		}
@@ -221,7 +223,7 @@ func handleTimeBooking(content interface{}, user User) ([]byte, error) {
 			return generateResponse("handleTimeBookingResponse", true, "Error: cannot check fo open bookings")
 		}
 
-		if openBooking == zeroBooking {
+		if openBooking != zeroBooking {
 			log.Printf("Error: found open booking from: %s", openBooking.From)
 			return generateResponse("handleTimeBookingResponse", true, "Error: User has already open booking")
 		}
