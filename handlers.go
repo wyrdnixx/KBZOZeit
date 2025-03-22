@@ -276,15 +276,11 @@ func handleGetBookings(content interface{}, user User) ([]byte, error) {
 
 func handleStartRecalc(content interface{}, user User) ([]byte, error) {
 
-	month, err := getBookedMonths(user)
-	if err != nil {
-		return generateResponse("handleStartRecalcResponse", true, "Error recalc : "+err.Error())
-	}
-
+	// ToDo: Fehler - summe aus SQL Select sind nicht minuten (60er Basis)
 	var monthSollZeit float64 = 10
-
+	var monthCount float64 = 5
 	log.Printf("Sollzeit: %f", monthSollZeit)
-	var sumSoll = monthSollZeit * float64(len(month))
+	var sumSoll = monthSollZeit * monthCount
 	log.Printf("Sollzeit gesamt: %f", sumSoll)
 	sumIst, _ := getFullTimeAccountings(user)
 	log.Printf("Istzeit gesamt: %f", sumIst)
