@@ -276,18 +276,34 @@ func handleGetBookings(content interface{}, user User) ([]byte, error) {
 
 func handleStartRecalc(content interface{}, user User) ([]byte, error) {
 
-	// ToDo: Fehler - summe aus SQL Select sind nicht minuten (60er Basis)
-	var monthSollZeit float64 = 10
-	var monthCount float64 = 5
-	log.Printf("Sollzeit: %f", monthSollZeit)
-	var sumSoll = monthSollZeit * monthCount
-	log.Printf("Sollzeit gesamt: %f", sumSoll)
-	sumIst, _ := getFullTimeAccountings(user)
-	log.Printf("Istzeit gesamt: %f", sumIst)
+	/* 	// ToDo: Fehler - summe aus SQL Select sind nicht minuten (60er Basis)
+	   	var monthSollZeit float64 = 10
+	   	var monthCount float64 = 20
+	   	log.Printf("Sollzeit: %f", monthSollZeit)
+	   	var sumSoll = monthSollZeit * monthCount
+	   	log.Printf("Sollzeit gesamt: %f", sumSoll)
+	   	sumIst, _ := getFullTimeAccountings(user)
+	   	log.Printf("Istzeit gesamt: %f", sumIst)
 
-	dif := sumIst - sumSoll
-	valDif := math.Round(dif*100) / 100
-	log.Printf("Dif: %f", valDif)
+	   	dif := sumIst - sumSoll
+	   	valDif := math.Round(dif*100) / 100
+	   	log.Printf("Dif: %f", valDif)
+	*/
+	hoursPM, months_passed, err := getEmployeementMonths(user)
+	if err != nil {
+		return generateResponse("handleStartRecalcResponse", true, "Error on recalc - cannot get Epmployee data: "+err.Error())
+	}
+
+	sumSoll := hoursPM * months_passed
+	sumSoll = math.Round(sumSoll*100) / 100
+
+	sumIst, _ := getFullTimeAccountings(user)
+	sumIst = math.Round(sumIst*100) / 100
+
+	valDif := sumIst - sumSoll
+	valDif = math.Round(valDif*100) / 100
+
+	log.Printf("User Monate: %.2f, Stunden/Monat: %.2f,  User Soll: %.2f, User Ist: %.2f, User Dif: %.2f ", months_passed, hoursPM, sumSoll, sumIst, valDif)
 
 	return generateResponse("handleStartRecalcResponse", false, "recalc finished")
 }

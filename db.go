@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/mattn/go-sqlite3"
 	_ "github.com/mattn/go-sqlite3"
@@ -32,7 +33,19 @@ func initDB(db *sql.DB) error {
 		log.Fatal("initDB: " + err.Error())
 		return err
 	}
+
+	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS "employee" ("id" INTEGER NOT NULL,"userId" INTEGER NOT NULL,"from" TEXT NOT NULL, "to" TEXT, "hoursPerMonth" TEXT, PRIMARY KEY("id"));`)
+	if err != nil {
+		log.Fatal("initDB: " + err.Error())
+		return err
+	}
 	//inital insert default user
+
+	_, err = db.Exec(`INSERT INTO "employee" ("userID","from", "to","hoursPerMonth") VALUES ("1","01.08.2023","","10");`)
+	if err != nil {
+		log.Fatal("initDB: " + err.Error())
+		return err
+	}
 
 	insertTask := &DBTask{
 		Action:   "insert",
@@ -417,7 +430,7 @@ func getFullTimeAccountings(user User) (float64, error) {
 
 	fetchTask := &DBTask{
 		Action:   "fetch",
-		Query:    ` select sum(duration) from bookings WHERE userId = (?);`,
+		Query:    ` select "from","to" from bookings WHERE userId = (?);`,
 		Args:     []interface{}{user.Id},
 		Response: make(chan any),
 	}
@@ -429,18 +442,89 @@ func getFullTimeAccountings(user User) (float64, error) {
 
 	rows := rowsResult.(*sql.Rows)
 	defer rows.Close()
+	// Time layout based on your datetime format
+	const layout = "02.01.2006 15:04"
 
-	var sum float64
+	// Variables to accumulate total hours and minutes
+	var totalMinutes int64
+
+	for rows.Next() {
+		var fromStr, toStr string
+
+		// Scan the "from" and "to" values from the query
+		if err := rows.Scan(&fromStr, &toStr); err != nil {
+			return 0, err
+		}
+
+		// Parse the "from" time string
+		fromTime, err := time.Parse(layout, fromStr)
+		if err != nil {
+			return 0, err
+		}
+
+		// Parse the "to" time string
+		toTime, err := time.Parse(layout, toStr)
+		if err != nil {
+			return 0, err
+		}
+
+		// Calculate the duration between "from" and "to"
+		duration := toTime.Sub(fromTime)
+
+		// Add the duration to totalMinutes (convert duration to minutes)
+		totalMinutes += int64(duration.Minutes())
+	}
+
+	// Check for any error that occurred during iteration
+	if err := rows.Err(); err != nil {
+		return 0, err
+	}
+
+	// Convert totalMinutes to hours and minutes
+	totalHours := totalMinutes / 60
+	remainingMinutes := totalMinutes % 60
+
+	// Calculate the total as hours.minutes
+	hoursMinutes := float64(totalHours) + float64(remainingMinutes)/60
+	log.Printf("getFullTimeAccountings calculated sum: %f", hoursMinutes)
+
+	return hoursMinutes, nil
+}
+
+func getEmployeementMonths(user User) (float64, float64, error) {
+
+	fetchTask := &DBTask{
+		Action: "fetch",
+		Query: `SELECT 
+    				hoursPerMonth,
+        			(strftime('%Y', date('now')) - substr("from", 7, 4)) * 12 + (strftime('%m', date('now')) - substr("from", 4, 2)) AS months_passed
+					FROM employee
+					WHERE "from" <= date('now')
+					AND userId = (?);`,
+		Args:     []interface{}{user.Id},
+		Response: make(chan any),
+	}
+	rowsResult, err := dbEventBus.SubmitTask(fetchTask)
+	if err != nil {
+		//log.Fatal(err)
+		return 0, 0, err
+	}
+
+	rows := rowsResult.(*sql.Rows)
+	defer rows.Close()
+
+	var hoursPM float64
+	var months_passed float64
 
 	// Iterate over the rows and append the results to the slice
 	for rows.Next() {
-		err := rows.Scan(&sum)
+		err := rows.Scan(&hoursPM, &months_passed)
 		if err != nil {
-			log.Printf("Error getting FullTimeAccounting: %s ", err)
-			return 0, err
+			log.Printf("Error getting getEmployeementMonths: %s ", err)
+			return 0, 0, err
 		}
 	}
-	fmt.Println("DB got full time accountings of:", sum)
+	//fmt.Println("DB got full time accountings of:", sum)
 
-	return sum, nil
+	return hoursPM, months_passed, nil
 }
