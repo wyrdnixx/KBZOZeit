@@ -212,7 +212,6 @@ func getOpenBookings(user User) (Booking, error) {
 	} else {
 		return Booking{}, nil
 	}
-
 }
 
 func dbGetBookings(user User) ([]Booking, error) {
@@ -412,4 +411,74 @@ func insertBooking(userId int64, from string, to string, duration string) error 
 
 	return fmt.Errorf("ERROR: unexpected error time clocking")
 
+}
+
+func getBookedMonths(user User) ([]string, error) {
+
+	fetchTask := &DBTask{
+		Action:   "fetch",
+		Query:    `SELECT DISTINCT substr("from", 4, 7) AS month_year FROM bookings WHERE userId = (?) ORDER BY month_year;`,
+		Args:     []interface{}{user.Id},
+		Response: make(chan any),
+	}
+	rowsResult, err := dbEventBus.SubmitTask(fetchTask)
+	if err != nil {
+		//log.Fatal(err)
+		return nil, err
+	}
+
+	rows := rowsResult.(*sql.Rows)
+	defer rows.Close()
+
+	var months []string
+
+	// Counter to track the number of rows
+	rowCount := 0
+
+	// Iterate over the rows and append the results to the slice
+	for rows.Next() {
+		var month string
+		err := rows.Scan(&month)
+		if err != nil {
+			log.Fatal(err)
+		}
+		months = append(months, month)
+		rowCount++ // Increment the row counter
+	}
+	fmt.Println("Months with values:", months)
+	fmt.Printf("Count of distinct months: %d\n", rowCount)
+
+	return months, nil
+}
+
+func getFullTimeAccountings(user User) (float64, error) {
+
+	fetchTask := &DBTask{
+		Action:   "fetch",
+		Query:    ` select sum(duration) from bookings WHERE userId = (?);`,
+		Args:     []interface{}{user.Id},
+		Response: make(chan any),
+	}
+	rowsResult, err := dbEventBus.SubmitTask(fetchTask)
+	if err != nil {
+		//log.Fatal(err)
+		return 0, err
+	}
+
+	rows := rowsResult.(*sql.Rows)
+	defer rows.Close()
+
+	var sum float64
+
+	// Iterate over the rows and append the results to the slice
+	for rows.Next() {
+		err := rows.Scan(&sum)
+		if err != nil {
+			log.Printf("Error getting FullTimeAccounting: %s ", err)
+			return 0, err
+		}
+	}
+	fmt.Println("DB got full time accountings of:", sum)
+
+	return sum, nil
 }

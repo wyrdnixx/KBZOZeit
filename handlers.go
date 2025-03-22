@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"log"
+	"math"
 	"net/http"
 
 	"github.com/gorilla/websocket"
@@ -271,4 +272,26 @@ func handleGetBookings(content interface{}, user User) ([]byte, error) {
 	}
 
 	return generateResponse("handleGetBookingsResponse", false, bookings)
+}
+
+func handleStartRecalc(content interface{}, user User) ([]byte, error) {
+
+	month, err := getBookedMonths(user)
+	if err != nil {
+		return generateResponse("handleStartRecalcResponse", true, "Error recalc : "+err.Error())
+	}
+
+	var monthSollZeit float64 = 10
+
+	log.Printf("Sollzeit: %f", monthSollZeit)
+	var sumSoll = monthSollZeit * float64(len(month))
+	log.Printf("Sollzeit gesamt: %f", sumSoll)
+	sumIst, _ := getFullTimeAccountings(user)
+	log.Printf("Istzeit gesamt: %f", sumIst)
+
+	dif := sumIst - sumSoll
+	valDif := math.Round(dif*100) / 100
+	log.Printf("Dif: %f", valDif)
+
+	return generateResponse("handleStartRecalcResponse", false, "recalc finished")
 }
