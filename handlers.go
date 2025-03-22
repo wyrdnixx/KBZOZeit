@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"math"
 	"net/http"
@@ -305,5 +306,12 @@ func handleStartRecalc(content interface{}, user User) ([]byte, error) {
 
 	log.Printf("User Monate: %.2f, Stunden/Monat: %.2f,  User Soll: %.2f, User Ist: %.2f, User Dif: %.2f ", months_passed, hoursPM, sumSoll, sumIst, valDif)
 
-	return generateResponse("handleStartRecalcResponse", false, "recalc finished")
+	var summ SummCalculation
+	summ.PassedMonths = fmt.Sprintf("%.2f", months_passed)
+	summ.HourPerMonth = fmt.Sprintf("%.2f", hoursPM)
+	summ.SollZeit = fmt.Sprintf("%.2f", sumSoll)
+	summ.IstZeit = fmt.Sprintf("%.2f", sumIst)
+	summ.DifZeit = fmt.Sprintf("%.2f", valDif)
+
+	return generateResponse("handleStartRecalcResponse", false, summ)
 }

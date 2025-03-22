@@ -15,9 +15,12 @@ type Message struct {
 	Content interface{} `json:"content"`
 }
 
-type timebookingMessage struct {
-	From string `json:"from"` // Actual message content
-	To   string `json:"to"`   // Actual message content
+type SummCalculation struct {
+	PassedMonths string `json:"PassedMonths"`
+	HourPerMonth string `json:"HourPerMonth"`
+	SollZeit     string `json:"SollZeit"`
+	IstZeit      string `json:"IstZeit"`
+	DifZeit      string `json:"DifZeit"`
 }
 
 type Booking struct {
