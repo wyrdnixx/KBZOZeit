@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"sync"
 	"syscall"
 	"text/template"
 
@@ -48,6 +49,14 @@ func (s *Server) serveHTML(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+var (
+	// Global database connection
+	DB *sql.DB
+
+	// Mutex to ensure thread-safe initialization
+	dbMutex sync.Mutex
+)
+
 func main() {
 
 	// Load .env file
@@ -58,15 +67,15 @@ func main() {
 	}
 
 	// Connect to the SQLite database
-	db, err := sql.Open("sqlite3", os.Getenv("DBFile"))
+	DB, err = sql.Open("sqlite3", os.Getenv("DBFile"))
 	if err != nil {
 		log.Fatal(err)
 		os.Exit(1)
 	}
 
-	dbEventBus = NewDBEventBus(db)
+	dbEventBus = NewDBEventBus(DB)
 
-	errInit := initDB(db)
+	errInit := initDB(DB)
 	if errInit != nil {
 		log.Fatalf("Error init Database")
 		os.Exit(1)

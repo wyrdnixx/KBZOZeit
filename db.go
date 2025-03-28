@@ -2,12 +2,14 @@ package main
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"log"
 	"time"
 
 	"github.com/mattn/go-sqlite3"
 	_ "github.com/mattn/go-sqlite3"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func initDB(db *sql.DB) error {
@@ -285,36 +287,39 @@ func BookingIn(user User, from string) error {
 
 }
 
-// Function to validate user credentials from SQLite database
-func dbValidateUser(username, pwdHash string) (User, error) {
-
+// ValidateUser validates user credentials and returns custom error if not found
+func dbValidateUser(username, password string) (User, error) {
+	var ErrUserNotValidated = errors.New("user not validated")
 	var loginUser User
-	// Fetch user
-	fetchTask := &DBTask{
-		Action:   "fetchRow",
-		Query:    "SELECT id, name FROM users WHERE name = ? and pwdHash = ?",
-		Args:     []interface{}{username, pwdHash},
-		Response: make(chan any),
+	var storedPasswordHash string
+
+	// Prepare query to fetch user
+	query := "SELECT id, name, pwdHash FROM users WHERE name = ?"
+	err := DB.QueryRow(query, username).Scan(&loginUser.Id, &loginUser.Username, &storedPasswordHash)
+
+	// Check if user was not found in database
+	if err == sql.ErrNoRows {
+		return User{}, ErrUserNotValidated
 	}
-	rowResult, err := dbEventBus.SubmitTask(fetchTask)
+
+	// Handle any other database errors
 	if err != nil {
-		//log.Fatal(err)
 		return User{}, err
 	}
 
-	// Assert the response to *sql.Rows
-	rows, ok := rowResult.(*sql.Rows)
-	if !ok {
-		log.Fatal("Failed to assert rowsResult to *sql.Rows")
+	// ToDO: ONLY TEST - Use this to store password
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		log.Fatal(err)
 	}
-	defer rows.Close()
+	log.Printf("hash: %s", hashedPassword)
 
-	for rows.Next() {
-		if err := rows.Scan(&loginUser.Id, &loginUser.Username); err != nil {
-			log.Fatal(err)
-		}
+	// Compare the provided password with the stored hash
+	err = bcrypt.CompareHashAndPassword([]byte(storedPasswordHash), []byte(password))
+	if err != nil {
+		return User{}, ErrUserNotValidated
 	}
-	// ToDO: In a real-world app, use a hashed password comparison, not plaintext
+
 	return loginUser, nil
 }
 

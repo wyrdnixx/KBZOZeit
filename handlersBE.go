@@ -74,15 +74,42 @@ func handleLogin(w http.ResponseWriter, r *http.Request) {
 // handleWebSocket function upgrades the HTTP connection to WebSocket
 func handleWebSocket(w http.ResponseWriter, r *http.Request) {
 
-	// Validate the bearer token user
-	user, err := validateBearerToken(r)
+	// todo : check for authentication
+	/* 	// Validate the bearer token user
+	   	user, err := validateBearerToken(r)
+	   	if err != nil {
+	   		log.Printf("user not found for token: %s", err)
+	   		http.Error(w, "Unauthorized: "+err.Error(), http.StatusUnauthorized)
+	   		//return
+	   	} else {
+	   		log.Printf("connection from user: %s", user)
+	   	} */
+
+	/////////////////////
+	// TODO: doppelter Code - ist noch im handlersFE.go ->indexHandler
+
+	cookie, err := r.Cookie("bearer_token")
 	if err != nil {
-		log.Printf("user not found for token: %s", err)
-		http.Error(w, "Unauthorized: "+err.Error(), http.StatusUnauthorized)
-		//return
-	} else {
-		log.Printf("connection from user: %s", user)
+		if err == http.ErrNoCookie {
+			// Cookie not found, handle the error accordingly
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+		// Some other error occurred
+		http.Error(w, "Bad Request", http.StatusBadRequest)
+		return
 	}
+
+	// Access the token stored in the cookie
+	bearerToken := cookie.Value
+
+	user, errUser := validateBearerToken(bearerToken)
+	if errUser != nil {
+		log.Printf("error validating baerer-token - redirecting to login: %s", errUser)
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+	/////////////////////
 
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {

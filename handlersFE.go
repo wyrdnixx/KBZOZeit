@@ -21,16 +21,21 @@ func serveHome(w http.ResponseWriter, r *http.Request) {
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie("bearer_token")
-
-	log.Printf("got cookie: %s", cookie)
 	if err != nil {
-		log.Printf("user not authenticated - redirecting to login")
-		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		if err == http.ErrNoCookie {
+			// Cookie not found, handle the error accordingly
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+		// Some other error occurred
+		http.Error(w, "Bad Request", http.StatusBadRequest)
 		return
 	}
 
-	//TODO: cookie ist drin, aber vermutlich nicht im haeder sonder nur im cookie?!?
-	user, errUser := validateBearerToken(r)
+	// Access the token stored in the cookie
+	bearerToken := cookie.Value
+
+	user, errUser := validateBearerToken(bearerToken)
 	if errUser != nil {
 		log.Printf("error validating baerer-token - redirecting to login: %s", errUser)
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
@@ -57,7 +62,8 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 
 		user, err = dbValidateUser(username, password)
 		if err != nil {
-			http.Error(w, "Error - Failed to login user: "+err.Error(), http.StatusInternalServerError)
+			http.Error(w, "Error - Failed to login user: "+err.Error(), http.StatusUnauthorized)
+			return
 		}
 
 		// ToDo - funktioniert noch nicht wenn falscher User/passwort

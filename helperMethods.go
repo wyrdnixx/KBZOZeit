@@ -31,7 +31,21 @@ func GenerateJWT(username string) (string, error) {
 }
 
 // Token validation function
-func validateBearerToken(r *http.Request) (User, error) {
+func validateBearerToken(token string) (User, error) {
+
+	// ToDo: username error / unknown user not catched
+	user, _ := getUserbyToken(token)
+	if (user == User{}) {
+		return User{}, fmt.Errorf("error: could not validate user - token not found: %s", token)
+	} else {
+		//return "User: " + users.Username.(string), nil
+		return user, nil
+	}
+
+}
+
+// Token validation function
+func validateBearerToken_OLD(r *http.Request) (User, error) {
 	// Get the Authorization header from the HTTP request
 	authHeader := r.Header.Get("Authorization")
 	if authHeader == "" {
