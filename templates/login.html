@@ -1,0 +1,25 @@
+<!-- templates/login.html -->
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 300px; margin: 0 auto; padding-top: 50px; }
+        form { display: flex; flex-direction: column; }
+        input { margin: 10px 0; padding: 8px; }
+        button { padding: 10px; background-color: #4CAF50; color: white; border: none; }
+    </style>
+</head>
+<body>
+    <h2>Anmeldung</h2>
+    {{if .}}
+        <p style="color: red;">{{.}}</p>
+    {{end}}
+    <form method="post">
+        <input type="text" name="username" placeholder="Benutzername" required>
+        <input type="password" name="password" placeholder="Passwort" required>
+        <button type="submit">Anmelden</button>
+    </form>
+</body>
+</html>

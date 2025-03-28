@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"text/template"
 
 	"github.com/gorilla/websocket"
 	"github.com/joho/godotenv"
@@ -25,23 +26,26 @@ var wsconnections WSConnections
 
 var dbEventBus *DBEventBus
 
-// Serve the homepage (this serves the HTML page)
-func serveHome(w http.ResponseWriter, r *http.Request) {
-	//http.ServeFile(w, r, "frontend/dist/index.html")
+// Server struct, you can add additional fields here as needed
+type Server struct{}
 
-	// Serve the static folder at the root URL ("/")
-	fs := http.FileServer(http.Dir("./frontend/dist/"))
+// TemplateHandler to render HTML templates
+func (s *Server) serveHTML(w http.ResponseWriter, r *http.Request) {
+	tmpl := template.Must(template.ParseFiles("templates/index.html"))
 
-	// Handle the root URL ("/") to serve files from the "./static" directory
-	//http.Handle("/", fs)
+	// Example data to pass to the HTML template
+	data := struct {
+		Title string
+		Body  string
+	}{
+		Title: "Welcome to My Web Server",
+		Body:  "This is a simple HTML page served by Go.",
+	}
 
-	http.StripPrefix("/", fs).ServeHTTP(w, r)
-
-	/*
-		err := http.FileServer(http.Dir("frontend/dist/"))
-		if err != nil {
-			log.Fatalf("Error serving frontend: %s", err)
-		} */
+	// Render the template with data
+	if err := tmpl.Execute(w, data); err != nil {
+		http.Error(w, "Unable to load template", http.StatusInternalServerError)
+	}
 }
 
 func main() {
@@ -74,11 +78,13 @@ func main() {
 		port = "8080" // Default to 8080 if not specified
 	}
 
-	http.HandleFunc("/", serveHome) // Serve the index page
+	//http.HandleFunc("/", serveHome) // Serve the index page
+	http.HandleFunc("/", indexHandler) // Serve the index page
 
 	http.HandleFunc("/ws", handleWebSocket) // WebSocket endpoint
 
-	http.HandleFunc("/login", handleLogin) // Login endpoint
+	//http.HandleFunc("/login", handleLogin) // Alt - WS JSON Login Test
+	http.HandleFunc("/login", loginHandler) // Login endpoint
 
 	// Serve static files (e.g., JavaScript)
 	//http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))

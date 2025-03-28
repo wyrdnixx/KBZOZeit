@@ -286,6 +286,39 @@ func BookingIn(user User, from string) error {
 }
 
 // Function to validate user credentials from SQLite database
+func dbValidateUser(username, pwdHash string) (User, error) {
+
+	var loginUser User
+	// Fetch user
+	fetchTask := &DBTask{
+		Action:   "fetchRow",
+		Query:    "SELECT id, name FROM users WHERE name = ? and pwdHash = ?",
+		Args:     []interface{}{username, pwdHash},
+		Response: make(chan any),
+	}
+	rowResult, err := dbEventBus.SubmitTask(fetchTask)
+	if err != nil {
+		//log.Fatal(err)
+		return User{}, err
+	}
+
+	// Assert the response to *sql.Rows
+	rows, ok := rowResult.(*sql.Rows)
+	if !ok {
+		log.Fatal("Failed to assert rowsResult to *sql.Rows")
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		if err := rows.Scan(&loginUser.Id, &loginUser.Username); err != nil {
+			log.Fatal(err)
+		}
+	}
+	// ToDO: In a real-world app, use a hashed password comparison, not plaintext
+	return loginUser, nil
+}
+
+// OLD - Test sing websocket json
 func validateUser(username, pwdHash string) bool {
 	var storedpwdHash string
 	// Fetch user
