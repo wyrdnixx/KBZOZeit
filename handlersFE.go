@@ -24,7 +24,8 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		if err == http.ErrNoCookie {
 			// Cookie not found, handle the error accordingly
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			//http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			http.Redirect(w, r, "/login", http.StatusSeeOther)
 			return
 		}
 		// Some other error occurred
@@ -45,7 +46,7 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("User %s validated using baerer-token.", user)
 	log.Printf("cookie: %s", cookie.Value)
 
-	http.Redirect(w, r, "/welcome", http.StatusSeeOther)
+	http.Redirect(w, r, "/home", http.StatusSeeOther)
 }
 
 func loginHandler(w http.ResponseWriter, r *http.Request) {
@@ -93,10 +94,36 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 			Path:     "/",
 		})
 
-		http.Redirect(w, r, "/welcome", http.StatusSeeOther)
+		http.Redirect(w, r, "/home", http.StatusSeeOther)
 		return
 	}
 
 	tmpl.Execute(w, nil)
+
+}
+
+func homeHandler(w http.ResponseWriter, r *http.Request) {
+
+	// ToDo : Prüfung auf gülltigen cookie-token
+
+	tmpl, err := template.ParseFiles("templates/home.html")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Example data to pass to the HTML template
+	data := struct {
+		Title string
+		Body  string
+	}{
+		Title: "Welcome to My Web Server",
+		Body:  "This is a simple HTML page served by Go.",
+	}
+
+	// Render the template with data
+	if err := tmpl.Execute(w, data); err != nil {
+		http.Error(w, "Unable to load template", http.StatusInternalServerError)
+	}
 
 }

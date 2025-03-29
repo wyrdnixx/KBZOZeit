@@ -94,6 +94,7 @@ func main() {
 
 	//http.HandleFunc("/login", handleLogin) // Alt - WS JSON Login Test
 	http.HandleFunc("/login", loginHandler) // Login endpoint
+	http.HandleFunc("/home", homeHandler)   // Login endpoint
 
 	// Serve static files (e.g., JavaScript)
 	//http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
