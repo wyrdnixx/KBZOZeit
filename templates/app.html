@@ -12,10 +12,26 @@
         <header>
             <h1>Welcome, {{.Username}}!</h1>
             <button id="logout-btn">Logout</button>
+            <button id="get-data-btn">Get Data</button>
         </header>
         
         <div class="contend-container">
-            <p> Contend comes here</p>
+            <p>Content comes here</p>
+
+            <!-- Table placeholder -->
+            <table id="booking-table" class="table" style="display: none;">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>From</th>
+                        <th>To</th>
+                        <th>Duration</th>
+                    </tr>
+                </thead>
+                <tbody id="booking-table-body">
+                    <!-- Rows will be added here dynamically -->
+                </tbody>
+            </table>
         </div>
     </div>
 
@@ -58,6 +74,7 @@
     let socket;
     
     function connectWebSocket() {
+        console.log("Connecting websocket")
         const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
         const socketUrl = `${protocol}//${window.location.host}/ws`;
         
@@ -68,18 +85,23 @@
         socket.onopen = function() {
             console.log('WebSocket connection established');
             // Send authentication message
-            if (token) {
+           /*  if (token) {
                 socket.send(JSON.stringify({
                     type: 'auth',
                     token: token
                 }));
-            }
+            } */
         };
         
         // Rest of WebSocket code remains the same...
         socket.onmessage = function(event) {
-            const message = JSON.parse(event.data);
-            displayMessage(message);
+            console.log("sending message to websocket")
+            const response = JSON.parse(event.data);
+            displayMessage(response);
+
+            if (response.type === 'handleGetBookingsResponse' && !response.isError) {
+                    displayBookings(response.message);
+                }
         };
         
         socket.onclose = function() {
@@ -115,7 +137,56 @@
         console.error('Logout error:', error);
     });
 });
-    // Rest of the code remains the same...
+     // New "Get Data" button event handler
+     document.getElementById('get-data-btn').addEventListener('click', function() {
+            console.log("getData requested");
+
+            // Ensure WebSocket is open before sending the message
+            if (socket && socket.readyState === WebSocket.OPEN) {
+                // Send request to WebSocket with specified JSON structure
+                socket.send(JSON.stringify({
+                    type: "getBookings",
+                    content: "currentMonth"
+                }));
+            } else {
+                console.error("WebSocket is not open");
+            }
+        });
+
+        // Function to handle displaying messages (placeholder)
+        function displayMessage(message) {
+            console.log("Received message:", message);
+            // Add logic here to handle WebSocket messages from the server
+        }
+
+
+          // Function to display bookings in a table
+          function displayBookings(bookings) {
+            const table = document.getElementById('booking-table');
+            const tableBody = document.getElementById('booking-table-body');
+            
+            // Clear existing rows in case of multiple requests
+            tableBody.innerHTML = '';
+
+            // Loop through each booking and create a row
+            bookings.forEach(booking => {
+                const row = document.createElement('tr');
+
+                row.innerHTML = `
+                    <td>${booking.id}</td>
+                    <td>${booking.from}</td>
+                    <td>${booking.to}</td>
+                    <td>${booking.duration || 'N/A'}</td>
+                `;
+
+                tableBody.appendChild(row);
+            });
+
+            // Show the table
+            table.style.display = 'table';
+        }
+
+    connectWebSocket();
 </script>
 </body>
 </html>

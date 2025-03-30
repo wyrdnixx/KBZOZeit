@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
+	"github.com/gorilla/websocket"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -230,6 +231,7 @@ func apiLoginHandler_OLD(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]string{
 		"token": tokenString,
 	})
+
 }
 
 func wsHandler(w http.ResponseWriter, r *http.Request) {
@@ -283,6 +285,36 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 		if err != nil || !token.Valid {
 			conn.Close()
 			return
+		}
+
+	}
+
+	for {
+		// Read message from WebSocket client
+		_, message, err := conn.ReadMessage()
+		if err != nil {
+			log.Println("read error:", err)
+			break
+		}
+
+		// Process the incoming message
+
+		user, err := getUserbyName((username))
+		if err != nil {
+			conn.WriteMessage(websocket.TextMessage, []byte("error - user not found."+err.Error()))
+		} else {
+			response, err := processMessage(message, user)
+			if err != nil {
+				log.Println("Error processing message:", err)
+				break
+			}
+
+			// Send the response back to the client
+			err = conn.WriteMessage(websocket.TextMessage, response)
+			if err != nil {
+				log.Println("write error:", err)
+				break
+			}
 		}
 
 	}

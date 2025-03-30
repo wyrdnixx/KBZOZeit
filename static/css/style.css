@@ -179,3 +179,87 @@ header h1 {
 #send-btn:hover {
     background-color: #2980b9;
 }
+
+/* Basic table styles */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    font-family: Arial, sans-serif;
+}
+
+table th, table td {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 8px;
+}
+
+/* Table header style */
+table th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+}
+
+/* Alternating row colors */
+table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+table tr:nth-child(odd) {
+    background-color: #ffffff;
+}
+
+/* Add hover effect */
+table tr:hover {
+    background-color: #e0e0e0;
+}
+
+/* Center the content in some columns */
+table td {
+    text-align: center;
+}
+
+/* Add some padding to the container for spacing */
+.app-container {
+    padding: 20px;
+}
+
+/* Style buttons */
+button {
+    background-color: #4CAF50; /* Green */
+    color: white;
+    padding: 10px 20px;
+    margin: 10px 0;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    border-radius: 5px;
+}
+
+/* Hover effect for buttons */
+button:hover {
+    background-color: #45a049;
+}
+
+/* Style the table and its contents */
+#booking-table {
+    margin-top: 20px;
+    border: 1px solid #dddddd;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+#booking-table th {
+    background-color: #333;
+    color: white;
+    font-weight: bold;
+}
+
+#booking-table td {
+    color: #555;
+}
+
+.contend-container p {
+    font-size: 18px;
+    margin-bottom: 20px;
+}

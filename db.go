@@ -199,6 +199,38 @@ func getUserbyToken(token string) (User, error) {
 	return user, nil
 }
 
+func getUserbyName(username string) (User, error) {
+	// Fetch users
+	fetchTask := &DBTask{
+		Action:   "fetch",
+		Query:    `SELECT id, name FROM users where name = (?);`,
+		Args:     []interface{}{username},
+		Response: make(chan any),
+	}
+	rowsResult, err := dbEventBus.SubmitTask(fetchTask)
+	if err != nil {
+		//log.Fatal(err)
+		return User{}, err
+	}
+
+	rows := rowsResult.(*sql.Rows)
+	defer rows.Close()
+
+	var user User
+
+	for rows.Next() {
+		//var id int
+		//var name string
+		if err := rows.Scan(&user.Id, &user.Username); err != nil {
+			log.Fatal("User validation using token error: " + err.Error())
+
+		}
+		log.Printf("User validated - ID: %d, Name: %s\n", user.Id, user.Username)
+	}
+	//fmt.Println("Fetched users from DB:", users)
+	return user, nil
+}
+
 // func getOpenBookings(user User) (bool, error) {
 func getOpenBookings(user User) (Booking, error) {
 
