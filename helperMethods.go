@@ -30,6 +30,73 @@ func GenerateJWT(username string) (string, error) {
 	return tokenString, nil
 }
 
+// Secret key used to sign and verify the JWT
+var jwtSecret = []byte("your-secret-key")
+
+// Custom claims structure
+type Claims struct {
+	Username string `json:"username"`
+	jwt.RegisteredClaims
+}
+
+// Middleware to validate the Bearer token
+func TokenValidationMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Extract the Bearer token from the Authorization header
+		authHeader := r.Header.Get("Authorization")
+		if authHeader == "" {
+			http.Error(w, "Authorization header missing", http.StatusUnauthorized)
+			return
+		}
+
+		// Split the Bearer and token parts
+		parts := strings.Split(authHeader, " ")
+		if len(parts) != 2 || parts[0] != "Bearer" {
+			http.Error(w, "Invalid Authorization header format", http.StatusUnauthorized)
+			return
+		}
+
+		tokenString := parts[1]
+
+		// Parse and validate the token
+		claims := &Claims{}
+		token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+			// Ensure the signing method is what you expect (HMAC in this case)
+			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+				return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+			}
+			return jwtSecret, nil
+		})
+
+		// Handle token parsing errors
+		if err != nil {
+			if err == jwt.ErrSignatureInvalid {
+				http.Error(w, "Invalid token signature", http.StatusUnauthorized)
+				return
+			}
+			http.Error(w, "Invalid token", http.StatusUnauthorized)
+			return
+		}
+
+		// Ensure the token is valid
+		if !token.Valid {
+			http.Error(w, "Invalid token", http.StatusUnauthorized)
+			return
+		}
+
+		// Check token expiration
+		if claims.ExpiresAt != nil && claims.ExpiresAt.Time.Before(time.Now()) {
+			http.Error(w, "Token has expired", http.StatusUnauthorized)
+			return
+		}
+
+		// Optionally, you can verify additional claims (e.g., check user roles, scopes)
+
+		// Proceed with the next handler if the token is valid
+		next.ServeHTTP(w, r)
+	})
+}
+
 // Token validation function
 func validateBearerToken(token string) (User, error) {
 

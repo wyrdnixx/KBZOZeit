@@ -1,0 +1,99 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web App</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <header>
+            <h1>Welcome, {{.Username}}!</h1>
+            <button id="logout-btn">Logout</button>
+        </header>
+        
+        <div class="contend-container">
+            <p> Contend comes here</p>
+        </div>
+    </div>
+
+  
+<script>
+    // Check if token exists in localStorage
+    const token = localStorage.getItem('token');
+    if (!token) {
+        // Try to see if we have a session cookie already
+        // If we're here without a localStorage token, we might still have a valid session
+        fetch('/app', {
+            method: 'GET',
+            credentials: 'include'  // Include cookies
+        }).then(response => {
+            if (!response.ok) {
+                // If the request fails, redirect to login
+                window.location.href = '/login';
+            }
+            // If successful, we already have the page loaded
+        }).catch(() => {
+            window.location.href = '/login';
+        });
+    }
+    
+    // Set token in Authorization header for all fetch requests
+    const originalFetch = window.fetch;
+    window.fetch = function(url, options = {}) {
+        options = options || {};
+        options.headers = options.headers || {};
+        
+        // Only add Authorization header if we have a token
+        if (token) {
+            options.headers['Authorization'] = `Bearer ${token}`;
+        }
+        
+        return originalFetch(url, options);
+    };
+    
+    // Setup WebSocket connection with appropriate authentication
+    let socket;
+    
+    function connectWebSocket() {
+        const protocol = window.location.protocol === 'https:' : 'wss:' : 'ws:';
+        const socketUrl = `${protocol}//${window.location.host}/ws`;
+        
+        // Create WebSocket with credentials
+        socket = new WebSocket(socketUrl);
+        
+        // Send authentication immediately after connection
+        socket.onopen = function() {
+            console.log('WebSocket connection established');
+            // Send authentication message
+            if (token) {
+                socket.send(JSON.stringify({
+                    type: 'auth',
+                    token: token
+                }));
+            }
+        };
+        
+        // Rest of WebSocket code remains the same...
+        socket.onmessage = function(event) {
+            const message = JSON.parse(event.data);
+            displayMessage(message);
+        };
+        
+        socket.onclose = function() {
+            console.log('WebSocket connection closed');
+            // Try to reconnect after a delay
+            setTimeout(connectWebSocket, 3000);
+        };
+        
+        socket.onerror = function(error) {
+            console.error('WebSocket error:', error);
+        };
+    }
+    
+    // Rest of the code remains the same...
+</script>
+</body>
+</html>

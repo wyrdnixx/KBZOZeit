@@ -1,25 +1,78 @@
-<!-- templates/login.html -->
+
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
-    <style>
-        body { font-family: Arial, sans-serif; max-width: 300px; margin: 0 auto; padding-top: 50px; }
-        form { display: flex; flex-direction: column; }
-        input { margin: 10px 0; padding: 8px; }
-        button { padding: 10px; background-color: #4CAF50; color: white; border: none; }
-    </style>
+    <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
-    <h2>Anmeldung</h2>
-    {{if .}}
-        <p style="color: red;">{{.}}</p>
-    {{end}}
-    <form method="post">
-        <input type="text" name="username" placeholder="Benutzername" required>
-        <input type="password" name="password" placeholder="Passwort" required>
-        <button type="submit">Anmelden</button>
-    </form>
+    <div class="container">
+        <div class="login-form">
+            <h1>Login</h1>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <div class="form-group">
+                    <button type="submit">Login</button>
+                </div>
+                <div id="error-message" class="error-message"></div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('login-form').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Login failed');
+                }
+                
+                const data = await response.json();
+                
+                // Store token in localStorage
+                localStorage.setItem('token', data.token);
+                
+                // Create a temporary form to POST to /app
+                // This avoids putting the token in the URL
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/app';
+                
+                // Add a hidden input field with the token
+                const tokenInput = document.createElement('input');
+                tokenInput.type = 'hidden';
+                tokenInput.name = 'token';
+                tokenInput.value = data.token;
+                form.appendChild(tokenInput);
+                
+                // Add the form to the document and submit it
+                document.body.appendChild(form);
+                form.submit();
+            } catch (error) {
+                document.getElementById('error-message').textContent = 'Invalid username or password';
+            }
+        });
+    </script>
 </body>
 </html>

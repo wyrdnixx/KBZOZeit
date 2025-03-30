@@ -355,6 +355,23 @@ func validateUser(username, pwdHash string) bool {
 	return pwdHash == storedpwdHash
 }
 
+func getUserPasswordHash(user string) (string, error) {
+	// ValidateUser validates user credentials securely
+
+	var storedPasswordHash string
+
+	// Prepare a parameterized query to prevent SQL injection
+	query := "SELECT  pwdHash FROM users WHERE name = ?"
+	err := DB.QueryRow(query, user).Scan(&storedPasswordHash)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return "", errors.New("user not found")
+		}
+		return "", err
+	}
+	return storedPasswordHash, err
+}
+
 func dbUpdateToken(username string, token string) error {
 	// update user token
 	//id := strconv.FormatInt(userID, 10)

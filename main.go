@@ -87,23 +87,24 @@ func main() {
 		port = "8080" // Default to 8080 if not specified
 	}
 
-	//http.HandleFunc("/", serveHome) // Serve the index page
-	http.HandleFunc("/", indexHandler) // Serve the index page
+	/*
+		// Old test Handlers
+		http.HandleFunc("/", indexHandler) // Serve the index page
+		http.HandleFunc("/ws", handleWebSocket) // WebSocket endpoint
+		http.HandleFunc("/login", loginHandler) // Login endpoint
+		//http.HandleFunc("/home", homeHandler)   // Login endpoint
+		http.Handle("/home", TokenValidationMiddleware(http.HandlerFunc(homeHandler)))
+	*/
 
-	http.HandleFunc("/ws", handleWebSocket) // WebSocket endpoint
+	// Serve static files
+	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 
-	//http.HandleFunc("/login", handleLogin) // Alt - WS JSON Login Test
-	http.HandleFunc("/login", loginHandler) // Login endpoint
-	http.HandleFunc("/home", homeHandler)   // Login endpoint
-
-	// Serve static files (e.g., JavaScript)
-	//http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
-
-	//fmt.Printf("Server started on :%s\n", port)
-	//log.Fatal(http.ListenAndServe(":"+port, nil))
-
-	// Close the EventBus
-	//eventBus.Close()
+	// Routes
+	http.HandleFunc("/", homeHandler)
+	http.HandleFunc("/login", loginHandler)
+	http.HandleFunc("/api/login", apiLoginHandler)
+	http.HandleFunc("/app", appHandler)
+	http.HandleFunc("/ws", wsHandler)
 
 	// Start HTTP server
 	server := &http.Server{Addr: ":" + port}
