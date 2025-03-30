@@ -43,20 +43,25 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func appHandler(w http.ResponseWriter, r *http.Request) {
+
+	log.Printf("%s : /app requested", r.RemoteAddr)
+
 	var tokenString string
 
 	// First try to get token from Authorization header
 	authHeader := r.Header.Get("Authorization")
 	if authHeader != "" && len(authHeader) > 7 && authHeader[:7] == "Bearer " {
 		tokenString = authHeader[7:]
+		log.Printf("%s : Got Baerer token ", r.RemoteAddr)
 	}
 
 	// If not in header, check if this is a POST with form data (from login)
 	if tokenString == "" && r.Method == "POST" {
-		tokenString = r.FormValue("token")
+		tokenString = r.FormValue("auth_token")
 
 		// If we got a token from POST, set it as a cookie for future requests
 		if tokenString != "" {
+			log.Printf("%s : Got login token - setting cookie", r.RemoteAddr)
 			http.SetCookie(w, &http.Cookie{
 				Name:     "auth_token",
 				Value:    tokenString,
@@ -72,12 +77,14 @@ func appHandler(w http.ResponseWriter, r *http.Request) {
 	if tokenString == "" {
 		cookie, err := r.Cookie("auth_token")
 		if err == nil {
+			log.Printf("%s : got auth_token", r.RemoteAddr)
 			tokenString = cookie.Value
 		}
 	}
 
 	// If no token found, redirect to login
 	if tokenString == "" {
+		log.Printf("%s : no token found - redirect ro login ", r.RemoteAddr)
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
 	}
@@ -89,6 +96,8 @@ func appHandler(w http.ResponseWriter, r *http.Request) {
 	})
 
 	if err != nil || !token.Valid {
+
+		log.Printf("%s : Clear invalid token", r.RemoteAddr)
 		// Clear invalid cookie if it exists
 		http.SetCookie(w, &http.Cookie{
 			Name:     "auth_token",
@@ -103,6 +112,7 @@ func appHandler(w http.ResponseWriter, r *http.Request) {
 
 	// For GET requests, serve the page
 	if r.Method == "GET" {
+		log.Printf("%s : User authenticated - display /app", r.RemoteAddr)
 		templates.ExecuteTemplate(w, "app.html", map[string]string{
 			"Username": claims.Subject,
 		})
@@ -161,6 +171,27 @@ func apiLoginHandler(w http.ResponseWriter, r *http.Request) {
 		"token": tokenString,
 	})
 }
+
+func logoutHandler(w http.ResponseWriter, r *http.Request) {
+
+	log.Printf("%s : User logout requested. deleting cookie")
+	// Clear session cookie
+	cookie := &http.Cookie{
+		Name:     "auth_token",
+		Value:    "",
+		Path:     "/",
+		Expires:  time.Unix(0, 0), // Expire it immediately
+		HttpOnly: true,
+		Secure:   true, // Set to true if you're using HTTPS
+	}
+	http.SetCookie(w, cookie)
+
+	// Additional logic to clear session or tokens if needed
+
+	// Respond with success
+	w.WriteHeader(http.StatusOK)
+}
+
 func apiLoginHandler_OLD(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)

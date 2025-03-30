@@ -105,6 +105,7 @@ func main() {
 	http.HandleFunc("/api/login", apiLoginHandler)
 	http.HandleFunc("/app", appHandler)
 	http.HandleFunc("/ws", wsHandler)
+	http.HandleFunc("/logout", logoutHandler)
 
 	// Start HTTP server
 	server := &http.Server{Addr: ":" + port}

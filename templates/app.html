@@ -58,7 +58,7 @@
     let socket;
     
     function connectWebSocket() {
-        const protocol = window.location.protocol === 'https:' : 'wss:' : 'ws:';
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
         const socketUrl = `${protocol}//${window.location.host}/ws`;
         
         // Create WebSocket with credentials
@@ -93,6 +93,28 @@
         };
     }
     
+
+    document.getElementById('logout-btn').addEventListener('click', function() {
+    console.log("logout requested");
+
+    // Remove token from localStorage
+    localStorage.removeItem('token');
+
+    // Send a request to the server to invalidate the session and delete the cookie
+    fetch('/logout', {
+        method: 'POST',
+        credentials: 'include' // Ensure cookies are included in the request
+    }).then(response => {
+        if (response.ok) {
+            // Redirect to login page after successful logout
+            window.location.href = '/login';
+        } else {
+            console.error('Logout failed');
+        }
+    }).catch(error => {
+        console.error('Logout error:', error);
+    });
+});
     // Rest of the code remains the same...
 </script>
 </body>
