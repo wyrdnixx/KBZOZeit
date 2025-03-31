@@ -9,7 +9,6 @@ import (
 
 	"github.com/mattn/go-sqlite3"
 	_ "github.com/mattn/go-sqlite3"
-	"golang.org/x/crypto/bcrypt"
 )
 
 func initDB(db *sql.DB) error {
@@ -167,38 +166,39 @@ func getDatabaseFilePath(db *sql.DB) (string, error) {
 	return file, nil
 }
 
-func getUserbyToken(token string) (User, error) {
-	// Fetch users
-	fetchTask := &DBTask{
-		Action:   "fetch",
-		Query:    `SELECT id, name FROM users where token = (?);`,
-		Args:     []interface{}{token},
-		Response: make(chan any),
-	}
-	rowsResult, err := dbEventBus.SubmitTask(fetchTask)
-	if err != nil {
-		//log.Fatal(err)
-		return User{}, err
-	}
-
-	rows := rowsResult.(*sql.Rows)
-	defer rows.Close()
-
-	var user User
-
-	for rows.Next() {
-		//var id int
-		//var name string
-		if err := rows.Scan(&user.Id, &user.Username); err != nil {
-			log.Fatal("User validation using token error: " + err.Error())
-
+/*
+	func getUserbyToken(token string) (User, error) {
+		// Fetch users
+		fetchTask := &DBTask{
+			Action:   "fetch",
+			Query:    `SELECT id, name FROM users where token = (?);`,
+			Args:     []interface{}{token},
+			Response: make(chan any),
 		}
-		log.Printf("User validated - ID: %d, Name: %s\n", user.Id, user.Username)
-	}
-	//fmt.Println("Fetched users from DB:", users)
-	return user, nil
-}
+		rowsResult, err := dbEventBus.SubmitTask(fetchTask)
+		if err != nil {
+			//log.Fatal(err)
+			return User{}, err
+		}
 
+		rows := rowsResult.(*sql.Rows)
+		defer rows.Close()
+
+		var user User
+
+		for rows.Next() {
+			//var id int
+			//var name string
+			if err := rows.Scan(&user.Id, &user.Username); err != nil {
+				log.Fatal("User validation using token error: " + err.Error())
+
+			}
+			log.Printf("User validated - ID: %d, Name: %s\n", user.Id, user.Username)
+		}
+		//fmt.Println("Fetched users from DB:", users)
+		return user, nil
+	}
+*/
 func getUserbyName(username string) (User, error) {
 	// Fetch users
 	fetchTask := &DBTask{
@@ -319,6 +319,7 @@ func BookingIn(user User, from string) error {
 
 }
 
+/*
 // ValidateUser validates user credentials and returns custom error if not found
 func dbValidateUser(username, password string) (User, error) {
 	var ErrUserNotValidated = errors.New("user not validated")
@@ -354,9 +355,11 @@ func dbValidateUser(username, password string) (User, error) {
 
 	return loginUser, nil
 }
+*/
 
+/*
 // OLD - Test sing websocket json
-func validateUser(username, pwdHash string) bool {
+func validateUser_OLD(username, pwdHash string) bool {
 	var storedpwdHash string
 	// Fetch user
 	fetchTask := &DBTask{
@@ -385,7 +388,7 @@ func validateUser(username, pwdHash string) bool {
 	}
 	// ToDO: In a real-world app, use a hashed password comparison, not plaintext
 	return pwdHash == storedpwdHash
-}
+} */
 
 func getUserPasswordHash(user string) (string, error) {
 	// ValidateUser validates user credentials securely
@@ -404,34 +407,35 @@ func getUserPasswordHash(user string) (string, error) {
 	return storedPasswordHash, err
 }
 
-func dbUpdateToken(username string, token string) error {
-	// update user token
-	//id := strconv.FormatInt(userID, 10)
-	insertTask := &DBTask{
-		Action: "update",
-		Query:  `UPDATE users SET token = ? WHERE name = ?;`,
-		Args:   []interface{}{token, username},
-		//Args:     []interface{}{token},
-		Response: make(chan any),
-	}
-	var rowsAffected int64
-	result, err := dbEventBus.SubmitTask(insertTask)
-	if err != nil {
-		return err
-	}
-	if result, ok := result.(sql.Result); ok {
-		fmt.Println("Result is of type sql.Result")
-		// Now you can use sqlResult
-		rowsAffected, err = result.RowsAffected()
-		if err == nil {
-			fmt.Printf("Rows affected: %d\n", rowsAffected)
+/*
+	func dbUpdateToken(username string, token string) error {
+		// update user token
+		//id := strconv.FormatInt(userID, 10)
+		insertTask := &DBTask{
+			Action: "update",
+			Query:  `UPDATE users SET token = ? WHERE name = ?;`,
+			Args:   []interface{}{token, username},
+			//Args:     []interface{}{token},
+			Response: make(chan any),
+		}
+		var rowsAffected int64
+		result, err := dbEventBus.SubmitTask(insertTask)
+		if err != nil {
+			return err
+		}
+		if result, ok := result.(sql.Result); ok {
+			fmt.Println("Result is of type sql.Result")
+			// Now you can use sqlResult
+			rowsAffected, err = result.RowsAffected()
+			if err == nil {
+				fmt.Printf("Rows affected: %d\n", rowsAffected)
+
+			}
 
 		}
-
+		return nil
 	}
-	return nil
-}
-
+*/
 func testInsert() (int64, error) {
 	// Insert a user
 	insertTask := &DBTask{

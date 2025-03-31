@@ -97,6 +97,7 @@ func TokenValidationMiddleware(next http.Handler) http.Handler {
 	})
 }
 
+/*
 // Token validation function
 func validateBearerToken(token string) (User, error) {
 
@@ -109,8 +110,8 @@ func validateBearerToken(token string) (User, error) {
 		return user, nil
 	}
 
-}
-
+} */
+/*
 // Token validation function
 func validateBearerToken_OLD(r *http.Request) (User, error) {
 	// Get the Authorization header from the HTTP request
@@ -139,7 +140,7 @@ func validateBearerToken_OLD(r *http.Request) (User, error) {
 		return user, nil
 	}
 
-}
+} */
 
 func getcurrentTimestamp() string {
 	// Define the layout
@@ -168,7 +169,7 @@ func calcDuration(fromStr string, toStr string) (string, error) {
 	// Check for parsing errors
 	if err1 != nil || err2 != nil {
 		log.Printf("Error parsing dates: %s - %s", err1, err2)
-		return "", fmt.Errorf("Error parsing dates for calcDuration")
+		return "", fmt.Errorf("error parsing dates for calcDuration")
 	}
 	// Calculate the duration between the two times
 	timeDuration := endTime.Sub(startTime)

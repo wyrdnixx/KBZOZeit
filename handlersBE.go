@@ -5,9 +5,6 @@ import (
 	"fmt"
 	"log"
 	"math"
-	"net/http"
-
-	"github.com/gorilla/websocket"
 )
 
 // handleEchoTest processes echoTest type messages
@@ -26,6 +23,7 @@ func handleEchoTest(content interface{}) ([]byte, error) {
 	return json.Marshal(response)
 }
 
+/*
 // Serve the homepage (this serves the HTML page)
 func handleLogin(w http.ResponseWriter, r *http.Request) {
 
@@ -70,20 +68,11 @@ func handleLogin(w http.ResponseWriter, r *http.Request) {
 		"token": token,
 	})
 }
+*/
 
+/*
 // handleWebSocket function upgrades the HTTP connection to WebSocket
 func handleWebSocket(w http.ResponseWriter, r *http.Request) {
-
-	// todo : check for authentication
-	/* 	// Validate the bearer token user
-	   	user, err := validateBearerToken(r)
-	   	if err != nil {
-	   		log.Printf("user not found for token: %s", err)
-	   		http.Error(w, "Unauthorized: "+err.Error(), http.StatusUnauthorized)
-	   		//return
-	   	} else {
-	   		log.Printf("connection from user: %s", user)
-	   	} */
 
 	/////////////////////
 	// TODO: doppelter Code - ist noch im handlersFE.go ->indexHandler
@@ -141,7 +130,7 @@ func handleWebSocket(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 	}
-}
+} */
 
 // handleTimeBooking processes timebooking type messages
 func handleTimeBooking(content interface{}, user User) ([]byte, error) {

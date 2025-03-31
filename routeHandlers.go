@@ -19,13 +19,7 @@ var (
 )
 
 func init() {
-	/* 	// Create a test user with a hashed password
-	   	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte("password123"), bcrypt.DefaultCost)
-	   	users["admin"] = &User{
-	   		Username: "admin",
-	   		Password: string(hashedPassword),
-	   	}
-	*/
+
 	// Parse templates
 	templates = template.Must(template.ParseGlob("templates/*.html"))
 }
@@ -111,9 +105,17 @@ func appHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// First try to authenticate with cookie
+	var username string
+
+	if err == nil && token.Valid {
+		username = claims.Subject
+		log.Printf("%s : cookie token authenticated successfully: %s", r.RemoteAddr, username)
+	}
+
 	// For GET requests, serve the page
 	if r.Method == "GET" {
-		log.Printf("%s : User authenticated - display /app", r.RemoteAddr)
+		log.Printf("%s : %s : User authenticated - display /app", r.RemoteAddr, username)
 		templates.ExecuteTemplate(w, "app.html", map[string]string{
 			"Username": claims.Subject,
 		})
@@ -175,7 +177,7 @@ func apiLoginHandler(w http.ResponseWriter, r *http.Request) {
 
 func logoutHandler(w http.ResponseWriter, r *http.Request) {
 
-	log.Printf("%s : User logout requested. deleting cookie")
+	log.Printf("%s : User logout requested. deleting cookie", r.RemoteAddr)
 	// Clear session cookie
 	cookie := &http.Cookie{
 		Name:     "auth_token",
@@ -193,48 +195,9 @@ func logoutHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func apiLoginHandler_OLD(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "POST" {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	username := r.FormValue("username")
-	password := r.FormValue("password")
-
-	userStoredPasswd, err := getUserPasswordHash(username)
-	if err != nil {
-		http.Error(w, "Invalid credentials", http.StatusUnauthorized)
-
-	}
-	if err := bcrypt.CompareHashAndPassword([]byte(userStoredPasswd), []byte(password)); err != nil {
-		http.Error(w, "Invalid credentials", http.StatusUnauthorized)
-		return
-	}
-
-	// Create JWT token
-	claims := jwt.StandardClaims{
-		Subject:   username,
-		ExpiresAt: time.Now().Add(time.Hour * 24).Unix(),
-		IssuedAt:  time.Now().Unix(),
-	}
-
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := token.SignedString(jwtSecret)
-	if err != nil {
-		http.Error(w, "Server error", http.StatusInternalServerError)
-		return
-	}
-
-	// Return token as JSON
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]string{
-		"token": tokenString,
-	})
-
-}
-
 func wsHandler(w http.ResponseWriter, r *http.Request) {
+
+	log.Printf("%s : new websocket connection request.", r.RemoteAddr)
 	// Upgrade connection first, then handle authentication with the first message
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
@@ -254,6 +217,7 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 
 		if err == nil && token.Valid {
 			username = claims.Subject
+			log.Printf("%s : cookie token authenticated successfully: %s", r.RemoteAddr, username)
 		}
 	}
 
@@ -269,6 +233,7 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if err := conn.ReadJSON(&authMsg); err != nil || authMsg.Type != "auth" {
+			log.Printf("%s : no or wrong authentication message: %s", r.RemoteAddr, authMsg.Type)
 			conn.Close()
 			return
 		}
@@ -283,6 +248,7 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 		})
 
 		if err != nil || !token.Valid {
+			log.Printf("%s : token via auth_message authentication error: %s", r.RemoteAddr, err)
 			conn.Close()
 			return
 		}
