@@ -265,7 +265,7 @@ func dbGetBookings(user User) ([]Booking, error) {
 
 	fetchTask := &DBTask{
 		Action:   "fetch",
-		Query:    `SELECT id, "from", "to" FROM bookings WHERE userId = (?) ;`,
+		Query:    `SELECT id, "from", "to", "duration" FROM bookings WHERE userId = (?) order by id desc ;`,
 		Args:     []interface{}{user.Id},
 		Response: make(chan any),
 	}
@@ -282,7 +282,7 @@ func dbGetBookings(user User) ([]Booking, error) {
 
 	for rows.Next() {
 		var booking Booking // Create a variable for each row
-		if err := rows.Scan(&booking.Id, &booking.From, &booking.To); err != nil {
+		if err := rows.Scan(&booking.Id, &booking.From, &booking.To, &booking.Duration); err != nil {
 			log.Printf("Error get bookings for user : %s : %s", user, err)
 		}
 
