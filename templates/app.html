@@ -15,6 +15,19 @@
             <button id="get-data-btn">Get Data</button>
             <button id="recalc-btn">Recalc</button>
         </header>
+
+        <div class="contend-container">
+            <p>Manual Time Booking</p>
+            
+            <label for="start-time">Start Time:</label>
+            <input type="datetime-local" id="start-time">
+            
+            <label for="end-time">End Time:</label>
+            <input type="datetime-local" id="end-time">
+            
+            <button id="send-time-btn">Send</button>
+        </div>
+
        <div class="contend-container">
             <p>Recalc</p>
 
@@ -91,7 +104,8 @@
     
     // Setup WebSocket connection with appropriate authentication
     let socket;
-    
+    let reconnectAttempts = 0;
+
     function connectWebSocket() {
         console.log("Connecting websocket")
         const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
@@ -102,19 +116,14 @@
         
         // Send authentication immediately after connection
         socket.onopen = function() {
+            reconnectAttempts = 0; // Reset attempts
             console.log('WebSocket connection established');
-            // Send authentication message
-           /*  if (token) {
-                socket.send(JSON.stringify({
-                    type: 'auth',
-                    token: token
-                }));
-            } */
+    
         };
         
         // Rest of WebSocket code remains the same...
         socket.onmessage = function(event) {
-            console.log("sending message to websocket")
+            console.log("received message from websocket")
             const response = JSON.parse(event.data);
             displayMessage(response);
 
@@ -126,10 +135,11 @@
                 }
         };
         
-        socket.onclose = function() {
-            console.log('WebSocket connection closed');
-            // Try to reconnect after a delay
-            setTimeout(connectWebSocket, 3000);
+        socket.onclose = function() {            
+            console.log('WebSocket closed. Reconnecting...');
+            let delay = Math.min(5000, (1000 * Math.pow(2, reconnectAttempts))); // Max 5 sec
+            reconnectAttempts++;
+            setTimeout(connectWebSocket, delay);
         };
         
         socket.onerror = function(error) {
@@ -261,7 +271,65 @@
             // Show the table
             table.style.display = 'table';
         }
-      
+      document.addEventListener('DOMContentLoaded', function () {
+
+    // Set default startTime to current date & time
+    const now = new Date();
+    const formattedNow = now.toISOString().slice(0, 16); // Format: YYYY-MM-DDTHH:MM
+    console.log("formattedNow: "+ formattedNow)
+    document.getElementById('start-time').value = formattedNow;
+
+      // Set default endTime to current date without time
+      const formattedDateOnly = now.toISOString().split('T')[0]; // Format: YYYY-MM-DD
+      console.log("endDate: "+ formattedDateOnly)
+    document.getElementById('end-time').value = formattedDateOnly+ 'T00:00';
+});
+    // Handle Send Button Click
+    document.getElementById('send-time-btn').addEventListener('click', function () {
+    const startTime = document.getElementById('start-time').value;
+    const endTime = document.getElementById('end-time').value;
+
+    if (!startTime || !endTime) {
+        alert("Please select both start and end times.");
+        return;
+    }
+
+    if (new Date(startTime) >= new Date(endTime)) {
+        alert("Start time must be before end time.");
+        return;
+    }
+
+    // Format dates as "DD.MM.YYYY HH:mm"
+    function formatDateTime(dateTime) {
+        const date = new Date(dateTime);
+        return date.toLocaleString('de-DE', {
+            day: '2-digit', month: '2-digit', year: 'numeric',
+            hour: '2-digit', minute: '2-digit'
+        }).replace(',', ''); // Remove comma
+    }
+
+    const message = {
+        type: "timebooking",
+        content: {
+            from: formatDateTime(startTime),
+            to: formatDateTime(endTime)
+        }
+    };
+
+    // Send message via WebSocket
+    if (socket && socket.readyState === WebSocket.OPEN) {
+        socket.send(JSON.stringify(message));
+        alert("Time booking sent successfully!");
+        
+        // Optionally reset form
+        document.getElementById('start-time').value = new Date().toISOString().slice(0, 16);
+        document.getElementById('end-time').value = "";
+    } else {
+        console.error("WebSocket is not open");
+    }
+});
+
+
     connectWebSocket();
 </script>
 </body>
