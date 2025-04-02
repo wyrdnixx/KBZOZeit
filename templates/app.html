@@ -13,10 +13,28 @@
             <h1>Welcome, {{.Username}}!</h1>
             <button id="logout-btn">Logout</button>
             <button id="get-data-btn">Get Data</button>
+            <button id="recalc-btn">Recalc</button>
         </header>
-        
+    <!--     <div class="contend-container">
+            <p>Recalc</p>
+
+            
+            <table id="recalc-table" class="table" style="display: none;">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>From</th>
+                        <th>To</th>
+                        <th>Duration</th>
+                    </tr>
+                </thead>
+                <tbody id="booking-table-body">
+            
+                </tbody>
+            </table>
+        </div> -->
         <div class="contend-container">
-            <p>Content comes here</p>
+            <p>Bookings</p>
 
             <!-- Table placeholder -->
             <table id="booking-table" class="table" style="display: none;">
@@ -185,7 +203,20 @@
             // Show the table
             table.style.display = 'table';
         }
+  // New "recalc" button event handler
+/*   document.getElementById('recalc-btn').addEventListener('click', function() {
+            console.log("recalc requested");
 
+            // Ensure WebSocket is open before sending the message
+            if (socket && socket.readyState === WebSocket.OPEN) {
+                // Send request to WebSocket with specified JSON structure
+                socket.send(JSON.stringify({
+                    type: "startRecalc"                    
+                }));
+            } else {
+                console.error("WebSocket is not open");
+            }
+        }); */
     connectWebSocket();
 </script>
 </body>
