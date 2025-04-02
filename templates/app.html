@@ -15,24 +15,25 @@
             <button id="get-data-btn">Get Data</button>
             <button id="recalc-btn">Recalc</button>
         </header>
-    <!--     <div class="contend-container">
+       <div class="contend-container">
             <p>Recalc</p>
 
             
             <table id="recalc-table" class="table" style="display: none;">
                 <thead>
                     <tr>
-                        <th>ID</th>
-                        <th>From</th>
-                        <th>To</th>
-                        <th>Duration</th>
+                        <th>HourPerMonth</th>
+                        <th>PassedMonths</th>
+                        <th>SollZeit</th>
+                        <th>IstZeit</th>
+                        <th>DifZeit</th>
                     </tr>
                 </thead>
-                <tbody id="booking-table-body">
+                <tbody id="recalc-table-body">
             
                 </tbody>
             </table>
-        </div> -->
+        </div> 
         <div class="contend-container">
             <p>Bookings</p>
 
@@ -120,6 +121,9 @@
             if (response.type === 'handleGetBookingsResponse' && !response.isError) {
                     displayBookings(response.message);
                 }
+            if (response.type === 'handleStartRecalcResponse' && !response.isError) {
+                    displayRecalc(response.message);
+                }
         };
         
         socket.onclose = function() {
@@ -203,8 +207,8 @@
             // Show the table
             table.style.display = 'table';
         }
-  // New "recalc" button event handler
-/*   document.getElementById('recalc-btn').addEventListener('click', function() {
+        // New "recalc" button event handler
+        document.getElementById('recalc-btn').addEventListener('click', function() {
             console.log("recalc requested");
 
             // Ensure WebSocket is open before sending the message
@@ -216,7 +220,48 @@
             } else {
                 console.error("WebSocket is not open");
             }
-        }); */
+        });
+
+         // Function to display a table
+         function displayRecalc(recalcs) {
+            console.log("displayRecalc")
+            const table = document.getElementById('recalc-table');
+            const tableBody = document.getElementById('recalc-table-body');
+            
+            // Clear existing rows in case of multiple requests
+            tableBody.innerHTML = '';
+
+            /* // Loop through each booking and create a row
+            recalcs.forEach(el => {
+                const row = document.createElement('tr');
+
+                row.innerHTML = `
+                    <td>${el.HourPerMonth}</td>
+                    <td>${el.PassedMonths}</td>
+                    <td>${el.SollZeit}</td>
+                    <td>${el.IstZeit}</td>
+                    <td>${el.DifZeit}</td>
+                `;
+
+                tableBody.appendChild(row);
+            }); */
+
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${recalcs.HourPerMonth}</td>
+                <td>${recalcs.PassedMonths}</td>
+                <td>${recalcs.SollZeit}</td>
+                <td>${recalcs.IstZeit}</td>
+                <td>${recalcs.DifZeit}</td>
+                `;
+
+                tableBody.appendChild(row);
+            
+
+            // Show the table
+            table.style.display = 'table';
+        }
+      
     connectWebSocket();
 </script>
 </body>
