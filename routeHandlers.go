@@ -135,11 +135,13 @@ func apiLoginHandler(w http.ResponseWriter, r *http.Request) {
 	password := r.FormValue("password")
 	userStoredPasswd, err := getUserPasswordHash(username)
 	if err != nil {
+		log.Printf("%s:error validating user from db. Username: %s Error: %s ", r.RemoteAddr, username, err)
 		http.Error(w, "Invalid credentials", http.StatusUnauthorized)
-
+		return
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(userStoredPasswd), []byte(password)); err != nil {
+		log.Printf("%s:error compare password hash: Username: %s Error: %s ", r.RemoteAddr, username, err)
 		http.Error(w, "Invalid credentials", http.StatusUnauthorized)
 		return
 	}
