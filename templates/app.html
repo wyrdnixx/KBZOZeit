@@ -54,7 +54,7 @@
             <table id="booking-table" class="table" style="display: none;">
                 <thead>
                     <tr>
-                        <th>ID</th>
+                    <!--     <th>ID</th> -->
                         <th>From</th>
                         <th>To</th>
                         <th>Duration</th>
@@ -192,7 +192,7 @@
         }
 
 
-          // Function to display bookings in a table
+/*           // Function to display bookings in a table
           function displayBookings(bookings) {
             const table = document.getElementById('booking-table');
             const tableBody = document.getElementById('booking-table-body');
@@ -217,6 +217,42 @@
             // Show the table
             table.style.display = 'table';
         }
+
+        let bookingsData = {}; // Object to store bookings by index */
+
+function displayBookings(bookings) {
+    const table = document.getElementById('booking-table');
+    const tableBody = document.getElementById('booking-table-body');
+    
+    // Clear existing data
+    tableBody.innerHTML = '';
+    bookingsData = {}; // Reset stored data
+
+    bookings.forEach((booking, index) => {
+        bookingsData[index] = booking; // Store the booking, including the ID
+
+        const row = document.createElement('tr');
+        row.dataset.index = index; // Store index in dataset for later reference
+
+        row.innerHTML = `
+            <td>${booking.from}</td>
+            <td>${booking.to}</td>
+            <td>${booking.duration || 'N/A'}</td>
+        `;
+
+        // Add a click event listener to access the ID later
+        row.addEventListener('click', function () {
+            const selectedBooking = bookingsData[this.dataset.index]; // Retrieve booking from object
+            console.log("Selected Booking ID:", selectedBooking.id);
+        });
+
+        tableBody.appendChild(row);
+    });
+
+    table.style.display = 'table'; // Show table after populating
+}
+
+
         // New "recalc" button event handler
         document.getElementById('recalc-btn').addEventListener('click', function() {
             console.log("recalc requested");
