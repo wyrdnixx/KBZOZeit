@@ -119,6 +119,9 @@
             reconnectAttempts = 0; // Reset attempts
             console.log('WebSocket connection established');
     
+            // Refresh data views
+            getData();
+            startRecalc();
         };
         
         // Rest of WebSocket code remains the same...
@@ -302,13 +305,7 @@
 
         document.addEventListener('DOMContentLoaded', function () {
             
-     /*        connectWebSocket(); */
-     // ToDo: does not work - wait for websocket to be open 
-            connectWebSocket(() => {
-                console.log("WebSocket connected. Now fetching data...");
-                getData();
-                startRecalc();
-            });
+               connectWebSocket() ;
 
             // Set default startTime to current date & time
             const now = new Date();
