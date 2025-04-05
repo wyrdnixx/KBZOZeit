@@ -141,15 +141,9 @@
             displayMessage(response);
 
             if (response.isError) {
-        Toastify({
-            text: response.message || "An error occurred.", // Use response.message or a default error
-            duration: 3000, // Display duration in milliseconds
-            close: true,     // Allow closing the toast
-            gravity: "top",  // Position: top, bottom
-            position: "right", // Position: left, center, right
-            backgroundColor: "#ff0000", // Red background for error
-        }).showToast();
-    }
+                displayToast(true, response.message) 
+ 
+            }
 
             if (response.type === 'handleGetBookingsResponse' && !response.isError) {
                     displayBookings(response.message);
@@ -159,7 +153,7 @@
                 }
             if (response.type === 'handleGetOpenBookingsResponse' && !response.isError) {
                 // ToDo:
-                console.log("open booking: "+ response.message)
+                displayToast(false, "open booking: "+ response.message)
             }
         };
         
@@ -171,7 +165,7 @@
         };
         
         socket.onerror = function(error) {
-            console.error('WebSocket error:', error);
+            displayToast(true, 'WebSocket error:'+ error);
         };
     }
     
@@ -194,7 +188,7 @@
                 console.error('Logout failed');
             }
         }).catch(error => {
-            console.error('Logout error:', error);
+            displayToast(true, 'Logout error:'+ error);
         });
     });
 
@@ -214,7 +208,7 @@
                     content: "currentMonth"
                 }));
             } else {
-                console.error("WebSocket is not open");
+                displayToast(true,"WebSocket is not open");
             }
         };
 
@@ -233,7 +227,7 @@
                     type: "getOpenBooking"                    
                 }));
             } else {
-                console.error("WebSocket is not open");
+                displayToast(true,"WebSocket is not open");
             }
         };
 
@@ -300,7 +294,7 @@
                     type: "startRecalc"                    
                 }));
             } else {
-                console.error("WebSocket is not open");
+                displayToast(true,"WebSocket is not open");
             }
 
         }
@@ -371,12 +365,12 @@
         const endTime = document.getElementById('end-time').value;
 
         if (!startTime || !endTime) {
-            alert("Please select both start and end times.");
+            displayToast(true,"Please select both start and end times.");
             return;
         }
 
         if (new Date(startTime) >= new Date(endTime)) {
-            alert("Start time must be before end time.");
+            displayToast(true,"Start time must be before end time.");
             return;
         }
 
@@ -400,13 +394,13 @@
         // Send message via WebSocket
         if (socket && socket.readyState === WebSocket.OPEN) {
             socket.send(JSON.stringify(message));
-            alert("Time booking sent successfully!");
+            displayToast(false,"Time booking sent successfully!");
 
             // Optionally reset form
             document.getElementById('start-time').value = new Date().toISOString().slice(0, 16);
             document.getElementById('end-time').value = "";
         } else {
-            console.error("WebSocket is not open");
+            displayToast(true,"WebSocket is not open");
         }
     });
 
@@ -416,6 +410,28 @@
             // Add logic here to handle WebSocket messages from the server
         }
 
+        function displayToast(isError, message) {
+            if (isError == true) {
+                Toastify({
+                    text: message || "An error occurred.", // Use response.message or a default error
+                    duration: 3000, // Display duration in milliseconds
+                    close: true,     // Allow closing the toast
+                    gravity: "top",  // Position: top, bottom
+                    position: "right", // Position: left, center, right
+                    backgroundColor: "#ff0000", // Red background for error
+                }).showToast();
+            } else {
+                Toastify({
+                    text: message || "Toast message.", // Use response.message or a default error
+                    duration: 3000, // Display duration in milliseconds
+                    close: true,     // Allow closing the toast
+                    gravity: "top",  // Position: top, bottom
+                    position: "right", // Position: left, center, right
+                    backgroundColor: "#3f9121", // Red background for error
+                }).showToast();
+            }
+            
+        }
     
 </script>
 </body>
