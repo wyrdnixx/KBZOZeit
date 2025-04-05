@@ -36,6 +36,9 @@ func processMessage(msg []byte, user User) ([]byte, error) {
 	case "getBookings":
 		return handleGetBookings(message.Content, user)
 
+	case "getOpenBookings":
+		return handleGetOpenBookings(message.Content, user)
+
 	case "startRecalc":
 		return handleStartRecalc(message.Content, user)
 

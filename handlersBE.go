@@ -23,115 +23,6 @@ func handleEchoTest(content interface{}) ([]byte, error) {
 	return json.Marshal(response)
 }
 
-/*
-// Serve the homepage (this serves the HTML page)
-func handleLogin(w http.ResponseWriter, r *http.Request) {
-
-	// Only allow POST requests
-	if r.Method != http.MethodPost {
-		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
-		return
-	}
-
-	// Parse the request body to get the username and password
-	var loginUser LoginUser
-	err := json.NewDecoder(r.Body).Decode(&loginUser)
-	if err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
-		return
-	}
-
-	// Validate user credentials
-	if !validateUser(loginUser.Username, loginUser.PwdHash) {
-		http.Error(w, "Invalid username or password", http.StatusUnauthorized)
-		return
-	}
-
-	// Create JWT token
-	token, err := GenerateJWT(loginUser.Username)
-	if err != nil {
-		http.Error(w, "Failed to generate token", http.StatusInternalServerError)
-		return
-	}
-
-	// update token in DB
-
-	errUpdToken := dbUpdateToken(loginUser.Username, token)
-	if errUpdToken != nil {
-		http.Error(w, "Failed to update token in db", http.StatusInternalServerError)
-	}
-
-	// Return the token in the response
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]string{
-		"token": token,
-	})
-}
-*/
-
-/*
-// handleWebSocket function upgrades the HTTP connection to WebSocket
-func handleWebSocket(w http.ResponseWriter, r *http.Request) {
-
-	/////////////////////
-	// TODO: doppelter Code - ist noch im handlersFE.go ->indexHandler
-
-	cookie, err := r.Cookie("bearer_token")
-	if err != nil {
-		if err == http.ErrNoCookie {
-			// Cookie not found, handle the error accordingly
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
-			return
-		}
-		// Some other error occurred
-		http.Error(w, "Bad Request", http.StatusBadRequest)
-		return
-	}
-
-	// Access the token stored in the cookie
-	bearerToken := cookie.Value
-
-	user, errUser := validateBearerToken(bearerToken)
-	if errUser != nil {
-		log.Printf("error validating baerer-token - redirecting to login: %s", errUser)
-		http.Redirect(w, r, "/login", http.StatusSeeOther)
-		return
-	}
-	/////////////////////
-
-	conn, err := upgrader.Upgrade(w, r, nil)
-	if err != nil {
-		log.Println("WebSocket upgrade error:", err)
-		return
-	}
-	defer conn.Close()
-
-	for {
-		// Read message from WebSocket client
-		_, message, err := conn.ReadMessage()
-		if err != nil {
-			log.Println("read error:", err)
-			break
-		}
-
-		// Process the incoming message
-		// extract only the token from header - full header is example [Bearer adminToken]
-		response, err := processMessage(message, user)
-		if err != nil {
-			log.Println("Error processing message:", err)
-			break
-		}
-
-		// Send the response back to the client
-		err = conn.WriteMessage(websocket.TextMessage, response)
-		if err != nil {
-			log.Println("write error:", err)
-			break
-		}
-	}
-} */
-
 // handleTimeBooking processes timebooking type messages
 func handleTimeBooking(content interface{}, user User) ([]byte, error) {
 	// First, convert content to a map
@@ -250,24 +141,6 @@ func handleTimeBooking(content interface{}, user User) ([]byte, error) {
 		if err != nil {
 			return generateResponse("handleTimeBookingResponse", true, "Error: Error parsing dates for duration calculation")
 		}
-		/* //calculate duration
-		layout := "02.01.2006 15:04"
-		startTime, err1 := time.Parse(layout, fromStr)
-		endTime, err2 := time.Parse(layout, toStr)
-		// Check for parsing errors
-		if err1 != nil || err2 != nil {
-			log.Printf("Error parsing dates: %s - %s", err1, err2)
-			return generateResponse("handleTimeBookingResponse", true, "Error: Error parsing dates for duration calculation")
-		}
-		// Calculate the duration between the two times
-		timeDuration := endTime.Sub(startTime)
-		// Convert the duration to hours and minutes
-		totalHours := timeDuration.Hours()
-		hours := int(totalHours)                           // Get the integer part (hours)
-		minutes := int((totalHours - float64(hours)) * 60) // Get the fractional part as minutes
-
-		// Format the duration as "hours.minutes"
-		duration := fmt.Sprintf("%d.%02d", hours, minutes) */
 
 		errInsert := insertBooking(user.Id.(int64), fromStr, toStr, duration)
 		if errInsert != nil {
@@ -289,6 +162,15 @@ func handleGetBookings(content interface{}, user User) ([]byte, error) {
 	}
 
 	return generateResponse("handleGetBookingsResponse", false, bookings)
+}
+
+func handleGetOpenBookings(content interface{}, user User) ([]byte, error) {
+	bookings, err := getOpenBookings(user)
+	if err != nil {
+		return generateResponse("handleGetOpenBookingsResponse", true, "Error: Error getting openBookings: "+err.Error())
+	}
+
+	return generateResponse("handleGetOpenBookingsResponse", false, bookings)
 }
 
 func handleStartRecalc(content interface{}, user User) ([]byte, error) {

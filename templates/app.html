@@ -6,17 +6,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Web App</title>
     <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    
 </head>
 <body>
     <div class="app-container">
         <header>
             <h1>Welcome, {{.Username}}!</h1>
             <button id="logout-btn">Logout</button>
-            <button id="get-data-btn">Get Data</button>
-            <button id="recalc-btn">Recalc</button>
+
         </header>
 
-        <div class="contend-container">
+        <div class="contend-container">            
+            
             <p>Manual Time Booking</p>
             
             <label for="start-time">Start Time:</label>
@@ -28,9 +31,13 @@
             <button id="send-time-btn">Send</button>
         </div>
 
+        <div class="contend-container">
+            <button id="getOpenBooking-btn">Test-getOpenBooking-btn</button>
+        </div>
        <div class="contend-container">
+        
             <p>Recalc</p>
-
+            <button id="recalc-btn">Recalc</button>
             
             <table id="recalc-table" class="table" style="display: none;">
                 <thead>
@@ -48,8 +55,8 @@
             </table>
         </div> 
         <div class="contend-container">
-            <p>Bookings</p>
-
+            <p>Bookings </p>
+            <button id="get-data-btn">Get Data</button> 
             <!-- Table placeholder -->
             <table id="booking-table" class="table" style="display: none;">
                 <thead>
@@ -69,6 +76,9 @@
 
   
 <script>
+
+
+
     // Check if token exists in localStorage
     const token = localStorage.getItem('token');
     if (!token) {
@@ -130,12 +140,27 @@
             const response = JSON.parse(event.data);
             displayMessage(response);
 
+            if (response.isError) {
+        Toastify({
+            text: response.message || "An error occurred.", // Use response.message or a default error
+            duration: 3000, // Display duration in milliseconds
+            close: true,     // Allow closing the toast
+            gravity: "top",  // Position: top, bottom
+            position: "right", // Position: left, center, right
+            backgroundColor: "#ff0000", // Red background for error
+        }).showToast();
+    }
+
             if (response.type === 'handleGetBookingsResponse' && !response.isError) {
                     displayBookings(response.message);
                 }
             if (response.type === 'handleStartRecalcResponse' && !response.isError) {
                     displayRecalc(response.message);
                 }
+            if (response.type === 'handleGetOpenBookingsResponse' && !response.isError) {
+                // ToDo:
+                console.log("open booking: "+ response.message)
+            }
         };
         
         socket.onclose = function() {            
@@ -193,6 +218,24 @@
             }
         };
 
+
+        document.getElementById('getOpenBooking-btn').addEventListener('click', function() {
+        getOpenBooking()
+        });
+
+        function getOpenBooking() {
+            console.log("getOpenBooking requested");
+
+            // Ensure WebSocket is open before sending the message
+            if (socket && socket.readyState === WebSocket.OPEN) {
+                // Send request to WebSocket with specified JSON structure
+                socket.send(JSON.stringify({
+                    type: "getOpenBooking"                    
+                }));
+            } else {
+                console.error("WebSocket is not open");
+            }
+        };
 
         function displayBookings(bookings) {
             const table = document.getElementById('booking-table');
