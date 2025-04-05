@@ -50,7 +50,7 @@ func handleTimeBooking(content interface{}, user User) ([]byte, error) {
 
 		// Check if user has alrady open bookings
 		//ToDO - Fehler - wird immer erstellt
-		openBooking, err := getOpenBookings(user)
+		openBooking, err := getOpenBooking(user)
 		var zeroBooking Booking
 		if err != nil {
 			log.Printf("Error db check for open bookings: %s", err)
@@ -90,7 +90,7 @@ func handleTimeBooking(content interface{}, user User) ([]byte, error) {
 		} */
 
 		// Check if user has alrady open bookings
-		openBooking, err := getOpenBookings(user)
+		openBooking, err := getOpenBooking(user)
 		var zeroBooking Booking
 		if err != nil {
 			log.Printf("Error db check for open bookings: %s", err)
@@ -125,7 +125,7 @@ func handleTimeBooking(content interface{}, user User) ([]byte, error) {
 		log.Printf(`got full booking: %s - %s `, fromStr, toStr)
 
 		// Check if user has alrady open bookings
-		openBooking, err := getOpenBookings(user)
+		openBooking, err := getOpenBooking(user)
 		var zeroBooking Booking
 		if err != nil {
 			log.Printf("Error db check for open bookings: %s", err)
@@ -164,12 +164,11 @@ func handleGetBookings(content interface{}, user User) ([]byte, error) {
 	return generateResponse("handleGetBookingsResponse", false, bookings)
 }
 
-func handleGetOpenBookings(content interface{}, user User) ([]byte, error) {
-	bookings, err := getOpenBookings(user)
+func handleGetOpenBooking(content interface{}, user User) ([]byte, error) {
+	bookings, err := getOpenBooking(user)
 	if err != nil {
 		return generateResponse("handleGetOpenBookingsResponse", true, "Error: Error getting openBookings: "+err.Error())
 	}
-
 	return generateResponse("handleGetOpenBookingsResponse", false, bookings)
 }
 

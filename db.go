@@ -232,7 +232,7 @@ func getUserbyName(username string) (User, error) {
 }
 
 // func getOpenBookings(user User) (bool, error) {
-func getOpenBookings(user User) (Booking, error) {
+func getOpenBooking(user User) (Booking, error) {
 
 	fetchTask := &DBTask{
 		Action:   "fetch",
