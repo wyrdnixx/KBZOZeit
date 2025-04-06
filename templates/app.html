@@ -414,15 +414,17 @@ function clockIn() {
     console.log("clockIn requested");
     // Sende eine Anfrage an den Server, um eine neue Buchung zu starten
     const now = new Date();
-    startTime = now.toLocaleString();
-    
+    //console.log("now: " + now);
+    startTime = formatDateTime(now)    
+    //console.log("formated time: " +startTime);
+
     const message = {
             type: "timebooking",
             content: {
                 from: formatDateTime(startTime),                
             }
         };
-
+    console.log("clocking in : "+ JSON.stringify(message) )
         // Send message via WebSocket
         if (socket && socket.readyState === WebSocket.OPEN) {
             socket.send(JSON.stringify(message));
@@ -437,15 +439,15 @@ function clockIn() {
 function clockOut() {
     console.log("clockOut requested");
     // Sende eine Anfrage an den Server, um die offene Buchung zu beenden
-    const now = new Date();
-    endTime = now.toLocaleString();  // Fehler: monat und tag vertauscht
+    const now = new Date();    
+    endTime = formatDateTime(now)    
     const message = {
             type: "timebooking",
             content: {
                 to: formatDateTime(endTime),                
             }
         };
-
+        console.log("clocking out : "+ JSON.stringify(message) )
         // Send message via WebSocket
         if (socket && socket.readyState === WebSocket.OPEN) {
             socket.send(JSON.stringify(message));
@@ -509,11 +511,14 @@ function updateClockButton(booking) {
     
         // Format dates as "DD.MM.YYYY HH:mm"
         function formatDateTime(dateTime) {
-            const date = new Date(dateTime);
+            const date = new Date(dateTime);            
             return date.toLocaleString('de-DE', {
                 day: '2-digit', month: '2-digit', year: 'numeric',
                 hour: '2-digit', minute: '2-digit'
             }).replace(',', ''); // Remove comma
+
+            
+            
         }
     
 </script>
