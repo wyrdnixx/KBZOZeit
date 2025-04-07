@@ -18,14 +18,15 @@
 
         </header>
 
-        <div id="booking-status">
+        <div id="booking-status" style="display: flex; align-items: center; justify-content: space-between;">
             <button id="clock-btn"></button>
-            <p id="booking-info"></p>
+            <p id="booking-info" style="text-align: right; margin-left: 10px;"></p>
+            <hr>
         </div>
 
         <div class="contend-container">            
             
-            <p>Manual Time Booking</p>
+            Manual Time Booking: 
             
             <label for="start-time">Start Time:</label>
             <input type="datetime-local" id="start-time">
@@ -34,11 +35,11 @@
             <input type="datetime-local" id="end-time">
             
             <button id="send-time-btn">Send</button>
+            <hr>
         </div>
         
-       <div class="contend-container">
-        
-            <p>Recalc</p>
+       <div class="contend-container">        
+            
             <button id="recalc-btn">Recalc</button>
             
             <table id="recalc-table" class="table" style="display: none;">
@@ -55,10 +56,10 @@
             
                 </tbody>
             </table>
+            <hr>
         </div> 
-        <div class="contend-container">
-            <p>Bookings </p>
-            <button id="get-data-btn">Get Data</button> 
+        <div class="contend-container">            
+            <button id="get-data-btn">Get all bookings</button> 
             <!-- Table placeholder -->
             <table id="booking-table" class="table" style="display: none;">
                 <thead>
