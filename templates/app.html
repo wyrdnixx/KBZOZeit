@@ -35,10 +35,7 @@
             
             <button id="send-time-btn">Send</button>
         </div>
-
-        <div class="contend-container">
-            <button id="getOpenBooking-btn">Test-getOpenBooking-btn</button>
-        </div>
+        
        <div class="contend-container">
         
             <p>Recalc</p>
@@ -82,7 +79,7 @@
   
 <script>
 
-
+ 
 
     // Check if token exists in localStorage
     const token = localStorage.getItem('token');
@@ -164,11 +161,15 @@
                 if ( response.message.from == "" ) {
                     displayToast(false, "no open booking found.")    
                     updateClockButton();
+                    
                 }else {
                     displayToast(false, "open booking: "+ response.message.from)
                     updateClockButton(response.message);
+            
                 }                
             }
+
+            
         };
         
         socket.onclose = function() {            
@@ -225,11 +226,7 @@
                 displayToast(true,"WebSocket is not open");
             }
         };
-
-
-        document.getElementById('getOpenBooking-btn').addEventListener('click', function() {
-        getOpenBooking()
-        });
+        
 
         function getOpenBooking() {
             console.log("getOpenBooking requested");
@@ -371,7 +368,7 @@
               console.log("endDate: "+ formattedDateOnly)
             document.getElementById('end-time').value = formattedDateOnly+ 'T00:00';
 
-          
+            getOpenBooking();
         });
 
 
@@ -409,6 +406,8 @@
         } else {
             displayToast(true,"WebSocket is not open");
         }
+
+        getOpenBooking();
     });
 function clockIn() {
     console.log("clockIn requested");
@@ -434,47 +433,54 @@ function clockIn() {
         } else {
             displayToast(true,"WebSocket is not open");
         };
+
+        getOpenBooking();
 }
 
-function clockOut() {
-    console.log("clockOut requested");
-    // Sende eine Anfrage an den Server, um die offene Buchung zu beenden
-    const now = new Date();    
-    endTime = formatDateTime(now)    
-    const message = {
-            type: "timebooking",
-            content: {
-                to: formatDateTime(endTime),                
+        function clockOut() {
+            console.log("clockOut requested");
+            // Sende eine Anfrage an den Server, um die offene Buchung zu beenden
+            const now = new Date();    
+            endTime = formatDateTime(now)    
+            const message = {
+                    type: "timebooking",
+                    content: {
+                        to: formatDateTime(endTime),                
+                    }
+                };
+                console.log("clocking out : "+ JSON.stringify(message) )
+                // Send message via WebSocket
+                if (socket && socket.readyState === WebSocket.OPEN) {
+                    socket.send(JSON.stringify(message));
+                    displayToast(false,"Time booking sent successfully!");
+                
+
+                } else {
+                    displayToast(true,"WebSocket is not open");
+                };
+                getOpenBooking();
+        }
+
+
+
+        function updateClockButton(booking) {
+            const clockBtn = document.getElementById('clock-btn');
+            const bookingInfo = document.getElementById('booking-info');
+        
+            if (booking && booking.from) {
+                clockBtn.textContent = "Ausstempeln";
+                clockBtn.style.backgroundColor = "orange";
+                clockBtn.onclick = clockOut;
+                bookingInfo.textContent = "Offene Buchung: " + booking.from;
+            } else {
+                clockBtn.textContent = "Einstempeln";
+                clockBtn.style.backgroundColor = "lightgreen";
+                clockBtn.onclick = clockIn;
+                bookingInfo.textContent = "Keine offene Buchung.";
             }
-        };
-        console.log("clocking out : "+ JSON.stringify(message) )
-        // Send message via WebSocket
-        if (socket && socket.readyState === WebSocket.OPEN) {
-            socket.send(JSON.stringify(message));
-            displayToast(false,"Time booking sent successfully!");
+        }
 
-            
-        } else {
-            displayToast(true,"WebSocket is not open");
-        };
-}
 
-function updateClockButton(booking) {
-    const clockBtn = document.getElementById('clock-btn');
-    const bookingInfo = document.getElementById('booking-info');
-
-    if (booking && booking.from) {
-        clockBtn.textContent = "Ausstempeln";
-        clockBtn.style.backgroundColor = "orange";
-        clockBtn.onclick = clockOut;
-        bookingInfo.textContent = "Offene Buchung: " + booking.from;
-    } else {
-        clockBtn.textContent = "Einstempeln";
-        clockBtn.style.backgroundColor = "lightgreen";
-        clockBtn.onclick = clockIn;
-        bookingInfo.textContent = "Keine offene Buchung.";
-    }
-}
        // Function to handle displaying messages (placeholder)
        function displayMessage(message) {
             console.log("Received message:", message);
@@ -508,6 +514,8 @@ function updateClockButton(booking) {
             }
             
         }
+
+
     
         // Format dates as "DD.MM.YYYY HH:mm"
         function formatDateTime(dateTime) {
