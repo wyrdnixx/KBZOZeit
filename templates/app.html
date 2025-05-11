@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,40 +7,41 @@
     <link rel="stylesheet" href="/static/css/style.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
-    
+
 </head>
 <body>
     <div class="app-container">
         <header>
             <h1>Welcome, {{.Username}}!</h1>
             <button id="logout-btn">Logout</button>
-
         </header>
 
-        <div id="booking-status" style="display: flex; align-items: center; justify-content: space-between;">
+        <div id="booking-status" style="display: flex; align-items: center; justify-content: space-between; padding: 10px;">
             <button id="clock-btn"></button>
-            <p id="booking-info" style="text-align: right; margin-left: 10px;"></p>
-            <hr>
+            <div style="text-align: right; margin-left: 10px;">
+                <p id="booking-info"></p>
+                <p id="elapsed-time"></p>
+            </div>
         </div>
+        <hr>
 
-        <div class="contend-container">            
-            
-            Manual Time Booking: 
-            
+        <div class="contend-container">
+            Manual Time Booking:
+
             <label for="start-time">Start Time:</label>
             <input type="datetime-local" id="start-time">
-            
+
             <label for="end-time">End Time:</label>
             <input type="datetime-local" id="end-time">
-            
+
             <button id="send-time-btn">Send</button>
             <hr>
         </div>
-        
-       <div class="contend-container">        
-            
+
+       <div class="contend-container">
+
             <button id="recalc-btn">Recalc</button>
-            
+
             <table id="recalc-table" class="table" style="display: none;">
                 <thead>
                     <tr>
@@ -53,172 +53,234 @@
                     </tr>
                 </thead>
                 <tbody id="recalc-table-body">
-            
+
                 </tbody>
             </table>
             <hr>
-        </div> 
-        <div class="contend-container">            
-            <button id="get-data-btn">Get all bookings</button> 
-            <!-- Table placeholder -->
+        </div>
+        <div class="contend-container">
+            <button id="get-data-btn">Get all bookings</button>
             <table id="booking-table" class="table" style="display: none;">
                 <thead>
                     <tr>
-                    <!--     <th>ID</th> -->
                         <th>From</th>
                         <th>To</th>
                         <th>Duration</th>
                     </tr>
                 </thead>
                 <tbody id="booking-table-body">
-                    <!-- Rows will be added here dynamically -->
-                </tbody>
+                    </tbody>
             </table>
         </div>
     </div>
 
-  
+
 <script>
 
- 
 
     // Check if token exists in localStorage
     const token = localStorage.getItem('token');
     if (!token) {
-        // Try to see if we have a session cookie already
-        // If we're here without a localStorage token, we might still have a valid session
         fetch('/app', {
             method: 'GET',
-            credentials: 'include'  // Include cookies
+            credentials: 'include'
         }).then(response => {
             if (!response.ok) {
-                // If the request fails, redirect to login
                 window.location.href = '/login';
             }
-            // If successful, we already have the page loaded
         }).catch(() => {
             window.location.href = '/login';
         });
     }
-    
+
     // Set token in Authorization header for all fetch requests
     const originalFetch = window.fetch;
     window.fetch = function(url, options = {}) {
         options = options || {};
         options.headers = options.headers || {};
-        
-        // Only add Authorization header if we have a token
         if (token) {
             options.headers['Authorization'] = `Bearer ${token}`;
         }
-        
         return originalFetch(url, options);
     };
-    
-    // Setup WebSocket connection with appropriate authentication
+
+    // WebSocket connection
     let socket;
     let reconnectAttempts = 0;
+    let openBookingStartTime;
+    let elapsedTimeInterval;
+
+    function clockIn() {
+        console.log("clockIn requested");
+        const now = new Date();
+        const startTime = formatDateTime(now);
+        const message = {
+                type: "timebooking",
+                content: {
+                    from: startTime,
+                }
+            };
+        console.log("clocking in : "+ JSON.stringify(message) )
+        if (socket && socket.readyState === WebSocket.OPEN) {
+            socket.send(JSON.stringify(message));
+            displayToast(false,"Time booking sent successfully!");
+        } else {
+            displayToast(true,"WebSocket is not open");
+        };
+        getOpenBooking(); // Refresh open booking status after clocking in
+    }
+
+    function clockOut() {
+        console.log("clockOut requested");
+        const now = new Date();
+        const endTime = formatDateTime(now);
+        const message = {
+                type: "timebooking",
+                content: {
+                    to: endTime,
+                }
+            };
+        console.log("clocking out : "+ JSON.stringify(message) )
+        if (socket && socket.readyState === WebSocket.OPEN) {
+            socket.send(JSON.stringify(message));
+            displayToast(false,"Time booking sent successfully!");
+        } else {
+            displayToast(true,"WebSocket is not open");
+        };
+        getOpenBooking(); // Refresh open booking status after clocking out
+    }
+
+    function updateClockButton(booking) {
+        const clockBtn = document.getElementById('clock-btn');
+        const bookingInfo = document.getElementById('booking-info');
+        const elapsedTimeElement = document.getElementById('elapsed-time');
+
+        clearInterval(elapsedTimeInterval); // Clear any existing interval
+
+        if (booking && booking.from) {
+            clockBtn.textContent = "Ausstempeln";
+            clockBtn.style.backgroundColor = "orange";
+            clockBtn.onclick = clockOut;
+            bookingInfo.textContent = "Offene Buchung gestartet um: " +formatDateTimeShort(booking.from);
+            elapsedTimeElement.textContent = formatDateTimeShort(booking.from);
+            //openBookingStartTime = new Date(booking.from);
+            openBookingStartTime = parseCustomDate(booking.from); // Nur EINMAL parsen
+            startElapsedTimeCounter();
+        } else {
+            clockBtn.textContent = "Einstempeln";
+            clockBtn.style.backgroundColor = "lightgreen";
+            clockBtn.onclick = clockIn;
+            bookingInfo.textContent = "Keine offene Buchung.";
+            elapsedTimeElement.textContent = "";
+            openBookingStartTime = null;
+        }
+    }
+
+    const parseCustomDate = (dateString) => {
+    // Erwartetes Format: DD.MM.YYYY hh:mm
+    const [datePart, timePart] = dateString.split(' ');
+    const [day, month, year] = datePart.split('.');
+    const [hour, minute] = timePart.split(':');
+    return new Date(year, month - 1, day, hour, minute);
+};
+
+    function startElapsedTimeCounter() {
+        const elapsedTimeElement = document.getElementById('elapsed-time');
+        elapsedTimeInterval = setInterval(() => {
+            if (openBookingStartTime) {
+                const now = new Date();           
+           
+                
+
+                // calc difference                
+                const difference =now.getTime() - openBookingStartTime.getTime();
+                
+                console.log (now.getTime() + " - " + openBookingStartTime.getTime())
+
+                const hours = Math.floor(difference / (1000 * 60 * 60));
+                const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+
+                elapsedTimeElement.textContent = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')} vergangene Zeit`;
+            }
+        }, 1000);
+    }
+    
 
     function connectWebSocket() {
-        console.log("Connecting websocket")        
+        console.log("Connecting websocket");
         const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
         const socketUrl = `${protocol}//${window.location.host}/ws`;
-        
-        // Create WebSocket with credentials
+
         socket = new WebSocket(socketUrl);
-        
-        // Send authentication immediately after connection
+
         socket.onopen = function() {
-            reconnectAttempts = 0; // Reset attempts
+            reconnectAttempts = 0;
             console.log('WebSocket connection established');
-            displayToast(false, 'WebSocket connection established') 
-    
-            // Refresh data views
+            displayToast(false, 'WebSocket connection established');
+
             getData();
             startRecalc();
-            getOpenBooking(); // Rufe getOpenBooking() beim Verbindungsaufbau auf
+            getOpenBooking(); // Fetch open booking on connection
         };
-        
-        // Rest of WebSocket code remains the same...
+
         socket.onmessage = function(event) {
             console.log("received message from websocket")
             const response = JSON.parse(event.data);
             displayMessage(response);
 
             if (response.isError) {
-                displayToast(true, response.message) 
- 
+                displayToast(true, response.message)
             }
 
             if (response.type === 'handleGetBookingsResponse' && !response.isError) {
-                    displayBookings(response.message);
-                }
-            if (response.type === 'handleStartRecalcResponse' && !response.isError) {
-                    displayRecalc(response.message);
-                }
-            if (response.type === 'handleGetOpenBookingsResponse' && !response.isError) {
-
-                // ToDo - UpdateClockButton muss dynamischer laufen - z.B. nach Buchung aktualisiert werden.
-                if ( response.message.from == "" ) {
-                    displayToast(false, "no open booking found.")    
-                    updateClockButton();
-                    
-                }else {
-                    displayToast(false, "open booking: "+ response.message.from)
-                    updateClockButton(response.message);
-            
-                }                
+                displayBookings(response.message);
             }
-
-            
+            if (response.type === 'handleStartRecalcResponse' && !response.isError) {
+                displayRecalc(response.message);
+            }
+            if (response.type === 'handleGetOpenBookingsResponse' && !response.isError) {
+                updateClockButton(response.message); // Update clock button on open booking response
+            }
         };
-        
-        socket.onclose = function() {            
+
+        socket.onclose = function() {
             console.log('WebSocket closed. Reconnecting...');
-            let delay = Math.min(5000, (1000 * Math.pow(2, reconnectAttempts))); // Max 5 sec
+            let delay = Math.min(5000, (1000 * Math.pow(2, reconnectAttempts)));
             reconnectAttempts++;
             setTimeout(connectWebSocket, delay);
         };
-        
+
         socket.onerror = function(error) {
-            displayToast(true, 'WebSocket error:'+ error);
+            displayToast(true, 'WebSocket error:' + error);
         };
     }
-    
+
 
     document.getElementById('logout-btn').addEventListener('click', function() {
         console.log("logout requested");
-
-        // Remove token from localStorage
         localStorage.removeItem('token');
-
-        // Send a request to the server to invalidate the session and delete the cookie
         fetch('/logout', {
             method: 'POST',
-            credentials: 'include' // Ensure cookies are included in the request
+            credentials: 'include'
         }).then(response => {
             if (response.ok) {
-                // Redirect to login page after successful logout
                 window.location.href = '/login';
             } else {
                 console.error('Logout failed');
             }
         }).catch(error => {
-            displayToast(true, 'Logout error:'+ error);
+            displayToast(true, 'Logout error:' + error);
         });
     });
 
-     // New "Get Data" button event handler
      document.getElementById('get-data-btn').addEventListener('click', function() {
         getData()
         });
 
         function getData() {
             console.log("getData requested");
-
-            // Ensure WebSocket is open before sending the message
             if (socket && socket.readyState === WebSocket.OPEN) {
-                // Send request to WebSocket with specified JSON structure
                 socket.send(JSON.stringify({
                     type: "getBookings",
                     content: "currentMonth"
@@ -227,116 +289,69 @@
                 displayToast(true,"WebSocket is not open");
             }
         };
-        
+
 
         function getOpenBooking() {
             console.log("getOpenBooking requested");
-
-            // Ensure WebSocket is open before sending the message
             if (socket && socket.readyState === WebSocket.OPEN) {
-                // Send request to WebSocket with specified JSON structure
                 socket.send(JSON.stringify({
-                    type: "getOpenBooking"                    
+                    type: "getOpenBooking"
                 }));
             } else {
                 displayToast(true,"WebSocket is not open");
             }
-
-            
         };
 
         function displayBookings(bookings) {
             const table = document.getElementById('booking-table');
             const tableBody = document.getElementById('booking-table-body');
 
-            // Clear existing data
             tableBody.innerHTML = '';
-            bookingsData = {}; // Reset stored data
-        
+            bookingsData = {};
+
             bookings.forEach((booking, index) => {
-                bookingsData[index] = booking; // Store the booking, including the ID
-            
+                bookingsData[index] = booking;
                 const row = document.createElement('tr');
-                row.dataset.index = index; // Store index in dataset for later reference
-            
+                row.dataset.index = index;
                 row.innerHTML = `
                     <td>${booking.from}</td>
                     <td>${booking.to}</td>
                     <td>${booking.duration || 'N/A'}</td>
                 `;
-            
-                // Add a click event listener to access the ID later
-                /* row.addEventListener('click', function () {
-                    const selectedBooking = bookingsData[this.dataset.index]; // Retrieve booking from object
-                    console.log("Selected Booking ID:", selectedBooking.id);
-                }); */
-                row.addEventListener('click', function () { logClickedID(bookingsData[this.dataset.index])});
+                row.addEventListener('click', function() {
+                    logClickedID(bookingsData[this.dataset.index]);
+                });
                 tableBody.appendChild(row);
             });
-        
-            table.style.display = 'table'; // Show table after populating
+
+            table.style.display = 'table';
         }
 
         function logClickedID(booking) {
             console.log("clicked-ID: " + booking.id)
         }
 
-        // New "recalc" button event handler
         document.getElementById('recalc-btn').addEventListener('click', function() {
-            /* console.log("recalc requested");
-
-            // Ensure WebSocket is open before sending the message
-            if (socket && socket.readyState === WebSocket.OPEN) {
-                // Send request to WebSocket with specified JSON structure
-                socket.send(JSON.stringify({
-                    type: "startRecalc"                    
-                }));
-            } else {
-                console.error("WebSocket is not open");
-            } */
-
             startRecalc()
-
         });
 
         function startRecalc() {
             console.log("recalc requested");
-            // Ensure WebSocket is open before sending the message
             if (socket && socket.readyState === WebSocket.OPEN) {
-                // Send request to WebSocket with specified JSON structure
                 socket.send(JSON.stringify({
-                    type: "startRecalc"                    
+                    type: "startRecalc"
                 }));
             } else {
                 displayToast(true,"WebSocket is not open");
             }
-
         }
 
-         // Function to display a table
          function displayRecalc(recalcs) {
             console.log("displayRecalc")
             const table = document.getElementById('recalc-table');
             const tableBody = document.getElementById('recalc-table-body');
-            
-            // Clear existing rows in case of multiple requests
+
             tableBody.innerHTML = '';
-
-            /* // Loop through each booking and create a row
-            recalcs.forEach(el => {
-                const row = document.createElement('tr');
-
-                row.innerHTML = `
-                    <td>${el.HourPerMonth}</td>
-                    <td>${el.PassedMonths}</td>
-                    <td>${el.SollZeit}</td>
-                    <td>${el.IstZeit}</td>
-                    <td>${el.DifZeit}</td>
-                `;
-
-                tableBody.appendChild(row);
-            }); */
-
             const row = document.createElement('tr');
             row.innerHTML = `
                 <td>${recalcs.HourPerMonth}</td>
@@ -345,35 +360,23 @@
                 <td>${recalcs.IstZeit}</td>
                 <td>${recalcs.DifZeit}</td>
                 `;
-
-                tableBody.appendChild(row);
-            
-
-            // Show the table
+            tableBody.appendChild(row);
             table.style.display = 'table';
         }
 
-
         document.addEventListener('DOMContentLoaded', function () {
-            
                connectWebSocket() ;
 
-            // Set default startTime to current date & time
             const now = new Date();
-            const formattedNow = now.toISOString().slice(0, 16); // Format: YYYY-MM-DDTHH:MM
+            const formattedNow = now.toISOString().slice(0, 16);
             console.log("formattedNow: "+ formattedNow)
             document.getElementById('start-time').value = formattedNow;
 
-              // Set default endTime to current date without time
-              const formattedDateOnly = now.toISOString().split('T')[0]; // Format: YYYY-MM-DD
+              const formattedDateOnly = now.toISOString().split('T')[0];
               console.log("endDate: "+ formattedDateOnly)
             document.getElementById('end-time').value = formattedDateOnly+ 'T00:00';
-
-            getOpenBooking();
         });
 
-
-    // Handle Send Button Click
     document.getElementById('send-time-btn').addEventListener('click', function () {
         const startTime = document.getElementById('start-time').value;
         const endTime = document.getElementById('end-time').value;
@@ -396,140 +399,48 @@
             }
         };
 
-        // Send message via WebSocket
         if (socket && socket.readyState === WebSocket.OPEN) {
             socket.send(JSON.stringify(message));
             displayToast(false,"Time booking sent successfully!");
-
-            // Optionally reset form
             document.getElementById('start-time').value = new Date().toISOString().slice(0, 16);
             document.getElementById('end-time').value = "";
         } else {
             displayToast(true,"WebSocket is not open");
         }
 
-        getOpenBooking();
+        getOpenBooking(); // Refresh open booking status after booking
     });
-function clockIn() {
-    console.log("clockIn requested");
-    // Sende eine Anfrage an den Server, um eine neue Buchung zu starten
-    const now = new Date();
-    //console.log("now: " + now);
-    startTime = formatDateTime(now)    
-    //console.log("formated time: " +startTime);
 
-    const message = {
-            type: "timebooking",
-            content: {
-                from: formatDateTime(startTime),                
-            }
-        };
-    console.log("clocking in : "+ JSON.stringify(message) )
-        // Send message via WebSocket
-        if (socket && socket.readyState === WebSocket.OPEN) {
-            socket.send(JSON.stringify(message));
-            displayToast(false,"Time booking sent successfully!");
+   function displayMessage(message) {
+        console.log("Received message:", message);
+    }
 
-            
-        } else {
-            displayToast(true,"WebSocket is not open");
-        };
+    function displayToast(isError, message) {
+        Toastify({
+            text: message || (isError ? "An error occurred." : "Toast message."),
+            duration: 3000,
+            close: true,
+            gravity: "top",
+            position: "right",
+            style: {
+                background: isError ? "#db5112" : "#3f9121",
+            },
+        }).showToast();
+    }
 
-        getOpenBooking();
-}
+    function formatDateTime(dateTime) {
+        const date = new Date(dateTime);
+        return date.toLocaleString('de-DE', {
+            day: '2-digit', month: '2-digit', year: 'numeric',
+            hour: '2-digit', minute: '2-digit'
+        }).replace(',', '');
+    }
 
-        function clockOut() {
-            console.log("clockOut requested");
-            // Sende eine Anfrage an den Server, um die offene Buchung zu beenden
-            const now = new Date();    
-            endTime = formatDateTime(now)    
-            const message = {
-                    type: "timebooking",
-                    content: {
-                        to: formatDateTime(endTime),                
-                    }
-                };
-                console.log("clocking out : "+ JSON.stringify(message) )
-                // Send message via WebSocket
-                if (socket && socket.readyState === WebSocket.OPEN) {
-                    socket.send(JSON.stringify(message));
-                    displayToast(false,"Time booking sent successfully!");
-                
+    function formatDateTimeShort(dateTimeString) {
+        const date = new Date(dateTimeString);
+        return date.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    }
 
-                } else {
-                    displayToast(true,"WebSocket is not open");
-                };
-                getOpenBooking();
-        }
-
-
-
-        function updateClockButton(booking) {
-            const clockBtn = document.getElementById('clock-btn');
-            const bookingInfo = document.getElementById('booking-info');
-        
-            if (booking && booking.from) {
-                clockBtn.textContent = "Ausstempeln";
-                clockBtn.style.backgroundColor = "orange";
-                clockBtn.onclick = clockOut;
-                bookingInfo.textContent = "Offene Buchung: " + booking.from;
-            } else {
-                clockBtn.textContent = "Einstempeln";
-                clockBtn.style.backgroundColor = "lightgreen";
-                clockBtn.onclick = clockIn;
-                bookingInfo.textContent = "Keine offene Buchung.";
-            }
-        }
-
-
-       // Function to handle displaying messages (placeholder)
-       function displayMessage(message) {
-            console.log("Received message:", message);
-            // Add logic here to handle WebSocket messages from the server
-        }
-
-        function displayToast(isError, message) {
-            if (isError == true) {
-                Toastify({
-                    text: message || "An error occurred.", // Use response.message or a default error
-                    duration: 3000, // Display duration in milliseconds
-                    close: true,     // Allow closing the toast
-                    gravity: "top",  // Position: top, bottom
-                    position: "right", // Position: left, center, right
-                    style: { // Use the "style" property
-                      //background: "#ff0000", // Set background color here
-                      background: "#db5112", // Set background color here                      
-                    },
-                }).showToast();
-            } else {
-                Toastify({
-                    text: message || "Toast message.", // Use response.message or a default error
-                    duration: 3000, // Display duration in milliseconds
-                    close: true,     // Allow closing the toast
-                    gravity: "top",  // Position: top, bottom
-                    position: "right", // Position: left, center, right
-                    style: { // Use the "style" property
-                      background: "#3f9121", // Set background color here
-                    },                    
-                }).showToast();
-            }
-            
-        }
-
-
-    
-        // Format dates as "DD.MM.YYYY HH:mm"
-        function formatDateTime(dateTime) {
-            const date = new Date(dateTime);            
-            return date.toLocaleString('de-DE', {
-                day: '2-digit', month: '2-digit', year: 'numeric',
-                hour: '2-digit', minute: '2-digit'
-            }).replace(',', ''); // Remove comma
-
-            
-            
-        }
-    
 </script>
 </body>
 </html>
