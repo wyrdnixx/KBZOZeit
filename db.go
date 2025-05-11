@@ -48,10 +48,11 @@ func initDB(db *sql.DB) error {
 		return err
 	}
 
+	// Password "testhash" =  $2a$10$JbLtDyoSKf40nEtmqnqfrOE07L4N/y0yG9e1RgaKze055Uv8tavNK
 	insertTask := &DBTask{
 		Action:   "insert",
 		Query:    `INSERT INTO users (name, pwdHash, token,isClockedIn) VALUES (?,?,?,?);`,
-		Args:     []interface{}{"admin", "testhash", "adminToken", 0},
+		Args:     []interface{}{"admin", "$2a$10$JbLtDyoSKf40nEtmqnqfrOE07L4N/y0yG9e1RgaKze055Uv8tavNK", "adminToken", 0},
 		Response: make(chan any),
 	}
 
