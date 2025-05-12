@@ -2,6 +2,8 @@ package main
 
 import (
 	"database/sql"
+	_ "database/sql"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -66,35 +68,68 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Connect to the SQLite database
-	DB, err = sql.Open("sqlite3", os.Getenv("DBFile"))
-	if err != nil {
-		log.Fatal(err)
-		os.Exit(1)
+	/* DB Postgres
+	 */
+	// Initialize PostgreSQL connection
+	dbURL := os.Getenv("PGHOST")
+	if dbURL == "" {
+		log.Fatal("PGHOST environment variable not set")
+		return
 	}
+	db, err := sql.Open("postgres", dbURL)
+	if err != nil {
+		log.Fatalf("Error connecting to PostgreSQL: %v", err)
+		return
+	}
+	DB = db
+	defer DB.Close()
+
+	// Test the connection
+	err = DB.Ping()
+	if err != nil {
+		log.Fatalf("Error pinging PostgreSQL: %v", err)
+		return
+	}
+	fmt.Println("Successfully connected to PostgreSQL!")
 
 	dbEventBus = NewDBEventBus(DB)
+	defer dbEventBus.Close()
 
-	errInit := initDB(DB)
-	if errInit != nil {
-		log.Fatalf("Error init Database")
-		os.Exit(1)
+	err = initDB(DB)
+	if err != nil {
+		log.Fatalf("Error initializing database: %v", err)
+		return
 	}
 
+	// Example usage (replace with your actual logic)
+	user, err := getUserbyName("admin")
+	if err != nil {
+		log.Printf("Error getting admin user: %v", err)
+	} else {
+		log.Printf("Found admin user: %+v", user)
+	}
+
+	/*	// Initialize the database connection SQLite
+		// Connect to the SQLite database
+		DB, err = sql.Open("sqlite3", os.Getenv("DBFile"))
+		if err != nil {
+			log.Fatal(err)
+			os.Exit(1)
+		}
+
+		dbEventBus = NewDBEventBus(DB)
+
+		errInit := initDB(DB)
+		if errInit != nil {
+			log.Fatalf("Error init Database")
+			os.Exit(1)
+		}
+	*/
 	// Get port from environment variable
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080" // Default to 8080 if not specified
 	}
-
-	/*
-		// Old test Handlers
-		http.HandleFunc("/", indexHandler) // Serve the index page
-		http.HandleFunc("/ws", handleWebSocket) // WebSocket endpoint
-		http.HandleFunc("/login", loginHandler) // Login endpoint
-		//http.HandleFunc("/home", homeHandler)   // Login endpoint
-		http.Handle("/home", TokenValidationMiddleware(http.HandlerFunc(homeHandler)))
-	*/
 
 	// Serve static files
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))

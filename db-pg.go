@@ -7,6 +7,7 @@ import (
 	"log"
 	"time"
 
+	_ "github.com/lib/pq" // Import the PostgreSQL driver
 	"github.com/mattn/go-sqlite3"
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -15,43 +16,43 @@ func initDB(db *sql.DB) error {
 
 	//defer db.Close()
 	// Get the database file path
-	filePath, err := getDatabaseFilePath(db)
+	/*filePath, err := getDatabaseFilePath(db)
 	if err != nil {
 		log.Fatal(err)
 	}
 	fmt.Println("Database file path:", filePath)
-
+	*/
 	// Create a simple table
-	//_, err = db.Exec(`CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, name TEXT not null);`)
-	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS "users" ("id" INTEGER NOT NULL, "name"	TEXT NOT NULL UNIQUE,"pwdHash" TEXT NOT NULL, "token" TEXT, isClockedIn TEXT, PRIMARY KEY("id"));`)
+
+	_, err := db.Exec(`CREATE TABLE IF NOT EXISTS "users" ("id" INTEGER NOT NULL, "name"	TEXT NOT NULL UNIQUE,"pwdHash" TEXT NOT NULL, "token" TEXT, isClockedIn TEXT, PRIMARY KEY("id"));`)
 	if err != nil {
-		log.Fatal("initDB: " + err.Error())
+		log.Fatal("initDB create table users: " + err.Error())
 		return err
 	}
 
 	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS "bookings" ("id" INTEGER NOT NULL,"userId" INTEGER NOT NULL,"from" TEXT NOT NULL, "to" TEXT, "duration" TEXT, PRIMARY KEY("id"));`)
 	if err != nil {
-		log.Fatal("initDB: " + err.Error())
+		log.Fatal("initDB create table bookings: " + err.Error())
 		return err
 	}
 
-	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS "employee" ("id" INTEGER NOT NULL,"userId" INTEGER NOT NULL,"from" TEXT NOT NULL, "to" TEXT, "hoursPerMonth" TEXT, PRIMARY KEY("id"));`)
+	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS "employee" ("id" SERIAL PRIMARY KEY,"userId" INTEGER NOT NULL,"from" TEXT NOT NULL, "to" TEXT, "hoursPerMonth" TEXT);`)
 	if err != nil {
-		log.Fatal("initDB: " + err.Error())
+		log.Fatal("initDB create table employee : " + err.Error())
 		return err
 	}
 	//inital insert default user
 
-	_, err = db.Exec(`INSERT INTO "employee" ("userID","from", "to","hoursPerMonth") VALUES ("1","01.08.2023","","10");`)
+	_, err = db.Exec(`INSERT INTO "employee" ("userId","from", "to","hoursPerMonth") VALUES (1,'01.08.2023',null,'10');`)
 	if err != nil {
-		log.Fatal("initDB: " + err.Error())
+		log.Fatal("initDB insert employee: " + err.Error())
 		return err
 	}
 
 	// Password "testhash" =  $2a$10$JbLtDyoSKf40nEtmqnqfrOE07L4N/y0yG9e1RgaKze055Uv8tavNK
 	insertTask := &DBTask{
 		Action:   "insert",
-		Query:    `INSERT INTO users (name, pwdHash, token,isClockedIn) VALUES (?,?,?,?);`,
+		Query:    `INSERT INTO users (name, pwdHash, token,isClockedIn) VALUES ($1,$2,$3,$4);`,
 		Args:     []interface{}{"admin", "$2a$10$JbLtDyoSKf40nEtmqnqfrOE07L4N/y0yG9e1RgaKze055Uv8tavNK", "adminToken", 0},
 		Response: make(chan any),
 	}
