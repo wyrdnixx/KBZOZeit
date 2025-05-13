@@ -469,7 +469,7 @@ func insertBooking(userId int64, from string, to string, duration string) error 
 
 		insertTask := &DBTask{
 			Action:   "insert",
-			Query:    `INSERT INTO bookings ("userID","from") VALUES ($1,$2);`,
+			Query:    `INSERT INTO bookings ("userId","from") VALUES ($1,$2);`,
 			Args:     []interface{}{userId, from},
 			Response: make(chan any),
 		}
@@ -501,7 +501,7 @@ func insertBooking(userId int64, from string, to string, duration string) error 
 	} else if from != "" && to != "" { // full timeBooking
 		insertTask := &DBTask{
 			Action:   "insert",
-			Query:    `INSERT INTO bookings ("userID","from", "to", "duration") VALUES ($1,$2,$3,$4);`,
+			Query:    `INSERT INTO bookings ("userId","from", "to", "duration") VALUES ($1,$2,$3,$4);`,
 			Args:     []interface{}{userId, from, to, duration},
 			Response: make(chan any),
 		}
