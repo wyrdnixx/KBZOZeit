@@ -24,13 +24,13 @@ func initDB(db *sql.DB) error {
 	*/
 	// Create a simple table
 
-	_, err := db.Exec(`CREATE TABLE IF NOT EXISTS "users" ("id" INTEGER NOT NULL, "name" TEXT NOT NULL UNIQUE,"pwdHash" TEXT NOT NULL, "token" TEXT, isClockedIn TEXT, PRIMARY KEY("id"));`)
+	_, err := db.Exec(`CREATE TABLE IF NOT EXISTS "users" ("id" SERIAL NOT NULL, "name" TEXT NOT NULL UNIQUE,"pwdHash" TEXT NOT NULL, "token" TEXT, "isClockedIn" TEXT, PRIMARY KEY("id"));`)
 	if err != nil {
 		log.Fatal("initDB create table users: " + err.Error())
 		return err
 	}
 
-	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS "bookings" ("id" INTEGER NOT NULL,"userId" INTEGER NOT NULL,"from" TEXT NOT NULL, "to" TEXT, "duration" TEXT, PRIMARY KEY("id"));`)
+	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS "bookings" ("id" SERIAL NOT NULL,"userId" INTEGER NOT NULL,"from" TEXT NOT NULL, "to" TEXT, "duration" TEXT, PRIMARY KEY("id"));`)
 	if err != nil {
 		log.Fatal("initDB create table bookings: " + err.Error())
 		return err
@@ -52,7 +52,7 @@ func initDB(db *sql.DB) error {
 	// Password "testhash" =  $2a$10$JbLtDyoSKf40nEtmqnqfrOE07L4N/y0yG9e1RgaKze055Uv8tavNK
 	insertTask := &DBTask{
 		Action:   "insert",
-		Query:    `INSERT INTO users (name, pwdHash, token,isClockedIn) VALUES ($1,$2,$3,$4);`,
+		Query:    `INSERT INTO users ("name", "pwdHash", "token","isClockedIn") VALUES ($1,$2,$3,$4);`,
 		Args:     []interface{}{"admin", "$2a$10$JbLtDyoSKf40nEtmqnqfrOE07L4N/y0yG9e1RgaKze055Uv8tavNK", "adminToken", 0},
 		Response: make(chan any),
 	}
@@ -205,7 +205,7 @@ func getUserbyName(username string) (User, error) {
 	// Fetch users
 	fetchTask := &DBTask{
 		Action:   "fetch",
-		Query:    `SELECT id, name FROM users where name = (?);`,
+		Query:    `SELECT id, name FROM users where name = ($1);`,
 		Args:     []interface{}{username},
 		Response: make(chan any),
 	}
@@ -238,7 +238,7 @@ func getOpenBooking(user User) (Booking, error) {
 
 	fetchTask := &DBTask{
 		Action:   "fetch",
-		Query:    `SELECT id, "from", "to", "duration" FROM bookings WHERE userId = (?) AND "to" IS NULL ;`,
+		Query:    `SELECT id, "from", "to", "duration" FROM bookings WHERE userId = ($1) AND "to" IS NULL ;`,
 		Args:     []interface{}{user.Id},
 		Response: make(chan any),
 	}
@@ -267,7 +267,7 @@ func dbGetBookings(user User) ([]Booking, error) {
 
 	fetchTask := &DBTask{
 		Action:   "fetch",
-		Query:    `SELECT id, "from", "to", "duration" FROM bookings WHERE userId = (?) order by id desc ;`,
+		Query:    `SELECT id, "from", "to", "duration" FROM bookings WHERE userId = ($1) order by id desc ;`,
 		Args:     []interface{}{user.Id},
 		Response: make(chan any),
 	}
@@ -298,7 +298,7 @@ func BookingIn(user User, from string) error {
 
 	insertTask := &DBTask{
 		Action: "insert",
-		Query: `INSERT INTO "main"."bookings" ("userId", "from") VALUES (?, ?);
+		Query: `INSERT INTO "main"."bookings" ("userId", "from") VALUES ($1, $2);
 `,
 		Args:     []interface{}{user.Id, from},
 		Response: make(chan any),
@@ -398,7 +398,7 @@ func getUserPasswordHash(user string) (string, error) {
 	var storedPasswordHash string
 
 	// Prepare a parameterized query to prevent SQL injection
-	query := "SELECT  pwdHash FROM users WHERE name = ?"
+	query := "SELECT  pwdHash FROM users WHERE name = $1"
 	err := DB.QueryRow(query, user).Scan(&storedPasswordHash)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -442,7 +442,7 @@ func testInsert() (int64, error) {
 	// Insert a user
 	insertTask := &DBTask{
 		Action:   "insert",
-		Query:    `INSERT INTO users (name,password) VALUES (?,?);`,
+		Query:    `INSERT INTO users (name,password) VALUES ($1,$2);`,
 		Args:     []interface{}{"123", "test"},
 		Response: make(chan any),
 	}
@@ -469,7 +469,7 @@ func insertBooking(userId int64, from string, to string, duration string) error 
 
 		insertTask := &DBTask{
 			Action:   "insert",
-			Query:    `INSERT INTO bookings ("userID","from") VALUES (?,?);`,
+			Query:    `INSERT INTO bookings ("userID","from") VALUES ($1,$2);`,
 			Args:     []interface{}{userId, from},
 			Response: make(chan any),
 		}
@@ -485,7 +485,7 @@ func insertBooking(userId int64, from string, to string, duration string) error 
 
 		insertTask := &DBTask{
 			Action:   "update",
-			Query:    `UPDATE bookings set "to" = ?, "duration" = ?  where userId = ? and "to" is null ;`,
+			Query:    `UPDATE bookings set "to" = $1, "duration" = $2  where userId = $3 and "to" is null ;`,
 			Args:     []interface{}{to, duration, userId, to},
 			Response: make(chan any),
 		}
@@ -501,7 +501,7 @@ func insertBooking(userId int64, from string, to string, duration string) error 
 	} else if from != "" && to != "" { // full timeBooking
 		insertTask := &DBTask{
 			Action:   "insert",
-			Query:    `INSERT INTO bookings ("userID","from", "to", "duration") VALUES (?,?,?,?);`,
+			Query:    `INSERT INTO bookings ("userID","from", "to", "duration") VALUES ($1,$2,$3,$4);`,
 			Args:     []interface{}{userId, from, to, duration},
 			Response: make(chan any),
 		}
@@ -523,7 +523,7 @@ func getFullTimeAccountings(user User) (float64, error) {
 
 	fetchTask := &DBTask{
 		Action:   "fetch",
-		Query:    ` select "from","to" from bookings WHERE userId = (?);`,
+		Query:    ` select "from","to" from bookings WHERE userId = ($1);`,
 		Args:     []interface{}{user.Id},
 		Response: make(chan any),
 	}
@@ -593,7 +593,7 @@ func getEmployeementMonths(user User) (float64, float64, error) {
         			(strftime('%Y', date('now')) - substr("from", 7, 4)) * 12 + (strftime('%m', date('now')) - substr("from", 4, 2)) AS months_passed
 					FROM employee
 					WHERE "from" <= date('now')
-					AND userId = (?);`,
+					AND userId = ($1);`,
 		Args:     []interface{}{user.Id},
 		Response: make(chan any),
 	}
