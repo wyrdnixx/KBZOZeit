@@ -205,7 +205,7 @@ func getUserbyName(username string) (User, error) {
 	// Fetch users
 	fetchTask := &DBTask{
 		Action:   "fetch",
-		Query:    `SELECT id, name FROM users where name = ($1);`,
+		Query:    `SELECT "id", "name" FROM "users" where "name" = ($1);`,
 		Args:     []interface{}{username},
 		Response: make(chan any),
 	}
@@ -238,7 +238,7 @@ func getOpenBooking(user User) (Booking, error) {
 
 	fetchTask := &DBTask{
 		Action:   "fetch",
-		Query:    `SELECT id, "from", "to", "duration" FROM bookings WHERE userId = ($1) AND "to" IS NULL ;`,
+		Query:    `SELECT "id", "from", "to", "duration" FROM "bookings" WHERE "userId" = ($1) AND "to" IS NULL ;`,
 		Args:     []interface{}{user.Id},
 		Response: make(chan any),
 	}
@@ -267,7 +267,7 @@ func dbGetBookings(user User) ([]Booking, error) {
 
 	fetchTask := &DBTask{
 		Action:   "fetch",
-		Query:    `SELECT id, "from", "to", "duration" FROM bookings WHERE userId = ($1) order by id desc ;`,
+		Query:    `SELECT "id", "from", "to", "duration" FROM "bookings" WHERE "userId" = ($1) order by id desc ;`,
 		Args:     []interface{}{user.Id},
 		Response: make(chan any),
 	}
@@ -398,7 +398,7 @@ func getUserPasswordHash(user string) (string, error) {
 	var storedPasswordHash string
 
 	// Prepare a parameterized query to prevent SQL injection
-	query := "SELECT  pwdHash FROM users WHERE name = $1"
+	query := `SELECT  "pwdHash" FROM "users" WHERE name = $1`
 	err := DB.QueryRow(query, user).Scan(&storedPasswordHash)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -523,7 +523,7 @@ func getFullTimeAccountings(user User) (float64, error) {
 
 	fetchTask := &DBTask{
 		Action:   "fetch",
-		Query:    ` select "from","to" from bookings WHERE userId = ($1);`,
+		Query:    ` select "from","to" from "bookings" WHERE "userId" = ($1);`,
 		Args:     []interface{}{user.Id},
 		Response: make(chan any),
 	}
@@ -591,9 +591,9 @@ func getEmployeementMonths(user User) (float64, float64, error) {
 		Query: `SELECT 
     				hoursPerMonth,
         			(strftime('%Y', date('now')) - substr("from", 7, 4)) * 12 + (strftime('%m', date('now')) - substr("from", 4, 2)) AS months_passed
-					FROM employee
+					FROM "employee"
 					WHERE "from" <= date('now')
-					AND userId = ($1);`,
+					AND "userId" = ($1);`,
 		Args:     []interface{}{user.Id},
 		Response: make(chan any),
 	}
