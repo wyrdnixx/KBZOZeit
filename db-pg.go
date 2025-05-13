@@ -24,7 +24,7 @@ func initDB(db *sql.DB) error {
 	*/
 	// Create a simple table
 
-	_, err := db.Exec(`CREATE TABLE IF NOT EXISTS "users" ("id" INTEGER NOT NULL, "name"	TEXT NOT NULL UNIQUE,"pwdHash" TEXT NOT NULL, "token" TEXT, isClockedIn TEXT, PRIMARY KEY("id"));`)
+	_, err := db.Exec(`CREATE TABLE IF NOT EXISTS "users" ("id" INTEGER NOT NULL, "name" TEXT NOT NULL UNIQUE,"pwdHash" TEXT NOT NULL, "token" TEXT, isClockedIn TEXT, PRIMARY KEY("id"));`)
 	if err != nil {
 		log.Fatal("initDB create table users: " + err.Error())
 		return err

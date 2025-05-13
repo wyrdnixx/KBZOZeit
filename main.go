@@ -104,9 +104,9 @@ func main() {
 	// Example usage (replace with your actual logic)
 	user, err := getUserbyName("admin")
 	if err != nil {
-		log.Printf("Error getting admin user: %v", err)
+		log.Printf("Main: Error getting admin user: %v", err)
 	} else {
-		log.Printf("Found admin user: %+v", user)
+		log.Printf("Main: Found admin user: %+v", user)
 	}
 
 	/*	// Initialize the database connection SQLite
