@@ -485,7 +485,7 @@ func insertBooking(userId int64, from string, to string, duration string) error 
 
 		insertTask := &DBTask{
 			Action:   "update",
-			Query:    `UPDATE bookings set "to" = $1, "duration" = $2  where userId = $3 and "to" is null ;`,
+			Query:    `UPDATE bookings set "to" = $1, "duration" = $2  where "userId" = $3 and "to" is null ;`,
 			Args:     []interface{}{to, duration, userId, to},
 			Response: make(chan any),
 		}
