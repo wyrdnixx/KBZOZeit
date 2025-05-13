@@ -589,7 +589,7 @@ func getEmployeementMonths(user User) (float64, float64, error) {
 	fetchTask := &DBTask{
 		Action: "fetch",
 		Query: `SELECT 
-    				hoursPerMonth,
+    				"hoursPerMonth",
         			(strftime('%Y', date('now')) - substr("from", 7, 4)) * 12 + (strftime('%m', date('now')) - substr("from", 4, 2)) AS months_passed
 					FROM "employee"
 					WHERE "from" <= date('now')
